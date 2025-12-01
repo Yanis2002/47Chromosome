@@ -30,11 +30,28 @@ if (typeof window === 'undefined' || typeof document === 'undefined') {
 
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
-    // Инициализируем CRT эффект выключенного телевизора
-    initCRTPower();
-    
-    // Остальная инициализация только после включения телевизора
-    // (будет вызвана из initCRTPower)
+    initModals(); // Сначала создаем модальное окно
+    initNavigation();
+    initAudioPlayer();
+    initContentCards();
+    initPlaceholders();
+    initSoundEffects();
+    initShopButton();
+    initSmoothScroll();
+    initVideoTabs();
+    initHeroMatrix(); // Инициализируем матричный эффект для hero
+    // Загружаем локальную музыку
+    loadLocalMusic();
+    // Загружаем видео из папки
+    loadLocalVideos();
+    // Загружаем фото из папки
+    loadLocalPhotos();
+    // Загружаем YouTube ссылки из папки
+    loadYouTubeLinks();
+    // Загружаем GIF баннеры в футер
+    loadFooterBanners();
+    // Добавляем примеры контента для демонстрации
+    addDemoContent();
 });
 
 // Инициализируем AudioContext при загрузке
@@ -468,7 +485,15 @@ function addPhoto(src, alt) {
     // Добавляем обработчик клика для открытия в модальном окне
     item.addEventListener('click', () => {
         if (window.showImageModal) {
-            // Пробуем загрузить изображение, даже если оно еще не загружено
+            // Открываем изображение в модальном окне
+            window.showImageModal(src, alt || '');
+        }
+    });
+    
+    // Также добавляем обработчик на само изображение
+    img.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (window.showImageModal) {
             window.showImageModal(src, alt || '');
         }
     });
@@ -563,20 +588,22 @@ function initModals() {
         // Загружаем изображение в полном разрешении
         modalImage.style.opacity = '0';
         modalImage.style.display = 'block';
+        modalImage.style.width = 'auto';
+        modalImage.style.height = 'auto';
+        modalImage.style.maxWidth = '95vw';
+        modalImage.style.maxHeight = '95vh';
         
         // Используем оригинальный путь без изменений для максимального качества
         const fullImageSrc = src;
         
         modalImage.onload = function() {
             this.style.opacity = '1';
-            // Увеличиваем размер для лучшего просмотра
-            if (this.naturalWidth > 0 && this.naturalHeight > 0) {
-                const maxWidth = window.innerWidth * 0.95;
-                const maxHeight = window.innerHeight * 0.95;
-                const ratio = Math.min(maxWidth / this.naturalWidth, maxHeight / this.naturalHeight);
-                this.style.width = (this.naturalWidth * ratio) + 'px';
-                this.style.height = (this.naturalHeight * ratio) + 'px';
-            }
+            // Автоматически подстраиваем размер для лучшего просмотра
+            const maxWidth = window.innerWidth * 0.95;
+            const maxHeight = window.innerHeight * 0.95;
+            const ratio = Math.min(maxWidth / this.naturalWidth, maxHeight / this.naturalHeight);
+            this.style.width = (this.naturalWidth * ratio) + 'px';
+            this.style.height = 'auto';
         };
         
         modalImage.onerror = function() {
@@ -742,7 +769,7 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
     matrixContainer.innerHTML = '';
     
     const textBlocks = [];
-    const blockCount = 3; // Количество текстовых блоков
+    const blockCount = 2; // Количество текстовых блоков
     
     // Создаем текстовые блоки, которые появляются справа и сползают влево
     for (let blockIndex = 0; blockIndex < blockCount; blockIndex++) {
@@ -751,8 +778,8 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
         
         // Генерируем текст (как в книге - строки одна под другой)
         let fullText = '';
-        const lineCount = 20 + Math.floor(Math.random() * 15);
-        const wordsPerLine = 10 + Math.floor(Math.random() * 8);
+        const lineCount = 15 + Math.floor(Math.random() * 10);
+        const wordsPerLine = 8 + Math.floor(Math.random() * 6);
         
         for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             let lineText = '';
@@ -767,13 +794,13 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
         
         // Начальная позиция справа
         const startX = containerWidth + 50;
-        const startY = (blockIndex * containerHeight / blockCount) + 50;
+        const startY = (blockIndex * containerHeight / blockCount) + 20;
         
         // Параметры для искажения
-        const speed = 0.1 + Math.random() * 0.2; // Скорость сползания
+        const speed = 0.05 + Math.random() * 0.1; // Медленная скорость сползания
         const distortionPhase = Math.random() * Math.PI * 2;
-        const distortionAmplitude = 20 + Math.random() * 30;
-        const rotationSpeed = (Math.random() - 0.5) * 0.5;
+        const distortionAmplitude = 15 + Math.random() * 20;
+        const rotationSpeed = (Math.random() - 0.5) * 0.2; // Медленное вращение
         
         textBlock.style.left = startX + 'px';
         textBlock.style.top = startY + 'px';
@@ -803,17 +830,17 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
         
         textBlocks.forEach((block, index) => {
             block.time += 0.016;
-            block.x -= block.speed; // Сползание влево
-            block.rotation += block.rotationSpeed;
+            block.x -= block.speed; // Медленное сползание влево
+            block.rotation += block.rotationSpeed; // Медленное вращение
             
             // Если блок ушел влево, возвращаем его справа
             if (block.x < -containerWidth - 100) {
                 block.x = containerWidth + 50;
-                block.y = (index * containerHeight / blockCount) + 50;
+                block.y = (index * containerHeight / blockCount) + 20;
                 // Генерируем новый текст
                 let newText = '';
-                const lineCount = 20 + Math.floor(Math.random() * 15);
-                const wordsPerLine = 10 + Math.floor(Math.random() * 8);
+                const lineCount = 15 + Math.floor(Math.random() * 10);
+                const wordsPerLine = 8 + Math.floor(Math.random() * 6);
                 for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
                     let lineText = '';
                     for (let wordIndex = 0; wordIndex < wordsPerLine; wordIndex++) {
@@ -826,16 +853,20 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
             }
             
             // Математические искажения формы текста
-            // Волновое искажение по Y
-            const waveY = Math.sin(block.time * 0.2 + block.distortionPhase) * block.distortionAmplitude;
+            // Волновое искажение по Y (расплывание)
+            const waveY = Math.sin(block.time * 0.1 + block.distortionPhase) * block.distortionAmplitude;
             
-            // Искажение наклона (skew)
-            const skewX = Math.sin(block.time * 0.15) * 10 + Math.cos(block.time * 0.1) * 5;
-            const skewY = Math.cos(block.time * 0.18) * 8 + Math.sin(block.time * 0.12) * 4;
+            // Искажение наклона (skew) - медленное
+            const skewX = Math.sin(block.time * 0.08) * 8 + Math.cos(block.time * 0.06) * 4;
+            const skewY = Math.cos(block.time * 0.1) * 6 + Math.sin(block.time * 0.07) * 3;
             
-            // Масштабирование (растяжение/сжатие)
-            const scaleX = 1 + Math.sin(block.time * 0.25) * 0.15;
-            const scaleY = 1 + Math.cos(block.time * 0.3) * 0.12;
+            // Масштабирование (растяжение/сжатие) - расплывание
+            const scaleX = 1 + Math.sin(block.time * 0.12) * 0.1;
+            const scaleY = 1 + Math.cos(block.time * 0.15) * 0.08;
+            
+            // Искажение левого края через clip-path (не прямой край)
+            const leftEdgeDistortion = Math.sin(block.time * 0.1 + block.distortionPhase) * 8;
+            const leftEdgeWave = Math.cos(block.time * 0.08 + block.distortionPhase) * 5;
             
             // Применяем трансформации с искажениями
             block.element.style.transform = `
@@ -845,8 +876,16 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
                 scale(${scaleX}, ${scaleY})
             `;
             
-            // Прозрачность в зависимости от позиции
-            const opacity = Math.max(0.3, Math.min(0.7, 1 - (block.x / containerWidth)));
+            // Искажение левого края (не прямой как в книге)
+            block.element.style.clipPath = `polygon(
+                ${leftEdgeDistortion}% ${leftEdgeWave}%,
+                100% 0%,
+                100% 100%,
+                ${leftEdgeDistortion + leftEdgeWave}% 100%
+            )`;
+            
+            // Прозрачность в зависимости от позиции (расплывание)
+            const opacity = Math.max(0.25, Math.min(0.6, 1 - (block.x / containerWidth) * 0.5));
             block.element.style.opacity = opacity;
         });
         

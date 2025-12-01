@@ -22,3 +22,5 @@ npm-debug.log*
 # *.mov
 # *.avi
 
+# Node modules (если будут)
+node_modules/

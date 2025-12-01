@@ -1912,19 +1912,15 @@ function loadLocalMusic() {
         
         console.log('Всего треков для загрузки:', localMusic.length);
         localMusic.forEach((track, index) => {
-            try {
+            safeExecute(() => {
         addAudioTrack(track.src, track.title, track.duration);
-                if (index % 10 === 0) {
+                if (index % 10 === 0 && index > 0) {
                     console.log(`Загружено треков: ${index + 1}/${localMusic.length}`);
                 }
-            } catch (e) {
-                console.error('Ошибка добавления трека:', e, track);
-            }
+            }, `Ошибка добавления трека: ${track.title || track.src}`);
         });
         console.log('Все треки загружены, всего:', localMusic.length);
-    } catch (error) {
-        console.error('Критическая ошибка в loadLocalMusic:', error);
-    }
+    });
 }
 
 // Добавление YouTube видео с обходом блокировок

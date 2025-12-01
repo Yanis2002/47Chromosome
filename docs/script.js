@@ -1576,14 +1576,9 @@ function initSmoothScroll() {
 }
 
 // Загрузка GIF баннеров в футер
+// Загрузка баннеров в футере (автоматизировано)
 function loadFooterBanners() {
-    try {
-        const footerBanners = document.getElementById('footerBanners');
-        if (!footerBanners) {
-            console.warn('Элемент footerBanners не найден');
-            return;
-        }
-        
+    waitForElement('footerBanners', (footerBanners) => {
         // Список всех GIF баннеров 88x31 из папки banners/
         const banners = [
             { src: 'banners/z3r0s.gif', alt: 'z3r0s' },
@@ -1596,12 +1591,12 @@ function loadFooterBanners() {
         ];
         
         banners.forEach(banner => {
-            try {
+            safeExecute(() => {
                 const item = document.createElement('div');
                 item.className = 'footer-banner-item';
                 const img = document.createElement('img');
-                img.src = banner.src;
-                img.alt = banner.alt;
+                img.setAttribute('src', banner.src);
+                img.setAttribute('alt', banner.alt);
                 img.loading = 'lazy';
                 
                 // Обработка ошибок - просто скрываем
@@ -1611,13 +1606,9 @@ function loadFooterBanners() {
                 
                 item.appendChild(img);
                 footerBanners.appendChild(item);
-            } catch (e) {
-                console.error('Ошибка добавления баннера:', e, banner);
-            }
+            }, `Ошибка добавления баннера: ${banner.alt || banner.src}`);
         });
-    } catch (error) {
-        console.error('Критическая ошибка в loadFooterBanners:', error);
-    }
+    });
 }
 
 // Инициализация матричного эффекта для hero секции (Midjourney style с 3D искажениями)

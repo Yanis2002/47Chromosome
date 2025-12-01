@@ -255,9 +255,10 @@ body {
 }
 
 .nav-logo {
-    font-size: 1.68rem; /* Увеличено на 20% (было 1.4rem) */
+    font-size: 2rem; /* Увеличено на 20% (было 1.4rem) */
     font-weight: 700;
-    letter-spacing: 1px; /* Увеличен интервал между буквами */
+    letter-spacing: 1.5px; /* Увеличен интервал между буквами */
+    padding-left: 20px; /* Отступ от левого края */
 }
 
 /* Cyberpunk glitch стиль для nav-logo */

@@ -848,29 +848,31 @@ async function loadYouTubeLinks() {
 
 // Загрузка фотографий из папки photo
 function loadLocalPhotos() {
-    // Список фотографий (добавьте ваши файлы)
-    // В реальном проекте это можно сделать через серверный скрипт
-    // или использовать список файлов
-    const localPhotos = [
-        // Пример:
-        // { src: 'photo/my-photo.jpg', alt: 'Описание фото' }
-    ];
-    
-    localPhotos.forEach(photo => {
-        addPhoto(photo.src, photo.alt);
-    });
-    
-    // Альтернативный способ: загрузка через список файлов
-    // Если у вас есть файл photo/list.json, можно загрузить оттуда
+    // Сначала пытаемся загрузить из JSON файла
     fetch('photo/list.json')
         .then(response => response.json())
         .then(photos => {
-            photos.forEach(photo => {
+            // Фильтруем только объекты (игнорируем комментарии)
+            const validPhotos = photos.filter(photo => 
+                photo && typeof photo === 'object' && photo.src
+            );
+            
+            validPhotos.forEach(photo => {
                 addPhoto(photo.src, photo.alt || '');
             });
         })
         .catch(() => {
-            // Файл не найден, это нормально
+            // Если JSON не найден или ошибка, используем встроенный список
+            const localPhotos = [
+                // Добавьте ваши фото здесь:
+                // { src: 'photo/my-photo.webp', alt: 'Описание' },
+                // { src: 'photo/my-photo.jpg', alt: 'Описание' },
+                // { src: 'photo/my-photo.png', alt: 'Описание' }
+            ];
+            
+            localPhotos.forEach(photo => {
+                addPhoto(photo.src, photo.alt);
+            });
         });
 }
 

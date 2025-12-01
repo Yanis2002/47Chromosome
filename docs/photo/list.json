@@ -1,14 +1,15 @@
 [
   {
-    "src": "photo/example.jpg",
-    "alt": "Пример фото"
+    "src": "photo/WonderlandYakui.webp",
+    "alt": "Wonderland Yakui"
   }
 ]
 
 // Добавьте ваши фотографии в этот массив
+// Поддерживаемые форматы: .webp, .jpg, .jpeg, .png, .gif, .svg
 // Формат:
 // {
-//   "src": "photo/название-файла.jpg",
+//   "src": "photo/название-файла.webp",
 //   "alt": "Описание фото"
 // }
 

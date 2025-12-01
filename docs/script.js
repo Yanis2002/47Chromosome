@@ -693,11 +693,19 @@ function initHeroMatrix() {
     
     // Получаем размеры контейнера
     const container = matrixContainer.parentElement;
-    setTimeout(() => {
-        const containerWidth = container.offsetWidth || window.innerWidth;
-        const containerHeight = container.offsetHeight || 500;
-        create3DMatrixWords(matrixContainer, containerWidth, containerHeight, codeWords);
-    }, 100);
+    const initMatrix = () => {
+        const containerWidth = container ? container.offsetWidth : window.innerWidth;
+        const containerHeight = container ? container.offsetHeight : window.innerHeight;
+        
+        if (containerWidth > 0 && containerHeight > 0) {
+            create3DMatrixWords(matrixContainer, containerWidth, containerHeight, codeWords);
+        } else {
+            // Если размеры еще не готовы, пробуем еще раз
+            setTimeout(initMatrix, 100);
+        }
+    };
+    
+    setTimeout(initMatrix, 100);
 }
 
 function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, codeWords) {

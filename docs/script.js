@@ -48,6 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loadLocalPhotos();
     // Загружаем YouTube ссылки из папки
     loadYouTubeLinks();
+    // Загружаем GIF баннеры
+    loadGifBanners();
     // Добавляем примеры контента для демонстрации
     addDemoContent();
 });
@@ -575,12 +577,23 @@ function initModals() {
         modal.classList.add('active');
         modalCaption.textContent = alt || '';
         
-        // Загружаем изображение
+        // Загружаем изображение в полном разрешении
         modalImage.style.opacity = '0';
         modalImage.style.display = 'block';
         
+        // Используем оригинальный путь без изменений для максимального качества
+        const fullImageSrc = src;
+        
         modalImage.onload = function() {
             this.style.opacity = '1';
+            // Увеличиваем размер для лучшего просмотра
+            if (this.naturalWidth > 0 && this.naturalHeight > 0) {
+                const maxWidth = window.innerWidth * 0.95;
+                const maxHeight = window.innerHeight * 0.95;
+                const ratio = Math.min(maxWidth / this.naturalWidth, maxHeight / this.naturalHeight);
+                this.style.width = (this.naturalWidth * ratio) + 'px';
+                this.style.height = (this.naturalHeight * ratio) + 'px';
+            }
         };
         
         modalImage.onerror = function() {
@@ -593,7 +606,7 @@ function initModals() {
             modalContent.insertBefore(errorMsg, modalImage);
         };
         
-        modalImage.src = src;
+        modalImage.src = fullImageSrc;
         playSound('click');
     };
 }

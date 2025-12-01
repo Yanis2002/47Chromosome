@@ -345,19 +345,19 @@ body {
     color: var(--glitch-blue);
 }
 
-/* Анимация paths для glitch эффекта */
+/* Анимация paths для glitch эффекта - замедлено в 3 раза */
 .glitch-text span {
-    animation: glitch-paths 5s step-end infinite;
+    animation: glitch-paths 15s step-end infinite;
 }
 
 .glitch-text::before {
-    animation: glitch-paths 5s step-end infinite, glitch-opacity 5s step-end infinite,
-        glitch-font 8s step-end infinite, glitch-movement 10s step-end infinite;
+    animation: glitch-paths 15s step-end infinite, glitch-opacity 15s step-end infinite,
+        glitch-font 24s step-end infinite, glitch-movement 30s step-end infinite;
 }
 
 .glitch-text::after {
-    animation: glitch-paths 5s step-end infinite, glitch-opacity 5s step-end infinite,
-        glitch-font 7s step-end infinite, glitch-movement 8s step-end infinite;
+    animation: glitch-paths 15s step-end infinite, glitch-opacity 15s step-end infinite,
+        glitch-font 21s step-end infinite, glitch-movement 24s step-end infinite;
 }
 
 @keyframes glitch-paths {

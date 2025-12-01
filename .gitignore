@@ -27,3 +27,10 @@ generate-content.js
 
 # Node modules (если будут)
 node_modules/
+
+# Локальные файлы для разработки (не должны быть на сайте)
+generate-content.js
+index-local.html
+script-local.js
+photo/
+!docs/photo/

@@ -860,6 +860,14 @@ function addLink(url, title, description) {
     linksContent.appendChild(item);
 }
 
+// Вспомогательная функция для безопасной вставки текста (предотвращает ошибки с кавычками)
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 function addAudioTrack(src, title, duration) {
     const audioList = document.getElementById('audioList');
     if (!audioList) return;
@@ -880,12 +888,20 @@ function addAudioTrack(src, title, duration) {
     const item = document.createElement('div');
     item.className = 'audio-item';
     item.dataset.trackIndex = trackIndex;
-    item.innerHTML = `
-        <div>
-            <div class="audio-item-title">${title}</div>
-            <div class="audio-item-duration">${duration || '0:00'}</div>
-        </div>
-    `;
+    
+    // Используем безопасные методы вместо innerHTML
+    const container = document.createElement('div');
+    const titleDiv = document.createElement('div');
+    titleDiv.className = 'audio-item-title';
+    titleDiv.textContent = title || '';
+    const durationDiv = document.createElement('div');
+    durationDiv.className = 'audio-item-duration';
+    durationDiv.textContent = duration || '0:00';
+    
+    container.appendChild(titleDiv);
+    container.appendChild(durationDiv);
+    item.appendChild(container);
+    
     item.addEventListener('click', () => {
         playTrack(trackIndex);
         playSound('click');
@@ -988,7 +1004,8 @@ function addVideo(src, title) {
     
     // Создаем превью видео
     const video = document.createElement('video');
-    video.src = src;
+    // Безопасная установка src (автоматически экранирует специальные символы)
+    video.setAttribute('src', src);
     video.preload = 'metadata';
     video.style.width = '100%';
     video.style.height = '100%';
@@ -1001,7 +1018,7 @@ function addVideo(src, title) {
     
     const titleDiv = document.createElement('div');
     titleDiv.style.cssText = 'position: absolute; bottom: 10px; left: 10px; color: white; background: rgba(0,0,0,0.7); padding: 5px 10px; border-radius: 3px; pointer-events: none;';
-    titleDiv.textContent = title;
+    titleDiv.textContent = title || ''; // Используем textContent вместо innerHTML
     
     // Иконка play поверх видео
     const playIcon = document.createElement('div');
@@ -1124,16 +1141,16 @@ function initModals() {
     // Проверяем, не создано ли уже модальное окно для изображений
     if (!document.querySelector('.modal.image-modal')) {
         // Создаем модальное окно для изображений
-        const modal = document.createElement('div');
+    const modal = document.createElement('div');
         modal.className = 'modal image-modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <span class="modal-close">&times;</span>
-                <img class="modal-image" src="" alt="">
-                <div class="modal-caption"></div>
-            </div>
-        `;
-        document.body.appendChild(modal);
+    modal.innerHTML = `
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <img class="modal-image" src="" alt="">
+            <div class="modal-caption"></div>
+        </div>
+    `;
+    document.body.appendChild(modal);
         initImageModal(modal);
     }
     
@@ -1623,7 +1640,7 @@ function loadLocalMusic() {
         { src: 'music/Daft Punk - Instant Crush.mp3', title: 'Daft Punk Instant Crush', duration: '0:00' },
         { src: 'music/Dvar - ariil iaat.mp3', title: 'Dvar ariil iaat', duration: '0:00' },
         { src: 'music/Erik Satie - Gymnopedia №1.mp3', title: 'Erik Satie Gymnopedia №1', duration: '0:00' },
-        { src: 'music/Fall Out Boy - I Don\'t Care (Album Version).mp3', title: 'Fall Out Boy I Don\'t Care (Album Version)', duration: '0:00' },
+        { src: "music/Fall Out Boy - I Don't Care (Album Version).mp3", title: "Fall Out Boy I Don't Care (Album Version)", duration: '0:00' },
         { src: 'music/Film Soundtracks, SoundtrackCast Album, Best Movie Soundtracks, TV Theme Players - Mad World (From Donnie Darko).mp3', title: 'Film Soundtracks, SoundtrackCast Album, Best Movie Soundtracks, TV Theme Players Mad World (From Donnie Darko)', duration: '0:00' },
         { src: 'music/HIM - Gone With The Sin.mp3', title: 'HIM Gone With The Sin', duration: '0:00' },
         { src: 'music/Hayley Williams - Simmer.mp3', title: 'Hayley Williams Simmer', duration: '0:00' },
@@ -1659,7 +1676,7 @@ function loadLocalMusic() {
         { src: 'music/The Prodigy - Firestarter.mp3', title: 'The Prodigy Firestarter', duration: '0:00' },
         { src: 'music/Yurima - River Flows in You.mp3', title: 'Yurima River Flows in You', duration: '0:00' },
         { src: 'music/[MP3DOWNLOAD.TO] Parasyte - Next To You (Anime Version)-320k.mp3', title: 'Parasyte Next To You (Anime Version) 320k', duration: '0:00' },
-        { src: 'music/[MP3DOWNLOAD.TO] Silent Hill Blood Tears _Lisa\'s Theme Not Tomorrow_ (Extended)-320k.mp3', title: 'Silent Hill Blood Tears Lisa\'s Theme Not Tomorrow (Extended) 320k', duration: '0:00' },
+        { src: "music/[MP3DOWNLOAD.TO] Silent Hill Blood Tears _Lisa's Theme Not Tomorrow_ (Extended)-320k.mp3", title: "Silent Hill Blood Tears Lisa's Theme Not Tomorrow (Extended) 320k", duration: '0:00' },
         { src: 'music/analog mannequin - milk cassette x.mp3 - demo.mp3', title: 'analog mannequin milk cassette x.mp3 demo', duration: '0:00' },
         { src: 'music/cavetown - demons.mp3', title: 'cavetown demons', duration: '0:00' },
         { src: 'music/daniel.mp3 - green to blue (slowed + reverbed).mp3', title: 'daniel.mp3 green to blue (slowed + reverbed)', duration: '0:00' },
@@ -2056,7 +2073,7 @@ function switchToVideo(index) {
             const onLoad = () => {
                 try {
                     if (tvStatic) {
-                        setTimeout(() => {
+    setTimeout(() => {
                             tvStatic.classList.remove('active');
                             tvPlayer.classList.add('loaded');
                         }, 500);

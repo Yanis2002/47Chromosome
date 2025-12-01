@@ -1041,10 +1041,15 @@ function initModals() {
         </div>
     `;
     document.body.appendChild(modal);
+    initImageModal(modal);
+}
 
+// Инициализация модального окна для изображений
+function initImageModal(modal) {
     const modalImage = modal.querySelector('.modal-image');
     const modalCaption = modal.querySelector('.modal-caption');
     const modalClose = modal.querySelector('.modal-close');
+    const modalContent = modal.querySelector('.modal-content');
 
     // Закрытие модального окна
     modalClose.addEventListener('click', () => {

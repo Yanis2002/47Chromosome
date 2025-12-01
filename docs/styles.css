@@ -53,16 +53,6 @@ body {
     overflow: hidden;
 }
 
-.crt-bg {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    image-rendering: pixelated;
-    opacity: 0.08;
-    mix-blend-mode: screen;
-    filter: contrast(1.2) brightness(0.9);
-}
-
 /* Scanlines эффект */
 .crt-effect::before {
     content: '';

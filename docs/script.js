@@ -702,9 +702,9 @@ function initHeroMatrix() {
 
 function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, codeWords) {
     const words = [];
-    const wordCount = 30 + Math.floor(Math.random() * 20);
+    const wordCount = 40 + Math.floor(Math.random() * 20);
     
-    // Создаем слова с 3D позициями
+    // Создаем слова с 3D позициями и математическими искажениями
     for (let i = 0; i < wordCount; i++) {
         const word = codeWords[Math.floor(Math.random() * codeWords.length)];
         const wordElement = document.createElement('div');
@@ -729,6 +729,17 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
         const rotationSpeedY = (Math.random() - 0.5) * 2;
         const rotationSpeedZ = (Math.random() - 0.5) * 2;
         
+        // Параметры для математических искажений
+        const skewX = (Math.random() - 0.5) * 30; // Искажение по X
+        const skewY = (Math.random() - 0.5) * 30; // Искажение по Y
+        const skewSpeedX = (Math.random() - 0.5) * 0.5;
+        const skewSpeedY = (Math.random() - 0.5) * 0.5;
+        
+        // Параметры для волновых искажений
+        const wavePhase = Math.random() * Math.PI * 2;
+        const waveAmplitude = 10 + Math.random() * 20;
+        const waveFrequency = 0.01 + Math.random() * 0.02;
+        
         wordElement.style.left = startX + 'px';
         wordElement.style.top = startY + 'px';
         
@@ -745,16 +756,26 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
             rotationZ: rotationZ,
             rotationSpeedX: rotationSpeedX,
             rotationSpeedY: rotationSpeedY,
-            rotationSpeedZ: rotationSpeedZ
+            rotationSpeedZ: rotationSpeedZ,
+            skewX: skewX,
+            skewY: skewY,
+            skewSpeedX: skewSpeedX,
+            skewSpeedY: skewSpeedY,
+            wavePhase: wavePhase,
+            waveAmplitude: waveAmplitude,
+            waveFrequency: waveFrequency,
+            time: 0
         });
         
         matrixContainer.appendChild(wordElement);
     }
     
-    // Анимация 3D движения
+    // Анимация 3D движения с математическими искажениями
     let animationFrame;
     const animate = () => {
         words.forEach(word => {
+            word.time += 0.016; // Примерно 60 FPS
+            
             // Обновляем позицию
             word.x += word.speedX;
             word.y += word.speedY;
@@ -764,6 +785,14 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
             word.rotationX += word.rotationSpeedX;
             word.rotationY += word.rotationSpeedY;
             word.rotationZ += word.rotationSpeedZ;
+            
+            // Обновляем искажения (skew)
+            word.skewX += word.skewSpeedX;
+            word.skewY += word.skewSpeedY;
+            
+            // Ограничиваем искажения
+            if (Math.abs(word.skewX) > 45) word.skewSpeedX *= -1;
+            if (Math.abs(word.skewY) > 45) word.skewSpeedY *= -1;
             
             // Если слово ушло за камеру, возвращаем его назад
             if (word.z > 500) {
@@ -778,27 +807,36 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
             if (word.y < -100) word.y = containerHeight + 100;
             if (word.y > containerHeight + 100) word.y = -100;
             
-            // Применяем 3D трансформации
-            const scale = 500 / (500 + word.z); // Перспектива
-            const x = word.x;
-            const y = word.y;
+            // Математические искажения на основе позиции (волновые функции)
+            const waveX = Math.sin(word.x * word.waveFrequency + word.wavePhase + word.time) * word.waveAmplitude;
+            const waveY = Math.cos(word.y * word.waveFrequency + word.wavePhase + word.time) * word.waveAmplitude;
             
-            // Математические искажения (перспектива)
+            // Дополнительные математические искажения (спиральные, синусоидальные)
+            const spiralDistortion = Math.sin(word.time * 0.5 + word.x * 0.01) * 15;
+            const sineDistortion = Math.cos(word.time * 0.3 + word.y * 0.01) * 10;
+            
+            // Применяем 3D трансформации с математическими искажениями
+            const scale = 500 / (500 + word.z); // Перспектива
             const perspective = 1000;
-            const translateX = (x - containerWidth / 2) * scale;
-            const translateY = (y - containerHeight / 2) * scale;
+            const translateX = (word.x - containerWidth / 2) * scale + waveX;
+            const translateY = (word.y - containerHeight / 2) * scale + waveY;
             const translateZ = word.z * scale;
+            
+            // Комбинируем все искажения
+            const finalSkewX = word.skewX + spiralDistortion;
+            const finalSkewY = word.skewY + sineDistortion;
             
             word.element.style.transform = `
                 translate3d(${translateX}px, ${translateY}px, ${translateZ}px)
                 rotateX(${word.rotationX}deg)
                 rotateY(${word.rotationY}deg)
                 rotateZ(${word.rotationZ}deg)
+                skew(${finalSkewX}deg, ${finalSkewY}deg)
                 scale(${scale})
             `;
             
             // Прозрачность в зависимости от глубины
-            const opacity = Math.max(0.1, Math.min(1, (500 + word.z) / 1000));
+            const opacity = Math.max(0.15, Math.min(0.9, (500 + word.z) / 1000));
             word.element.style.opacity = opacity;
         });
         

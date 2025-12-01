@@ -1662,10 +1662,10 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
     }
     
     const textBlocks = [];
-    const blockCount = 10; // Увеличено количество блоков для постоянного заполнения экрана
+    const blockCount = 7; // Уменьшено количество блоков
     
-    // Вычисляем максимальный радиус орбиты (чтобы блоки не выходили за пределы экрана)
-    const maxRadius = Math.min(containerWidth, containerHeight) * 0.4;
+    // Увеличиваем максимальный радиус орбиты, чтобы блоки могли выходить за пределы экрана
+    const maxRadius = Math.max(containerWidth, containerHeight) * 0.8;
     
     // Создаем текстовые блоки, которые вращаются вокруг WELCOME
     for (let blockIndex = 0; blockIndex < blockCount; blockIndex++) {
@@ -1689,9 +1689,9 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
         textBlock.textContent = fullText.trim();
         
         // Параметры для орбитального движения
-        const orbitRadius = 150 + Math.random() * (maxRadius - 150); // Радиус орбиты
+        const orbitRadius = 200 + Math.random() * (maxRadius - 200); // Радиус орбиты (может выходить за пределы)
         const orbitAngle = (blockIndex / blockCount) * Math.PI * 2; // Начальный угол (равномерно распределены)
-        const orbitSpeed = 0.01 + Math.random() * 0.02; // Скорость вращения по орбите
+        const orbitSpeed = (0.005 + Math.random() * 0.01) * 0.5; // Скорость вращения по орбите (уменьшена в 2 раза)
         const orbitDirection = Math.random() > 0.5 ? 1 : -1; // Направление вращения
         
         // Начальная позиция на орбите
@@ -1700,11 +1700,16 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
         
         // Параметры для искажения
         const distortionPhase = Math.random() * Math.PI * 2;
-        const distortionAmplitude = 15 + Math.random() * 20;
-        const rotationSpeed = (Math.random() - 0.5) * 0.3; // Вращение самого блока
+        const distortionAmplitude = 20 + Math.random() * 30; // Увеличена амплитуда для пластичности
+        const rotationSpeed = ((Math.random() - 0.5) * 0.3) * 0.5; // Вращение самого блока (уменьшено в 2 раза)
+        
+        // Задержка появления для каждого блока (чтобы не появлялись все разом)
+        const appearanceDelay = blockIndex * 0.5; // Задержка в секундах
         
         textBlock.style.left = startX + 'px';
         textBlock.style.top = startY + 'px';
+        textBlock.style.opacity = '0'; // Начинаем с невидимыми
+        textBlock.style.transform = 'scale(0.5)'; // Начинаем с уменьшенными
         
         // Вычисляем transform-origin относительно позиции блока
         // transform-origin работает относительно самого элемента, поэтому нужно вычислить разницу
@@ -1722,10 +1727,11 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
             distortionPhase: distortionPhase,
             distortionAmplitude: distortionAmplitude,
             rotationSpeed: rotationSpeed,
-            time: 0,
+            time: -appearanceDelay, // Отрицательное время для задержки появления
             rotation: 0,
             welcomeCenterX: welcomeCenterX,
-            welcomeCenterY: welcomeCenterY
+            welcomeCenterY: welcomeCenterY,
+            appearanceDelay: appearanceDelay
         });
         
         matrixContainer.appendChild(textBlock);
@@ -1742,6 +1748,11 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
         textBlocks.forEach((block, index) => {
             block.time += 0.016;
             
+            // Плавное появление блока
+            const appearanceProgress = Math.max(0, Math.min(1, (block.time + block.appearanceDelay) / 1.5));
+            const appearanceScale = 0.5 + appearanceProgress * 0.5; // От 0.5 до 1.0
+            const appearanceOpacity = appearanceProgress; // От 0 до 1
+            
             // Орбитальное движение вокруг центра WELCOME
             block.orbitAngle += block.orbitSpeed;
             
@@ -1751,6 +1762,10 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
             
             // Вращение самого блока
             block.rotation += block.rotationSpeed;
+            
+            // Вычисляем расстояние от центра WELCOME для пластичных искажений
+            const distanceFromCenter = block.orbitRadius;
+            const normalizedDistance = distanceFromCenter / 400; // Нормализуем для расчетов
             
             // Обновляем transform-origin при изменении позиции блока
             // чтобы он всегда вращался вокруг центра WELCOME
@@ -1762,42 +1777,53 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
             block.element.style.left = x + 'px';
             block.element.style.top = y + 'px';
             
-            // Математические искажения формы текста
-            // Волновое искажение по Y (расплывание)
-            const waveY = Math.sin(block.time * 0.1 + block.distortionPhase) * block.distortionAmplitude;
+            // Пластичные искажения формы текста вокруг WELCOME
+            // Волновое искажение по Y (расплывание) - усилено
+            const waveY = Math.sin(block.time * 0.08 + block.distortionPhase) * block.distortionAmplitude * 1.5;
+            const waveX = Math.cos(block.time * 0.1 + block.distortionPhase) * block.distortionAmplitude * 0.8;
             
-            // Искажение наклона (skew) - медленное
-            const skewX = Math.sin(block.time * 0.08) * 8 + Math.cos(block.time * 0.06) * 4;
-            const skewY = Math.cos(block.time * 0.1) * 6 + Math.sin(block.time * 0.07) * 3;
+            // Искажение наклона (skew) - более сильное для пластичности
+            const skewX = Math.sin(block.time * 0.06 + block.distortionPhase) * 15 + 
+                         Math.cos(block.time * 0.05 + block.distortionPhase) * 8 +
+                         Math.sin(block.orbitAngle) * 5; // Зависит от позиции на орбите
+            const skewY = Math.cos(block.time * 0.08 + block.distortionPhase) * 12 + 
+                         Math.sin(block.time * 0.07 + block.distortionPhase) * 6 +
+                         Math.cos(block.orbitAngle) * 4;
             
-            // Масштабирование (растяжение/сжатие) - расплывание
-            const scaleX = 1 + Math.sin(block.time * 0.12) * 0.1;
-            const scaleY = 1 + Math.cos(block.time * 0.15) * 0.08;
+            // Масштабирование (растяжение/сжатие) - более выраженное
+            const scaleX = 1 + Math.sin(block.time * 0.1 + block.distortionPhase) * 0.2 + 
+                          Math.cos(block.orbitAngle * 2) * 0.1; // Зависит от позиции
+            const scaleY = 1 + Math.cos(block.time * 0.12 + block.distortionPhase) * 0.15 + 
+                          Math.sin(block.orbitAngle * 2) * 0.1;
             
-            // Искажение левого края через clip-path (не прямой край)
-            const leftEdgeDistortion = Math.sin(block.time * 0.1 + block.distortionPhase) * 8;
-            const leftEdgeWave = Math.cos(block.time * 0.08 + block.distortionPhase) * 5;
+            // Пластичное искажение краев через clip-path (более сложная форма)
+            const leftEdgeDistortion = Math.sin(block.time * 0.08 + block.distortionPhase) * 15 + 
+                                      Math.cos(block.orbitAngle) * 8;
+            const leftEdgeWave = Math.cos(block.time * 0.06 + block.distortionPhase) * 10 + 
+                                Math.sin(block.orbitAngle) * 6;
+            const rightEdgeDistortion = Math.sin(block.time * 0.1 + block.distortionPhase) * 5;
+            const topEdgeWave = Math.cos(block.time * 0.09 + block.distortionPhase) * 8;
+            const bottomEdgeWave = Math.sin(block.time * 0.11 + block.distortionPhase) * 8;
             
-            // Применяем трансформации с искажениями
-            // translate не нужен, так как позиция уже установлена через left/top
+            // Применяем трансформации с пластичными искажениями
             block.element.style.transform = `
-                translate(${waveY * 0.5}px, ${waveY}px)
+                translate(${waveX * appearanceScale}px, ${waveY * appearanceScale}px)
                 rotate(${block.rotation}deg)
                 skew(${skewX}deg, ${skewY}deg)
-                scale(${scaleX}, ${scaleY})
+                scale(${scaleX * appearanceScale}, ${scaleY * appearanceScale})
             `;
             
-            // Искажение левого края (не прямой как в книге)
+            // Пластичное искажение формы через clip-path (более сложный многоугольник)
             block.element.style.clipPath = `polygon(
-                ${leftEdgeDistortion}% ${leftEdgeWave}%,
-                100% 0%,
-                100% 100%,
-                ${leftEdgeDistortion + leftEdgeWave}% 100%
+                ${Math.max(0, leftEdgeDistortion)}% ${Math.max(0, topEdgeWave)}%,
+                ${100 - rightEdgeDistortion}% ${Math.max(0, topEdgeWave + 5)}%,
+                ${100 - rightEdgeDistortion}% ${100 - bottomEdgeWave}%,
+                ${Math.max(0, leftEdgeDistortion + leftEdgeWave)}% ${100 - bottomEdgeWave}
             )`;
             
-            // Прозрачность с небольшими вариациями для эффекта расплывания
-            const opacity = 0.4 + Math.sin(block.time * 0.15 + block.distortionPhase) * 0.15;
-            block.element.style.opacity = Math.max(0.25, Math.min(0.6, opacity));
+            // Прозрачность с вариациями для эффекта расплывания
+            const opacity = (0.4 + Math.sin(block.time * 0.12 + block.distortionPhase) * 0.2) * appearanceOpacity;
+            block.element.style.opacity = Math.max(0.2, Math.min(0.7, opacity));
         });
         
         animationFrame = requestAnimationFrame(animate);

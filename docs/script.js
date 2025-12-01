@@ -30,29 +30,110 @@ if (typeof window === 'undefined' || typeof document === 'undefined') {
 
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
-    initModals(); // Сначала создаем модальное окно
-    initNavigation();
-    initAudioPlayer();
-    initWinampPlayer();
-    initContentCards();
-    initPlaceholders();
-    initSoundEffects();
-    initShopButton();
-    initSmoothScroll();
-    initVideoTabs();
-    initHeroMatrix(); // Инициализируем матричный эффект для hero
-    // Загружаем локальную музыку
-    loadLocalMusic();
-    // Загружаем видео из папки
-    loadLocalVideos();
-    // Загружаем фото из папки
-    loadLocalPhotos();
-    // Загружаем YouTube ссылки из папки
-    loadYouTubeLinks();
-    // Загружаем GIF баннеры в футер
-    loadFooterBanners();
-    // Добавляем примеры контента для демонстрации
-    addDemoContent();
+    try {
+        initModals(); // Сначала создаем модальное окно
+    } catch (e) {
+        console.error('Ошибка инициализации модальных окон:', e);
+    }
+    
+    try {
+        initNavigation();
+    } catch (e) {
+        console.error('Ошибка инициализации навигации:', e);
+    }
+    
+    try {
+        initAudioPlayer();
+    } catch (e) {
+        console.error('Ошибка инициализации аудио плеера:', e);
+    }
+    
+    try {
+        initWinampPlayer();
+    } catch (e) {
+        console.error('Ошибка инициализации Winamp плеера:', e);
+    }
+    
+    try {
+        initContentCards();
+    } catch (e) {
+        console.error('Ошибка инициализации карточек контента:', e);
+    }
+    
+    try {
+        initPlaceholders();
+    } catch (e) {
+        console.error('Ошибка инициализации плейсхолдеров:', e);
+    }
+    
+    try {
+        initSoundEffects();
+    } catch (e) {
+        console.error('Ошибка инициализации звуковых эффектов:', e);
+    }
+    
+    try {
+        initShopButton();
+    } catch (e) {
+        console.error('Ошибка инициализации кнопки магазина:', e);
+    }
+    
+    try {
+        initSmoothScroll();
+    } catch (e) {
+        console.error('Ошибка инициализации плавной прокрутки:', e);
+    }
+    
+    try {
+        initVideoTabs();
+    } catch (e) {
+        console.error('Ошибка инициализации вкладок видео:', e);
+    }
+    
+    try {
+        initHeroMatrix(); // Инициализируем матричный эффект для hero
+    } catch (e) {
+        console.error('Ошибка инициализации матричного эффекта:', e);
+    }
+    
+    // Загружаем данные с обработкой ошибок
+    setTimeout(() => {
+        try {
+            loadLocalMusic();
+        } catch (e) {
+            console.error('Ошибка загрузки музыки:', e);
+        }
+        
+        try {
+            loadLocalVideos();
+        } catch (e) {
+            console.error('Ошибка загрузки видео:', e);
+        }
+        
+        try {
+            loadLocalPhotos();
+        } catch (e) {
+            console.error('Ошибка загрузки фото:', e);
+        }
+        
+        try {
+            loadYouTubeLinks();
+        } catch (e) {
+            console.error('Ошибка загрузки YouTube ссылок:', e);
+        }
+        
+        try {
+            loadFooterBanners();
+        } catch (e) {
+            console.error('Ошибка загрузки баннеров:', e);
+        }
+        
+        try {
+            addDemoContent();
+        } catch (e) {
+            console.error('Ошибка добавления демо контента:', e);
+        }
+    }, 100);
 });
 
 // Инициализируем AudioContext при загрузке
@@ -1500,16 +1581,24 @@ let tvVideos = [];
 let currentVideoIndex = 0;
 
 async function loadYouTubeLinks() {
-    const channelList = document.getElementById('tvChannelList');
-    const tvPlayer = document.getElementById('tvPlayer');
-    const tvStatic = document.getElementById('tvStatic');
-    
-    if (!channelList || !tvPlayer) {
-        console.warn('Элементы телевизора не найдены');
-        return;
-    }
-    
-    tvVideos = [];
+    try {
+        const channelList = document.getElementById('tvChannelList');
+        const tvPlayer = document.getElementById('tvPlayer');
+        const tvStatic = document.getElementById('tvStatic');
+        
+        if (!channelList) {
+            console.warn('Элемент tvChannelList не найден, пробуем еще раз...');
+            setTimeout(loadYouTubeLinks, 500);
+            return;
+        }
+        
+        if (!tvPlayer) {
+            console.warn('Элемент tvPlayer не найден, пробуем еще раз...');
+            setTimeout(loadYouTubeLinks, 500);
+            return;
+        }
+        
+        tvVideos = [];
     
     try {
         // Пытаемся загрузить JSON файл со ссылками
@@ -1608,14 +1697,19 @@ async function loadYouTubeLinks() {
         channelList.appendChild(channelItem);
     });
     
-    // Загружаем первое видео
-    if (tvVideos.length > 0) {
-        switchToVideo(0);
-    } else {
-        // Показываем статику, если нет видео
-        if (tvStatic) {
-            tvStatic.classList.add('active');
+        // Загружаем первое видео
+        if (tvVideos.length > 0) {
+            switchToVideo(0);
+        } else {
+            // Показываем статику, если нет видео
+            if (tvStatic) {
+                tvStatic.classList.add('active');
+            }
         }
+    } catch (error) {
+        console.error('Критическая ошибка в loadYouTubeLinks:', error);
+        // Пробуем еще раз через секунду
+        setTimeout(loadYouTubeLinks, 1000);
     }
 }
 

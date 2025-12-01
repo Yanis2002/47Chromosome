@@ -721,7 +721,6 @@ body {
 
 /* Matrix Rain эффект */
 .matrix-rain {
-    pointer-events: none;
     position: absolute;
     top: 0;
     left: 0;
@@ -777,7 +776,6 @@ body {
 
 /* Интерактивная зона (эффект при наведении) */
 .interactive-zone {
-    pointer-events: none;
     position: absolute;
     width: 300px;
     height: 300px;

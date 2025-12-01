@@ -1,3 +1,0 @@
-# Добавьте ссылки на YouTube видео (по одной на строку)
-# https://www.youtube.com/watch?v=VIDEO_ID
-

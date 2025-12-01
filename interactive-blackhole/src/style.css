@@ -1,0 +1,397 @@
+/* Reset и базовые стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #1a1a1a;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --accent-neon: #ff00ff;
+    --accent-cyan: #00ffff;
+    --glitch-red: #ff0000;
+    --glitch-blue: #00ff00;
+}
+
+body, html { 
+    height: 100%; 
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body {
+    height: 100%;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    overflow: hidden;
+    position: relative;
+}
+
+/* CRT эффект */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.1),
+        rgba(0, 0, 0, 0.1) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    pointer-events: none;
+    z-index: 10;
+    animation: scanlineMove 8s linear infinite;
+}
+
+@keyframes scanlineMove {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(4px);
+    }
+}
+
+/* Мерцание */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        transparent 50%,
+        rgba(0, 0, 0, 0.03) 50%
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 11;
+    animation: crtFlicker 0.15s infinite;
+}
+
+@keyframes crtFlicker {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.98;
+    }
+}
+
+#blackhole {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    display: flex;
+}
+
+.centerHover {
+    width: 255px;
+    height: 255px;
+    background-color: transparent;
+    border-radius: 50%;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-top: -128px;
+    margin-left: -128px;
+    z-index: 2;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: all 500ms;
+}
+
+.centerHover.open {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.centerHover:hover .glitch-text {
+    color: var(--accent-neon);
+    text-shadow: 
+        0 0 10px var(--accent-neon),
+        0 0 20px var(--accent-neon),
+        0 0 30px var(--accent-neon);
+}
+
+.centerHover:hover .number-text {
+    color: var(--accent-cyan);
+    text-shadow: 
+        0 0 10px var(--accent-cyan),
+        0 0 20px var(--accent-cyan);
+}
+
+/* Glitch эффект для текста */
+.glitch-text {
+    color: var(--text-secondary);
+    font-family: 'Inter', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    position: relative;
+    transition: all 500ms;
+    text-transform: uppercase;
+    animation: glitch 3s infinite;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.glitch-text::before {
+    left: 2px;
+    text-shadow: -2px 0 var(--glitch-red);
+    clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim 5s infinite linear alternate-reverse;
+}
+
+.glitch-text::after {
+    left: -2px;
+    text-shadow: -2px 0 var(--glitch-blue);
+    clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim2 1s infinite linear alternate-reverse;
+}
+
+@keyframes glitch {
+    0%, 100% {
+        transform: translate(0);
+    }
+    20% {
+        transform: translate(-2px, 2px);
+    }
+    40% {
+        transform: translate(-2px, -2px);
+    }
+    60% {
+        transform: translate(2px, 2px);
+    }
+    80% {
+        transform: translate(2px, -2px);
+    }
+}
+
+@keyframes glitch-anim {
+    0% {
+        clip: rect(31px, 9999px, 94px, 0);
+        transform: skew(0.5deg);
+    }
+    5% {
+        clip: rect(86px, 9999px, 77px, 0);
+        transform: skew(0.5deg);
+    }
+    10% {
+        clip: rect(42px, 9999px, 30px, 0);
+        transform: skew(0.5deg);
+    }
+    15% {
+        clip: rect(92px, 9999px, 98px, 0);
+        transform: skew(0.5deg);
+    }
+    20% {
+        clip: rect(9px, 9999px, 83px, 0);
+        transform: skew(0.5deg);
+    }
+    25% {
+        clip: rect(37px, 9999px, 93px, 0);
+        transform: skew(0.5deg);
+    }
+    30% {
+        clip: rect(86px, 9999px, 73px, 0);
+        transform: skew(0.5deg);
+    }
+    35% {
+        clip: rect(49px, 9999px, 29px, 0);
+        transform: skew(0.5deg);
+    }
+    40% {
+        clip: rect(26px, 9999px, 14px, 0);
+        transform: skew(0.5deg);
+    }
+    45% {
+        clip: rect(33px, 9999px, 73px, 0);
+        transform: skew(0.5deg);
+    }
+    50% {
+        clip: rect(57px, 9999px, 23px, 0);
+        transform: skew(0.5deg);
+    }
+    55% {
+        clip: rect(8px, 9999px, 40px, 0);
+        transform: skew(0.5deg);
+    }
+    60% {
+        clip: rect(92px, 9999px, 34px, 0);
+        transform: skew(0.5deg);
+    }
+    65% {
+        clip: rect(54px, 9999px, 93px, 0);
+        transform: skew(0.5deg);
+    }
+    70% {
+        clip: rect(28px, 9999px, 11px, 0);
+        transform: skew(0.5deg);
+    }
+    75% {
+        clip: rect(45px, 9999px, 78px, 0);
+        transform: skew(0.5deg);
+    }
+    80% {
+        clip: rect(19px, 9999px, 54px, 0);
+        transform: skew(0.5deg);
+    }
+    85% {
+        clip: rect(67px, 9999px, 88px, 0);
+        transform: skew(0.5deg);
+    }
+    90% {
+        clip: rect(14px, 9999px, 25px, 0);
+        transform: skew(0.5deg);
+    }
+    95% {
+        clip: rect(91px, 9999px, 58px, 0);
+        transform: skew(0.5deg);
+    }
+    100% {
+        clip: rect(7px, 9999px, 81px, 0);
+        transform: skew(0.5deg);
+    }
+}
+
+@keyframes glitch-anim2 {
+    0% {
+        clip: rect(65px, 9999px, 100px, 0);
+        transform: skew(0.5deg);
+    }
+    5% {
+        clip: rect(96px, 9999px, 9px, 0);
+        transform: skew(0.5deg);
+    }
+    10% {
+        clip: rect(85px, 9999px, 97px, 0);
+        transform: skew(0.5deg);
+    }
+    15% {
+        clip: rect(91px, 9999px, 13px, 0);
+        transform: skew(0.5deg);
+    }
+    20% {
+        clip: rect(30px, 9999px, 60px, 0);
+        transform: skew(0.5deg);
+    }
+    25% {
+        clip: rect(70px, 9999px, 82px, 0);
+        transform: skew(0.5deg);
+    }
+    30% {
+        clip: rect(5px, 9999px, 98px, 0);
+        transform: skew(0.5deg);
+    }
+    35% {
+        clip: rect(86px, 9999px, 6px, 0);
+        transform: skew(0.5deg);
+    }
+    40% {
+        clip: rect(23px, 9999px, 35px, 0);
+        transform: skew(0.5deg);
+    }
+    45% {
+        clip: rect(19px, 9999px, 79px, 0);
+        transform: skew(0.5deg);
+    }
+    50% {
+        clip: rect(66px, 9999px, 11px, 0);
+        transform: skew(0.5deg);
+    }
+    55% {
+        clip: rect(36px, 9999px, 59px, 0);
+        transform: skew(0.5deg);
+    }
+    60% {
+        clip: rect(83px, 9999px, 40px, 0);
+        transform: skew(0.5deg);
+    }
+    65% {
+        clip: rect(12px, 9999px, 87px, 0);
+        transform: skew(0.5deg);
+    }
+    70% {
+        clip: rect(58px, 9999px, 22px, 0);
+        transform: skew(0.5deg);
+    }
+    75% {
+        clip: rect(44px, 9999px, 68px, 0);
+        transform: skew(0.5deg);
+    }
+    80% {
+        clip: rect(77px, 9999px, 50px, 0);
+        transform: skew(0.5deg);
+    }
+    85% {
+        clip: rect(3px, 9999px, 27px, 0);
+        transform: skew(0.5deg);
+    }
+    90% {
+        clip: rect(95px, 9999px, 64px, 0);
+        transform: skew(0.5deg);
+    }
+    95% {
+        clip: rect(48px, 9999px, 18px, 0);
+        transform: skew(0.5deg);
+    }
+    100% {
+        clip: rect(29px, 9999px, 55px, 0);
+        transform: skew(0.5deg);
+    }
+}
+
+/* Стиль для числа 47 */
+.number-text {
+    color: var(--text-secondary);
+    font-family: 'Inter', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-top: 10px;
+    position: relative;
+    transition: all 500ms;
+    text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.7;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+}
+
+canvas {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    margin: auto;
+}

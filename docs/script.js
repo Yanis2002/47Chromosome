@@ -1795,9 +1795,9 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
                 ${leftEdgeDistortion + leftEdgeWave}% 100%
             )`;
             
-            // Прозрачность в зависимости от позиции (расплывание)
-            const opacity = Math.max(0.25, Math.min(0.6, 1 - (block.x / containerWidth) * 0.5));
-            block.element.style.opacity = opacity;
+            // Прозрачность с небольшими вариациями для эффекта расплывания
+            const opacity = 0.4 + Math.sin(block.time * 0.15 + block.distortionPhase) * 0.15;
+            block.element.style.opacity = Math.max(0.25, Math.min(0.6, opacity));
         });
         
         animationFrame = requestAnimationFrame(animate);

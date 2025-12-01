@@ -148,10 +148,7 @@ function generateVideoList() {
     });
     
     // Обновляем script.js
-    
-    // Обновляем script.js
-    const scriptPath = SCRIPT_FILE, 'script.js');
-    let scriptContent = fs.readFileSync(scriptPath, 'utf8');
+    let scriptContent = fs.readFileSync(SCRIPT_FILE, 'utf8');
     
     // Находим функцию loadLocalVideos и заменяем массив
     const videoArrayStart = scriptContent.indexOf('const localVideos = [');

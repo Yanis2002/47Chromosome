@@ -15,10 +15,11 @@
 const fs = require('fs');
 const path = require('path');
 
-const MUSIC_DIR = path.join(__dirname, 'music');
-const PHOTO_DIR = path.join(__dirname, 'photo');
-const VIDEO_DIR = path.join(__dirname, 'video');
-const SCRIPT_FILE = path.join(__dirname, 'script.js');
+const DOCS_DIR = path.join(__dirname, 'docs');
+const MUSIC_DIR = path.join(DOCS_DIR, 'music');
+const PHOTO_DIR = path.join(DOCS_DIR, 'photo');
+const VIDEO_DIR = path.join(DOCS_DIR, 'video');
+const SCRIPT_FILE = SCRIPT_FILE;
 
 // Поддерживаемые форматы
 const AUDIO_FORMATS = ['.mp3', '.wav', '.ogg', '.flac', '.m4a'];
@@ -80,7 +81,7 @@ function generateMusicList() {
     // Обновляем script.js
     
     // Обновляем script.js
-    const scriptPath = path.join(DOCS_DIR, 'script.js');
+    const scriptPath = SCRIPT_FILE, 'script.js');
     let scriptContent = fs.readFileSync(scriptPath, 'utf8');
     
     // Находим функцию loadLocalMusic и заменяем массив
@@ -126,9 +127,6 @@ function generatePhotoList() {
     
     // Создаем или обновляем list.json
     const listJsonPath = path.join(PHOTO_DIR, 'list.json');
-    
-    // Создаем или обновляем list.json
-    const listJsonPath = path.join(PHOTO_DIR, 'list.json');
     const jsonContent = JSON.stringify(photoList, null, 2);
     
     fs.writeFileSync(listJsonPath, jsonContent, 'utf8');
@@ -155,7 +153,7 @@ function generateVideoList() {
     // Обновляем script.js
     
     // Обновляем script.js
-    const scriptPath = path.join(DOCS_DIR, 'script.js');
+    const scriptPath = SCRIPT_FILE, 'script.js');
     let scriptContent = fs.readFileSync(scriptPath, 'utf8');
     
     // Находим функцию loadLocalVideos и заменяем массив

@@ -565,9 +565,35 @@ function initModals() {
     // Сохраняем модальное окно в глобальной области
     window.imageModal = modal;
     window.showImageModal = (src, alt) => {
-        modalImage.src = src;
-        modalCaption.textContent = alt || '';
+        // Удаляем предыдущее сообщение об ошибке если есть
+        const existingError = modalContent.querySelector('.error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        // Показываем модальное окно сразу
         modal.classList.add('active');
+        modalCaption.textContent = alt || '';
+        
+        // Загружаем изображение
+        modalImage.style.opacity = '0';
+        modalImage.style.display = 'block';
+        
+        modalImage.onload = function() {
+            this.style.opacity = '1';
+        };
+        
+        modalImage.onerror = function() {
+            // Если изображение не загрузилось, скрываем его и показываем сообщение
+            this.style.display = 'none';
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'error-message';
+            errorMsg.style.cssText = 'text-align: center; color: var(--text-secondary); padding: 40px; font-size: 1.2rem;';
+            errorMsg.textContent = 'Изображение не найдено';
+            modalContent.insertBefore(errorMsg, modalImage);
+        };
+        
+        modalImage.src = src;
         playSound('click');
     };
 }

@@ -483,20 +483,35 @@ function addPhoto(src, alt) {
     item.appendChild(img);
     
     // Добавляем обработчик клика для открытия в модальном окне
-    item.addEventListener('click', () => {
-        if (window.showImageModal) {
-            // Открываем изображение в модальном окне
-            window.showImageModal(src, alt || '');
-        }
-    });
-    
-    // Также добавляем обработчик на само изображение
-    img.addEventListener('click', (e) => {
+    const handleClick = (e) => {
+        e.preventDefault();
         e.stopPropagation();
+        
+        // Проверяем, что модальное окно инициализировано
         if (window.showImageModal) {
             window.showImageModal(src, alt || '');
+        } else {
+            // Если модальное окно еще не готово, пробуем инициализировать
+            console.warn('Модальное окно еще не инициализировано, пробуем инициализировать...');
+            initModals();
+            // Пробуем еще раз через небольшую задержку
+            setTimeout(() => {
+                if (window.showImageModal) {
+                    window.showImageModal(src, alt || '');
+                } else {
+                    console.error('Не удалось открыть модальное окно');
+                }
+            }, 100);
         }
-    });
+    };
+    
+    item.addEventListener('click', handleClick);
+    img.addEventListener('click', handleClick);
+    
+    // Убеждаемся, что элемент кликабелен
+    item.style.cursor = 'pointer';
+    item.style.pointerEvents = 'auto';
+    img.style.pointerEvents = 'auto';
     
     photoGallery.appendChild(item);
 }
@@ -575,6 +590,8 @@ function initModals() {
     // Сохраняем модальное окно в глобальной области
     window.imageModal = modal;
     window.showImageModal = (src, alt) => {
+        console.log('showImageModal вызвана с src:', src, 'alt:', alt);
+        
         // Удаляем предыдущее сообщение об ошибке если есть
         const existingError = modalContent.querySelector('.error-message');
         if (existingError) {
@@ -595,12 +612,20 @@ function initModals() {
         modalImage.style.objectFit = 'contain';
         
         // Используем оригинальный путь для максимального качества
-        const fullImageSrc = src;
+        // Убеждаемся, что путь правильный (если путь начинается с photo/, оставляем как есть)
+        let fullImageSrc = src;
+        if (!src.startsWith('http') && !src.startsWith('/') && !src.startsWith('./')) {
+            // Если путь относительный и не начинается с точки или слеша, оставляем как есть
+            // (уже должен быть правильным из JSON)
+        }
+        
+        console.log('Загружаем изображение:', fullImageSrc);
         
         // Сбрасываем предыдущее изображение
         modalImage.src = '';
         
         modalImage.onload = function() {
+            console.log('Изображение загружено успешно');
             this.style.opacity = '1';
             
             // Вычисляем оптимальный размер для просмотра
@@ -627,12 +652,13 @@ function initModals() {
         };
         
         modalImage.onerror = function() {
+            console.error('Ошибка загрузки изображения:', fullImageSrc);
             // Если изображение не загрузилось, скрываем его и показываем сообщение
             this.style.display = 'none';
             const errorMsg = document.createElement('div');
             errorMsg.className = 'error-message';
             errorMsg.style.cssText = 'text-align: center; color: var(--text-secondary); padding: 40px; font-size: 1.2rem;';
-            errorMsg.textContent = 'Изображение не найдено';
+            errorMsg.textContent = 'Изображение не найдено: ' + fullImageSrc;
             modalContent.insertBefore(errorMsg, modalImage);
         };
         

@@ -215,13 +215,13 @@ function initContentCards() {
 
 // Плейсхолдеры для контента
 function initPlaceholders() {
-    // Эстетика
-    const aestheticGallery = document.getElementById('aestheticGallery');
-    if (aestheticGallery) {
-        aestheticGallery.innerHTML = `
+    // Ссылки
+    const linksContent = document.getElementById('linksContent');
+    if (linksContent) {
+        linksContent.innerHTML = `
             <div class="placeholder">
-                <p>Галерея эстетики</p>
-                <p>Добавьте изображения через JS или HTML</p>
+                <p>Ссылки</p>
+                <p>Добавьте ссылки через JS</p>
             </div>
         `;
     }
@@ -362,39 +362,32 @@ document.querySelectorAll('.content-card, .nav-link').forEach(element => {
 });
 
 // Функции для добавления контента (можно расширить)
-function addAestheticImage(src, alt) {
-    const gallery = document.getElementById('aestheticGallery');
-    if (!gallery) return;
+function addLink(url, title, description) {
+    const linksContent = document.getElementById('linksContent');
+    if (!linksContent) return;
     
     // Удаляем placeholder если он есть
-    const placeholder = gallery.querySelector('.placeholder');
+    const placeholder = linksContent.querySelector('.placeholder');
     if (placeholder) {
-        gallery.innerHTML = '';
+        linksContent.innerHTML = '';
     }
     
     const item = document.createElement('div');
-    item.className = 'gallery-item';
-    const img = document.createElement('img');
-    img.src = src;
-    img.alt = alt || '';
-    img.loading = 'lazy';
+    item.className = 'library-item';
+    item.innerHTML = `
+        <h3>${title || 'Ссылка'}</h3>
+        <p>${description || ''}</p>
+        <a href="${url}" target="_blank" class="library-link">Открыть →</a>
+    `;
     
-    // Обработка ошибок загрузки - просто скрываем элемент
-    img.onerror = function() {
-        item.style.display = 'none';
-    };
-    
-    item.appendChild(img);
-    
-    // Добавляем обработчик клика для открытия в модальном окне
-    item.addEventListener('click', () => {
-        if (window.showImageModal) {
-            // Пробуем загрузить изображение, даже если оно еще не загружено
-            window.showImageModal(src, alt || '');
+    // Добавляем обработчик клика
+    item.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('library-link')) {
+            playSound('click');
         }
     });
     
-    gallery.appendChild(item);
+    linksContent.appendChild(item);
 }
 
 function addAudioTrack(src, title, duration) {
@@ -745,7 +738,7 @@ function initHeroMatrix() {
         'render', 'generate', 'prompt', 'style', 'aesthetic', 'visual', 
         '47Chromosome', 'music', 'video', 'photo', 'breakcore', 'post-rock', 
         'experimental', 'lo-fi', 'dark', 'neon', 'synth', 'wave', 'vapor', 'dream',
-        'эстетика', 'музыка', 'визуал', 'творчество', 'арт', 'дизайн'
+        'музыка', 'визуал', 'творчество', 'арт', 'дизайн'
     ];
     
     // Получаем размеры контейнера
@@ -1181,16 +1174,6 @@ function loadLocalPhotos() {
 function addDemoContent() {
     // Примеры изображений (используем placeholder изображения)
     setTimeout(() => {
-        // Эстетика - примеры
-        const aestheticExamples = [
-            { src: 'https://via.placeholder.com/400x400/ff00ff/ffffff?text=Aesthetic+1', alt: 'Эстетика 1' },
-            { src: 'https://via.placeholder.com/400x400/00ffff/000000?text=Aesthetic+2', alt: 'Эстетика 2' },
-            { src: 'https://via.placeholder.com/400x400/9d4edd/ffffff?text=Aesthetic+3', alt: 'Эстетика 3' }
-        ];
-        
-        aestheticExamples.forEach(item => {
-            addAestheticImage(item.src, item.alt);
-        });
 
         // Видео - примеры локальных видео
         const videoExamples = [
@@ -1224,7 +1207,7 @@ function addDemoContent() {
 }
 
 // Экспорт функций для использования
-window.addAestheticImage = addAestheticImage;
+window.addLink = addLink;
 window.addAudioTrack = addAudioTrack;
 window.addVideo = addVideo;
 window.addPhoto = addPhoto;

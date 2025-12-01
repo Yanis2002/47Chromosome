@@ -29,11 +29,11 @@
             </div>
             <ul class="nav-menu">
                 <li><a href="#home" class="nav-link active">Home</a></li>
-                <li><a href="#aesthetic" class="nav-link">Эстетика</a></li>
                 <li><a href="#audio" class="nav-link">Аудио</a></li>
                 <li><a href="#video" class="nav-link">Видео</a></li>
                 <li><a href="#photo" class="nav-link">Фото</a></li>
                 <li><a href="#library" class="nav-link">Библиотека</a></li>
+                <li><a href="#links" class="nav-link">Ссылки</a></li>
                 <li><a href="#shop" class="nav-link">Магазин</a></li>
             </ul>
             <button class="sound-toggle" id="soundToggle">🔊</button>
@@ -50,18 +50,13 @@
                         <p class="hero-subtitle">to the digital void</p>
                         <div class="hero-description">
                             <p>Личное пространство</p>
-                            <p>Эстетика • Музыка • Визуал • Творчество</p>
+                            <p>Музыка • Визуал • Творчество</p>
                         </div>
                         <div class="hero-matrix-bg" id="heroMatrix"></div>
                     </div>
                 </div>
 
                 <div class="content-grid">
-                    <div class="content-card" data-section="aesthetic">
-                        <div class="card-icon">🎨</div>
-                        <h3>Эстетика</h3>
-                        <p>Визуальные образы и арты</p>
-                    </div>
                     <div class="content-card" data-section="audio">
                         <div class="card-icon">🎵</div>
                         <h3>Аудио</h3>
@@ -82,6 +77,11 @@
                         <h3>Библиотека</h3>
                         <p>Коллекция материалов</p>
                     </div>
+                    <div class="content-card" data-section="links">
+                        <div class="card-icon">🔗</div>
+                        <h3>Ссылки</h3>
+                        <p>Полезные ссылки</p>
+                    </div>
                     <div class="content-card" data-section="shop">
                         <div class="card-icon">🛒</div>
                         <h3>Магазин</h3>
@@ -90,17 +90,8 @@
                 </div>
             </section>
 
-            <!-- Секция Эстетика -->
-            <section id="aesthetic" class="section">
-                <h2 class="section-title">Эстетика</h2>
-                <div class="gallery-grid" id="aestheticGallery">
-                    <!-- Галерея будет заполнена через JS -->
-                </div>
-            </section>
-
             <!-- Секция Аудио -->
             <section id="audio" class="section">
-                <h2 class="section-title">Аудио</h2>
                 <div class="audio-player-container">
                     <div class="audio-list" id="audioList">
                         <!-- Список треков будет заполнен через JS -->
@@ -110,7 +101,6 @@
 
             <!-- Секция Видео -->
             <section id="video" class="section">
-                <h2 class="section-title">Видео</h2>
                 <div class="video-tabs">
                     <button class="video-tab active" data-tab="youtube">YouTube</button>
                     <button class="video-tab" data-tab="local">Локальные видео</button>
@@ -131,7 +121,6 @@
 
             <!-- Секция Фото -->
             <section id="photo" class="section">
-                <h2 class="section-title">Фото</h2>
                 <div class="photo-gallery" id="photoGallery">
                     <!-- Фотогалерея будет заполнена через JS -->
                 </div>
@@ -139,17 +128,22 @@
 
             <!-- Секция Библиотека -->
             <section id="library" class="section">
-                <h2 class="section-title">Библиотека</h2>
                 <div class="library-content" id="libraryContent">
                     <!-- Библиотека будет заполнена через JS -->
                 </div>
             </section>
 
+            <!-- Секция Ссылки -->
+            <section id="links" class="section">
+                <div class="links-content" id="linksContent">
+                    <!-- Ссылки будут заполнены через JS -->
+                </div>
+            </section>
+
             <!-- Секция Магазин -->
             <section id="shop" class="section">
-                <h2 class="section-title">Магазин</h2>
                 <div class="shop-content">
-                    <div class="book-card">
+                    <!-- <div class="book-card">
                         <div class="book-cover">
                             <div class="book-placeholder">📖</div>
                         </div>
@@ -159,7 +153,7 @@
                             <div class="book-price">Цена: <span>XXX ₽</span></div>
                             <button class="buy-button">Купить</button>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </section>
         </main>

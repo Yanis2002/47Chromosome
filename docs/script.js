@@ -54,6 +54,35 @@ document.addEventListener('DOMContentLoaded', () => {
 // Инициализируем AudioContext при загрузке
 initAudioContext();
 
+// Функция для переключения секций
+function switchSection(sectionId) {
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.section');
+    
+    // Обновляем активные классы
+    navLinks.forEach(l => {
+        const href = l.getAttribute('href').substring(1);
+        if (href === sectionId) {
+            l.classList.add('active');
+        } else {
+            l.classList.remove('active');
+        }
+    });
+    
+    sections.forEach(s => {
+        if (s.id === sectionId) {
+            s.classList.add('active');
+        } else {
+            s.classList.remove('active');
+        }
+    });
+    
+    // Обновляем URL без перезагрузки страницы
+    if (history.pushState) {
+        history.pushState(null, null, `#${sectionId}`);
+    }
+}
+
 // Навигация
 function initNavigation() {
     const navLinks = document.querySelectorAll('.nav-link');
@@ -75,20 +104,32 @@ function initNavigation() {
             
             const targetId = link.getAttribute('href').substring(1);
             
-            // Обновляем активные классы
-            navLinks.forEach(l => l.classList.remove('active'));
-            sections.forEach(s => s.classList.remove('active'));
-            
-            link.classList.add('active');
-            const targetSection = document.getElementById(targetId);
-            if (targetSection) {
-                targetSection.classList.add('active');
+            if (targetId) {
+                switchSection(targetId);
                 playSound('click');
-            } else {
-                console.warn('Секция не найдена:', targetId);
             }
         });
     });
+    
+    // Обработка прямых переходов по хешу в URL
+    function handleHashChange() {
+        const hash = window.location.hash.substring(1);
+        if (hash) {
+            const targetSection = document.getElementById(hash);
+            if (targetSection) {
+                switchSection(hash);
+            }
+        } else {
+            // Если хеша нет, показываем home
+            switchSection('home');
+        }
+    }
+    
+    // Обрабатываем текущий хеш при загрузке
+    handleHashChange();
+    
+    // Обрабатываем изменения хеша
+    window.addEventListener('hashchange', handleHashChange);
 }
 
 // Аудио плеер

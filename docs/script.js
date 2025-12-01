@@ -1023,25 +1023,38 @@ function addLibraryItem(title, description, link) {
     libraryContent.appendChild(item);
 }
 
-// Модальные окна для просмотра изображений
+// Модальные окна для просмотра изображений и видео
 function initModals() {
-    // Проверяем, не создано ли уже модальное окно
-    if (document.querySelector('.modal')) {
-        return;
+    // Проверяем, не создано ли уже модальное окно для изображений
+    if (!document.querySelector('.modal.image-modal')) {
+        // Создаем модальное окно для изображений
+        const modal = document.createElement('div');
+        modal.className = 'modal image-modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <span class="modal-close">&times;</span>
+                <img class="modal-image" src="" alt="">
+                <div class="modal-caption"></div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        initImageModal(modal);
     }
     
-    // Создаем модальное окно
-    const modal = document.createElement('div');
-    modal.className = 'modal';
-    modal.innerHTML = `
-        <div class="modal-content">
-            <span class="modal-close">&times;</span>
-            <img class="modal-image" src="" alt="">
-            <div class="modal-caption"></div>
-        </div>
-    `;
-    document.body.appendChild(modal);
-    initImageModal(modal);
+    // Создаем модальное окно для видео
+    if (!document.querySelector('.modal.video-modal')) {
+        const videoModal = document.createElement('div');
+        videoModal.className = 'modal video-modal';
+        videoModal.innerHTML = `
+            <div class="modal-content">
+                <span class="modal-close">&times;</span>
+                <video class="modal-video" controls autoplay></video>
+                <div class="modal-caption"></div>
+            </div>
+        `;
+        document.body.appendChild(videoModal);
+        initVideoModal(videoModal);
+    }
 }
 
 // Инициализация модального окна для изображений

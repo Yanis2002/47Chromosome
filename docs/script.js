@@ -629,8 +629,24 @@ function initHeroMatrix() {
     
     // Получаем размеры контейнера
     const container = matrixContainer.parentElement;
-    const containerWidth = container.offsetWidth || window.innerWidth;
-    const containerHeight = container.offsetHeight || 400;
+    // Ждем загрузки DOM перед получением размеров
+    setTimeout(() => {
+        const containerWidth = container.offsetWidth || window.innerWidth;
+        const containerHeight = container.offsetHeight || 400;
+        createMatrixColumns(matrixContainer, containerWidth, containerHeight);
+    }, 100);
+}
+
+function createMatrixColumns(matrixContainer, containerWidth, containerHeight) {
+    const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?/~`';
+    const codeWords = [
+        'imagine', 'create', 'design', 'art', 'digital', 'code', 'matrix', 
+        'system', 'data', 'pixel', 'glitch', 'cyber', 'void', 'space', 
+        'render', 'generate', 'prompt', 'style', 'aesthetic', 'visual', 
+        '47Chromosome', 'music', 'video', 'photo', 'breakcore', 'post-rock', 
+        'experimental', 'lo-fi', 'dark', 'neon', 'synth', 'wave', 'vapor', 'dream',
+        'эстетика', 'музыка', 'визуал', 'творчество', 'арт', 'дизайн'
+    ];
     
     // Количество колонок (зависит от ширины)
     const columnCount = Math.floor(containerWidth / 20);
@@ -677,7 +693,11 @@ function initHeroMatrix() {
     }
     
     // Анимация обновления символов (каждые 150мс)
-    setInterval(() => {
+    const updateInterval = setInterval(() => {
+        if (!matrixContainer.parentElement) {
+            clearInterval(updateInterval);
+            return;
+        }
         columns.forEach(column => {
             const charElements = column.querySelectorAll('.matrix-char');
             charElements.forEach((char, index) => {
@@ -689,8 +709,10 @@ function initHeroMatrix() {
                         char.textContent = word;
                         char.classList.add('word');
                         setTimeout(() => {
-                            char.textContent = charSet[Math.floor(Math.random() * charSet.length)];
-                            char.classList.remove('word');
+                            if (char.parentElement) {
+                                char.textContent = charSet[Math.floor(Math.random() * charSet.length)];
+                                char.classList.remove('word');
+                            }
                         }, 2000);
                     } else {
                         char.textContent = charSet[Math.floor(Math.random() * charSet.length)];
@@ -703,13 +725,17 @@ function initHeroMatrix() {
     
     // Обновление при изменении размера окна
     let resizeTimeout;
-    window.addEventListener('resize', () => {
+    const resizeHandler = () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
-            matrixContainer.innerHTML = '';
-            initHeroMatrix();
+            if (matrixContainer.parentElement) {
+                matrixContainer.innerHTML = '';
+                clearInterval(updateInterval);
+                initHeroMatrix();
+            }
         }, 300);
-    });
+    };
+    window.addEventListener('resize', resizeHandler);
 }
 
 // Инициализация вкладок для видео

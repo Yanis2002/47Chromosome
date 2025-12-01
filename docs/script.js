@@ -718,51 +718,6 @@ function initHeroMatrix() {
     setTimeout(initMatrix, 100);
 }
 
-// Инициализация CRT эффекта выключенного телевизора
-function initCRTPower() {
-    const crtOffOverlay = document.getElementById('crtOffOverlay');
-    const crtPowerButton = document.getElementById('crtPowerButton');
-    
-    if (!crtOffOverlay || !crtPowerButton) return;
-    
-    // Показываем выключенный экран
-    crtOffOverlay.classList.add('active');
-    
-    // Обработчик нажатия на кнопку включения
-    crtPowerButton.addEventListener('click', () => {
-        playSound('click');
-        
-        // Анимация включения
-        crtOffOverlay.classList.add('powering-on');
-        
-        setTimeout(() => {
-            crtOffOverlay.classList.remove('active', 'powering-on');
-            
-            // Инициализируем сайт после включения
-            initSite();
-        }, 1500);
-    });
-}
-
-// Инициализация сайта после включения телевизора
-function initSite() {
-    initModals();
-    initNavigation();
-    initAudioPlayer();
-    initContentCards();
-    initPlaceholders();
-    initSoundEffects();
-    initShopButton();
-    initSmoothScroll();
-    initVideoTabs();
-    initHeroMatrix();
-    loadLocalMusic();
-    loadLocalVideos();
-    loadLocalPhotos();
-    loadYouTubeLinks();
-    loadFooterBanners();
-    addDemoContent();
-}
 
 function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, codeWords) {
     // Очищаем контейнер

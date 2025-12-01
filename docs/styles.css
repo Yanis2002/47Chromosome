@@ -1202,16 +1202,59 @@ body {
 .youtube-item {
     position: relative;
     background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
-    overflow: hidden;
+    border: none;
+    border-radius: 0;
+    overflow: visible;
     transition: all 0.3s ease;
+    padding: 20px;
+    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+}
+
+/* Обводка в виде телевизора */
+.youtube-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 15px solid;
+    border-image: linear-gradient(135deg, #4a4a4a 0%, #3a3a3a 50%, #2a2a2a 100%) 1;
+    border-radius: 8px;
+    pointer-events: none;
+    z-index: 1;
+    box-shadow: 
+        inset 0 0 20px rgba(0, 0, 0, 0.8),
+        0 0 30px rgba(0, 0, 0, 0.5),
+        0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Верхняя часть телевизора (антенна/ручка) */
+.youtube-item::after {
+    content: '';
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 20px;
+    background: linear-gradient(135deg, #3a3a3a 0%, #2a2a2a 100%);
+    border: 2px solid #4a4a4a;
+    border-radius: 4px 4px 0 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    z-index: 2;
 }
 
 .youtube-item:hover {
-    border-color: var(--accent-neon);
-    box-shadow: var(--shadow-glow);
     transform: translateY(-5px);
+}
+
+.youtube-item:hover::before {
+    border-image: linear-gradient(135deg, #5a5a5a 0%, #4a4a4a 50%, #3a3a3a 100%) 1;
+    box-shadow: 
+        inset 0 0 20px rgba(0, 0, 0, 0.8),
+        0 0 40px rgba(255, 0, 255, 0.3),
+        0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .youtube-iframe {
@@ -1219,6 +1262,12 @@ body {
     aspect-ratio: 16 / 9;
     border: none;
     display: block;
+    position: relative;
+    z-index: 0;
+    border-radius: 2px;
+    box-shadow: 
+        inset 0 0 30px rgba(0, 0, 0, 0.9),
+        0 0 20px rgba(0, 0, 0, 0.5);
 }
 
 .youtube-title {

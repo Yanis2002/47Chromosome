@@ -1461,13 +1461,23 @@ function loadLocalPhotos() {
     // Альтернативный способ: загрузка через список файлов
     // Если у вас есть файл photo/list.json, можно загрузить оттуда
     fetch('photo/list.json')
-        .then(response => response.json())
-        .then(photos => {
-            photos.forEach(photo => {
-                addPhoto(photo.src, photo.alt || '');
-            });
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Файл не найден');
+            }
+            return response.json();
         })
-        .catch(() => {
+        .then(photos => {
+            if (photos && Array.isArray(photos)) {
+                photos.forEach(photo => {
+                    if (photo.src) {
+                        addPhoto(photo.src, photo.alt || '');
+                    }
+                });
+            }
+        })
+        .catch((error) => {
+            console.log('Ошибка загрузки фото:', error);
             // Файл не найден, это нормально
         });
 }
@@ -1494,9 +1504,10 @@ function addDemoContent() {
             { src: 'https://via.placeholder.com/400x400/9d4edd/ffffff?text=Photo+3', alt: 'Фото 3' }
         ];
 
-        photoExamples.forEach(item => {
-            addPhoto(item.src, item.alt);
-        });
+        // Фото загружаются из photo/list.json, не добавляем примеры
+        // photoExamples.forEach(item => {
+        //     addPhoto(item.src, item.alt);
+        // });
 
         // Библиотека - примеры
         addLibraryItem('Материал 1', 'Описание первого материала', 'https://example.com');

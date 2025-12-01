@@ -97,43 +97,60 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Загружаем данные с обработкой ошибок
+    // Увеличиваем задержку, чтобы убедиться, что все элементы DOM готовы
     setTimeout(() => {
+        console.log('Начинаем загрузку данных...');
+        
         try {
-    loadLocalMusic();
+            console.log('Загрузка музыки...');
+            loadLocalMusic();
+            console.log('Музыка загружена');
         } catch (e) {
             console.error('Ошибка загрузки музыки:', e);
         }
         
         try {
+            console.log('Загрузка видео...');
             loadLocalVideos();
+            console.log('Видео загружено');
         } catch (e) {
             console.error('Ошибка загрузки видео:', e);
         }
         
         try {
+            console.log('Загрузка фото...');
             loadLocalPhotos();
+            console.log('Фото загружено');
         } catch (e) {
             console.error('Ошибка загрузки фото:', e);
         }
         
         try {
+            console.log('Загрузка YouTube ссылок...');
             loadYouTubeLinks();
+            console.log('YouTube ссылки загружены');
         } catch (e) {
             console.error('Ошибка загрузки YouTube ссылок:', e);
         }
         
         try {
+            console.log('Загрузка баннеров...');
             loadFooterBanners();
+            console.log('Баннеры загружены');
         } catch (e) {
             console.error('Ошибка загрузки баннеров:', e);
         }
         
         try {
-    addDemoContent();
+            console.log('Добавление демо контента...');
+            addDemoContent();
+            console.log('Демо контент добавлен');
         } catch (e) {
             console.error('Ошибка добавления демо контента:', e);
         }
-    }, 100);
+        
+        console.log('Загрузка данных завершена');
+    }, 300);
 });
 
 // Инициализируем AudioContext при загрузке

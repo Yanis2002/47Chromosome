@@ -615,6 +615,12 @@ function loadAudio(src, title) {
     audioPlayer.classList.add('active');
     currentAudio = src;
     
+    // Обновляем индекс текущего трека
+    const trackIndex = audioTracks.findIndex(t => t.src === src);
+    if (trackIndex >= 0) {
+        currentTrackIndex = trackIndex;
+    }
+    
     // Обновляем Winamp-плеер
     if (winampTrackInfo) {
         winampTrackInfo.textContent = title || 'Неизвестный трек';

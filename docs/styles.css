@@ -292,17 +292,17 @@ body {
 }
 
 .nav-logo .glitch-text span {
-    animation: glitch-paths 5s step-end infinite;
+    animation: glitch-paths 25s step-end infinite;
 }
 
 .nav-logo .glitch-text.layers::before {
-    animation: glitch-paths 5s step-end infinite, glitch-opacity 5s step-end infinite,
-        glitch-font 8s step-end infinite, glitch-movement 10s step-end infinite;
+    animation: glitch-paths 25s step-end infinite, glitch-opacity 25s step-end infinite,
+        glitch-font 40s step-end infinite, glitch-movement 50s step-end infinite;
 }
 
 .nav-logo .glitch-text.layers::after {
-    animation: glitch-paths 5s step-end infinite, glitch-opacity 5s step-end infinite,
-        glitch-font 7s step-end infinite, glitch-movement 8s step-end infinite;
+    animation: glitch-paths 25s step-end infinite, glitch-opacity 25s step-end infinite,
+        glitch-font 35s step-end infinite, glitch-movement 40s step-end infinite;
 }
 
 @keyframes glitch-paths {

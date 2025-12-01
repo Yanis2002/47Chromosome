@@ -585,25 +585,45 @@ function initModals() {
         modal.classList.add('active');
         modalCaption.textContent = alt || '';
         
-        // Загружаем изображение в полном разрешении
+        // Показываем индикатор загрузки
         modalImage.style.opacity = '0';
         modalImage.style.display = 'block';
         modalImage.style.width = 'auto';
         modalImage.style.height = 'auto';
-        modalImage.style.maxWidth = '95vw';
-        modalImage.style.maxHeight = '95vh';
+        modalImage.style.maxWidth = 'none';
+        modalImage.style.maxHeight = 'none';
+        modalImage.style.objectFit = 'contain';
         
-        // Используем оригинальный путь без изменений для максимального качества
+        // Используем оригинальный путь для максимального качества
         const fullImageSrc = src;
+        
+        // Сбрасываем предыдущее изображение
+        modalImage.src = '';
         
         modalImage.onload = function() {
             this.style.opacity = '1';
-            // Автоматически подстраиваем размер для лучшего просмотра
-            const maxWidth = window.innerWidth * 0.95;
-            const maxHeight = window.innerHeight * 0.95;
-            const ratio = Math.min(maxWidth / this.naturalWidth, maxHeight / this.naturalHeight);
-            this.style.width = (this.naturalWidth * ratio) + 'px';
-            this.style.height = 'auto';
+            
+            // Вычисляем оптимальный размер для просмотра
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            const padding = 40; // Отступы от краев
+            const maxWidth = viewportWidth - padding;
+            const maxHeight = viewportHeight - padding - 100; // Учитываем место для caption и кнопки
+            
+            let displayWidth = this.naturalWidth;
+            let displayHeight = this.naturalHeight;
+            
+            // Если изображение больше экрана, масштабируем
+            if (displayWidth > maxWidth || displayHeight > maxHeight) {
+                const ratio = Math.min(maxWidth / displayWidth, maxHeight / displayHeight);
+                displayWidth = displayWidth * ratio;
+                displayHeight = displayHeight * ratio;
+            }
+            
+            this.style.width = displayWidth + 'px';
+            this.style.height = displayHeight + 'px';
+            this.style.maxWidth = maxWidth + 'px';
+            this.style.maxHeight = maxHeight + 'px';
         };
         
         modalImage.onerror = function() {
@@ -616,6 +636,7 @@ function initModals() {
             modalContent.insertBefore(errorMsg, modalImage);
         };
         
+        // Загружаем изображение
         modalImage.src = fullImageSrc;
         playSound('click');
     };

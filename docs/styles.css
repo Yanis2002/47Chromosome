@@ -917,12 +917,13 @@ body {
         0 0 15px rgba(0, 255, 255, 0.3);
     white-space: pre-wrap;
     word-wrap: break-word;
-    will-change: transform, opacity, filter;
+    will-change: transform, opacity, filter, clip-path;
     user-select: none;
     line-height: 1.8;
     letter-spacing: 1.5px;
     text-align: left;
     transform-origin: center center;
+    transition: none;
 }
 
 /* Matrix Rain эффект (общий) */

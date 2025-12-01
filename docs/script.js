@@ -722,48 +722,66 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
     textElement.textContent = fullText.trim();
     matrixContainer.appendChild(textElement);
     
-    // Параметры для 2D искажений всего текстового блока
+    // Параметры для сложных искажений формы текста
     let time = 0;
     const wavePhase = Math.random() * Math.PI * 2;
-    const waveAmplitude = 20 + Math.random() * 30;
-    const waveFrequency = 0.005 + Math.random() * 0.01;
     
-    // Анимация 2D искажений (закручивание, волны, но не 3D)
+    // Анимация искажения формы текста (закручивание, волны, изгибы)
     let animationFrame;
     const animate = () => {
         time += 0.016; // Примерно 60 FPS
         
-        // 2D искажения формы текста (только в плоскости)
-        // Закручивание (rotation в плоскости)
-        const rotation = Math.sin(time * 0.2) * 3;
+        // Сложные математические искажения формы текста
         
-        // Волновое искажение (skew для закручивания)
-        const skewX = Math.sin(time * 0.3) * 8;
-        const skewY = Math.cos(time * 0.25) * 5;
+        // 1. Закручивание (спиральное искажение)
+        const spiralRotation = Math.sin(time * 0.15) * 12 + Math.cos(time * 0.1) * 8;
         
-        // Масштабирование (растяжение/сжатие)
-        const scaleX = 1 + Math.sin(time * 0.4) * 0.1;
-        const scaleY = 1 + Math.cos(time * 0.35) * 0.08;
+        // 2. Волновое искажение (skew для закручивания)
+        const skewX = Math.sin(time * 0.25) * 15 + Math.cos(time * 0.2) * 10;
+        const skewY = Math.cos(time * 0.3) * 12 + Math.sin(time * 0.18) * 8;
         
-        // Волновое смещение (текст изгибается волной)
-        const waveOffsetX = Math.sin(time * 0.2 + wavePhase) * waveAmplitude;
-        const waveOffsetY = Math.cos(time * 0.15 + wavePhase) * (waveAmplitude * 0.5);
+        // 3. Масштабирование с разными коэффициентами (растяжение/сжатие)
+        const scaleX = 1 + Math.sin(time * 0.3) * 0.2 + Math.cos(time * 0.25) * 0.1;
+        const scaleY = 1 + Math.cos(time * 0.35) * 0.15 + Math.sin(time * 0.28) * 0.08;
         
-        // Применяем 2D трансформации (без 3D, только в плоскости)
+        // 4. Матричное искажение для более сложных форм
+        const matrixA = Math.cos(spiralRotation * Math.PI / 180) * scaleX;
+        const matrixB = -Math.sin(spiralRotation * Math.PI / 180) * scaleY;
+        const matrixC = Math.sin(spiralRotation * Math.PI / 180) * scaleX;
+        const matrixD = Math.cos(spiralRotation * Math.PI / 180) * scaleY;
+        
+        // 5. Дополнительные искажения через translate для волн
+        const waveX = Math.sin(time * 0.2 + wavePhase) * 30;
+        const waveY = Math.cos(time * 0.15 + wavePhase) * 20;
+        
+        // Применяем сложные 2D трансформации с матрицей для закручивания
         textElement.style.transform = `
-            translate(${waveOffsetX}px, ${waveOffsetY}px)
-            rotate(${rotation}deg)
+            translate(${waveX}px, ${waveY}px)
+            matrix(${matrixA}, ${matrixB}, ${matrixC}, ${matrixD}, 0, 0)
             skew(${skewX}deg, ${skewY}deg)
-            scale(${scaleX}, ${scaleY})
         `;
         
-        // Искажение формы через CSS filter для дополнительного эффекта
-        const blurAmount = Math.abs(Math.sin(time * 0.1)) * 0.5;
+        // Искажение формы через CSS clip-path для волновых форм
+        const clipWave1 = Math.sin(time * 0.2) * 5;
+        const clipWave2 = Math.cos(time * 0.25) * 7;
+        const clipWave3 = Math.sin(time * 0.3) * 4;
+        textElement.style.clipPath = `polygon(
+            0% ${50 - clipWave1}%, 
+            25% ${50 + clipWave2}%, 
+            50% ${50 - clipWave3}%, 
+            75% ${50 + clipWave1}%, 
+            100% ${50 - clipWave2}%, 
+            100% 100%, 
+            0% 100%
+        )`;
+        
+        // Дополнительное искажение через CSS filter
+        const blurAmount = Math.abs(Math.sin(time * 0.08)) * 0.3;
         textElement.style.filter = `blur(${blurAmount}px)`;
         
         // Прозрачность
-        const opacity = 0.5 + Math.sin(time * 0.1) * 0.15;
-        textElement.style.opacity = Math.max(0.35, Math.min(0.65, opacity));
+        const opacity = 0.5 + Math.sin(time * 0.12) * 0.2;
+        textElement.style.opacity = Math.max(0.3, Math.min(0.7, opacity));
         
         animationFrame = requestAnimationFrame(animate);
     };

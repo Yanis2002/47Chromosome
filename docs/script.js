@@ -1928,16 +1928,23 @@ async function loadYouTubeLinks() {
                         if (!videoId) {
                             const playlistMatch = trimmedLink.match(/youtube\.com\/playlist\?list=([^&\n?#]+)/);
                             if (playlistMatch && playlistMatch[1]) {
-                                // Для плейлистов используем первый видео ID или специальную обработку
-                                // Пока просто добавляем как отдельное видео
-                                videoId = playlistMatch[1];
+                                // Для плейлистов добавляем как отдельный элемент
+                                tvVideos.push({
+                                    id: playlistMatch[1],
+                                    title: `Плейлист ${tvVideos.length + 1}`,
+                                    isPlaylist: true
+                                });
+                                continue; // Пропускаем дальнейшую обработку для плейлистов
                             }
                         }
                         
                         if (videoId) {
+                            // Извлекаем название из URL если возможно
+                            let videoTitle = `Видео ${tvVideos.length + 1}`;
+                            
                             tvVideos.push({
                                 id: videoId,
-                                title: `Видео ${tvVideos.length + 1}`
+                                title: videoTitle
                             });
                         }
                     }

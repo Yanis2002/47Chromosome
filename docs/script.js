@@ -59,9 +59,20 @@ function initNavigation() {
     const navLinks = document.querySelectorAll('.nav-link');
     const sections = document.querySelectorAll('.section');
 
+    if (navLinks.length === 0) {
+        console.warn('Навигационные ссылки не найдены');
+        return;
+    }
+
     navLinks.forEach(link => {
+        // Убеждаемся, что ссылка кликабельна
+        link.style.cursor = 'pointer';
+        link.style.pointerEvents = 'auto';
+        
         link.addEventListener('click', (e) => {
             e.preventDefault();
+            e.stopPropagation();
+            
             const targetId = link.getAttribute('href').substring(1);
             
             // Обновляем активные классы
@@ -73,6 +84,8 @@ function initNavigation() {
             if (targetSection) {
                 targetSection.classList.add('active');
                 playSound('click');
+            } else {
+                console.warn('Секция не найдена:', targetId);
             }
         });
     });

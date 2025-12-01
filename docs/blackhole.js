@@ -169,7 +169,7 @@ function blackhole(element) {
         // Redirect to main page after a short delay
         setTimeout(() => {
             // Redirect to main site page
-            window.location.href = 'main.html';
+            window.location.href = 'index-old.html';
         }, 2000); // 2 seconds delay for visual effect
     });
     

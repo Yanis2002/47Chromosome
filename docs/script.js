@@ -30,28 +30,11 @@ if (typeof window === 'undefined' || typeof document === 'undefined') {
 
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
-    initModals(); // Сначала создаем модальное окно
-    initNavigation();
-    initAudioPlayer();
-    initContentCards();
-    initPlaceholders();
-    initSoundEffects();
-    initShopButton();
-    initSmoothScroll();
-    initVideoTabs();
-    initHeroMatrix(); // Инициализируем матричный эффект для hero
-    // Загружаем локальную музыку
-    loadLocalMusic();
-    // Загружаем видео из папки
-    loadLocalVideos();
-    // Загружаем фото из папки
-    loadLocalPhotos();
-    // Загружаем YouTube ссылки из папки
-    loadYouTubeLinks();
-    // Загружаем GIF баннеры в футер
-    loadFooterBanners();
-    // Добавляем примеры контента для демонстрации
-    addDemoContent();
+    // Инициализируем CRT эффект выключенного телевизора
+    initCRTPower();
+    
+    // Остальная инициализация только после включения телевизора
+    // (будет вызвана из initCRTPower)
 });
 
 // Инициализируем AudioContext при загрузке
@@ -708,76 +691,109 @@ function initHeroMatrix() {
     setTimeout(initMatrix, 100);
 }
 
+// Инициализация CRT эффекта выключенного телевизора
+function initCRTPower() {
+    const crtOffOverlay = document.getElementById('crtOffOverlay');
+    const crtPowerButton = document.getElementById('crtPowerButton');
+    
+    if (!crtOffOverlay || !crtPowerButton) return;
+    
+    // Показываем выключенный экран
+    crtOffOverlay.classList.add('active');
+    
+    // Обработчик нажатия на кнопку включения
+    crtPowerButton.addEventListener('click', () => {
+        playSound('click');
+        
+        // Анимация включения
+        crtOffOverlay.classList.add('powering-on');
+        
+        setTimeout(() => {
+            crtOffOverlay.classList.remove('active', 'powering-on');
+            
+            // Инициализируем сайт после включения
+            initSite();
+        }, 1500);
+    });
+}
+
+// Инициализация сайта после включения телевизора
+function initSite() {
+    initModals();
+    initNavigation();
+    initAudioPlayer();
+    initContentCards();
+    initPlaceholders();
+    initSoundEffects();
+    initShopButton();
+    initSmoothScroll();
+    initVideoTabs();
+    initHeroMatrix();
+    loadLocalMusic();
+    loadLocalVideos();
+    loadLocalPhotos();
+    loadYouTubeLinks();
+    loadFooterBanners();
+    addDemoContent();
+}
+
 function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, codeWords) {
     // Очищаем контейнер
     matrixContainer.innerHTML = '';
     
-    // Создаем колонки с падающими словами (как в Midjourney)
-    const columnCount = Math.max(10, Math.floor(containerWidth / 30));
-    const columns = [];
+    const textBlocks = [];
+    const blockCount = 3; // Количество текстовых блоков
     
-    // Символы для заполнения
-    const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?/~`';
-    
-    for (let i = 0; i < columnCount; i++) {
-        const column = document.createElement('div');
-        column.className = 'matrix-column';
-        column.style.left = `${(i * 100) / columnCount}%`;
+    // Создаем текстовые блоки, которые появляются справа и сползают влево
+    for (let blockIndex = 0; blockIndex < blockCount; blockIndex++) {
+        const textBlock = document.createElement('div');
+        textBlock.className = 'matrix-text-block';
         
-        const words = [];
-        const wordCount = 15 + Math.floor(Math.random() * 10);
+        // Генерируем текст (как в книге - строки одна под другой)
+        let fullText = '';
+        const lineCount = 20 + Math.floor(Math.random() * 15);
+        const wordsPerLine = 10 + Math.floor(Math.random() * 8);
         
-        // Создаем слова в колонке
-        for (let j = 0; j < wordCount; j++) {
-            const wordElement = document.createElement('div');
-            wordElement.className = 'matrix-word';
-            
-            // Иногда используем слова из списка (30% вероятность), иначе символы
-            if (Math.random() < 0.3 && j > 2) {
+        for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
+            let lineText = '';
+            for (let wordIndex = 0; wordIndex < wordsPerLine; wordIndex++) {
                 const word = codeWords[Math.floor(Math.random() * codeWords.length)];
-                wordElement.textContent = word;
-                wordElement.classList.add('word-highlight');
-            } else {
-                wordElement.textContent = charSet[Math.floor(Math.random() * charSet.length)];
+                lineText += word + ' ';
             }
-            
-            // Параметры для искажения каждого слова
-            const startY = -100 - (j * 40);
-            const speed = 0.5 + Math.random() * 1.5;
-            const rotation = (Math.random() - 0.5) * 360;
-            const rotationSpeed = (Math.random() - 0.5) * 3;
-            const skewX = (Math.random() - 0.5) * 20;
-            const skewY = (Math.random() - 0.5) * 15;
-            const scaleX = 0.8 + Math.random() * 0.4;
-            const scaleY = 0.8 + Math.random() * 0.4;
-            const wavePhase = Math.random() * Math.PI * 2;
-            const waveAmplitude = 5 + Math.random() * 15;
-            
-            wordElement.style.top = startY + 'px';
-            
-            words.push({
-                element: wordElement,
-                y: startY,
-                speed: speed,
-                rotation: rotation,
-                rotationSpeed: rotationSpeed,
-                skewX: skewX,
-                skewY: skewY,
-                scaleX: scaleX,
-                scaleY: scaleY,
-                wavePhase: wavePhase,
-                waveAmplitude: waveAmplitude,
-                time: Math.random() * 100
-            });
-            
-            column.appendChild(wordElement);
+            fullText += lineText.trim() + '\n';
         }
         
-        matrixContainer.appendChild(column);
-        columns.push({ element: column, words: words });
+        textBlock.textContent = fullText.trim();
+        
+        // Начальная позиция справа
+        const startX = containerWidth + 50;
+        const startY = (blockIndex * containerHeight / blockCount) + 50;
+        
+        // Параметры для искажения
+        const speed = 0.1 + Math.random() * 0.2; // Скорость сползания
+        const distortionPhase = Math.random() * Math.PI * 2;
+        const distortionAmplitude = 20 + Math.random() * 30;
+        const rotationSpeed = (Math.random() - 0.5) * 0.5;
+        
+        textBlock.style.left = startX + 'px';
+        textBlock.style.top = startY + 'px';
+        
+        textBlocks.push({
+            element: textBlock,
+            x: startX,
+            y: startY,
+            speed: speed,
+            distortionPhase: distortionPhase,
+            distortionAmplitude: distortionAmplitude,
+            rotationSpeed: rotationSpeed,
+            time: 0,
+            rotation: 0
+        });
+        
+        matrixContainer.appendChild(textBlock);
     }
     
-    // Анимация падения и искажения слов
+    // Анимация сползания и искажения текста
     let animationFrame;
     const animate = () => {
         if (!matrixContainer.parentElement) {
@@ -785,41 +801,53 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
             return;
         }
         
-        columns.forEach(column => {
-            column.words.forEach(word => {
-                word.time += 0.016;
-                word.y += word.speed;
-                word.rotation += word.rotationSpeed;
-                
-                // Если слово упало вниз, возвращаем его наверх
-                if (word.y > containerHeight + 100) {
-                    word.y = -100;
+        textBlocks.forEach((block, index) => {
+            block.time += 0.016;
+            block.x -= block.speed; // Сползание влево
+            block.rotation += block.rotationSpeed;
+            
+            // Если блок ушел влево, возвращаем его справа
+            if (block.x < -containerWidth - 100) {
+                block.x = containerWidth + 50;
+                block.y = (index * containerHeight / blockCount) + 50;
+                // Генерируем новый текст
+                let newText = '';
+                const lineCount = 20 + Math.floor(Math.random() * 15);
+                const wordsPerLine = 10 + Math.floor(Math.random() * 8);
+                for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
+                    let lineText = '';
+                    for (let wordIndex = 0; wordIndex < wordsPerLine; wordIndex++) {
+                        const word = codeWords[Math.floor(Math.random() * codeWords.length)];
+                        lineText += word + ' ';
+                    }
+                    newText += lineText.trim() + '\n';
                 }
-                
-                // Математические искажения формы слова
-                // Волновое искажение по X
-                const waveX = Math.sin(word.time * 0.3 + word.wavePhase) * word.waveAmplitude;
-                
-                // Динамическое изменение skew
-                const dynamicSkewX = word.skewX + Math.sin(word.time * 0.2) * 5;
-                const dynamicSkewY = word.skewY + Math.cos(word.time * 0.25) * 4;
-                
-                // Динамическое изменение scale
-                const dynamicScaleX = word.scaleX + Math.sin(word.time * 0.15) * 0.1;
-                const dynamicScaleY = word.scaleY + Math.cos(word.time * 0.18) * 0.1;
-                
-                // Применяем трансформации с искажениями
-                word.element.style.transform = `
-                    translate(${waveX}px, ${word.y}px)
-                    rotate(${word.rotation}deg)
-                    skew(${dynamicSkewX}deg, ${dynamicSkewY}deg)
-                    scale(${dynamicScaleX}, ${dynamicScaleY})
-                `;
-                
-                // Прозрачность в зависимости от позиции
-                const opacity = Math.max(0.2, Math.min(0.8, 1 - (word.y / containerHeight)));
-                word.element.style.opacity = opacity;
-            });
+                block.element.textContent = newText.trim();
+            }
+            
+            // Математические искажения формы текста
+            // Волновое искажение по Y
+            const waveY = Math.sin(block.time * 0.2 + block.distortionPhase) * block.distortionAmplitude;
+            
+            // Искажение наклона (skew)
+            const skewX = Math.sin(block.time * 0.15) * 10 + Math.cos(block.time * 0.1) * 5;
+            const skewY = Math.cos(block.time * 0.18) * 8 + Math.sin(block.time * 0.12) * 4;
+            
+            // Масштабирование (растяжение/сжатие)
+            const scaleX = 1 + Math.sin(block.time * 0.25) * 0.15;
+            const scaleY = 1 + Math.cos(block.time * 0.3) * 0.12;
+            
+            // Применяем трансформации с искажениями
+            block.element.style.transform = `
+                translate(${block.x}px, ${block.y + waveY}px)
+                rotate(${block.rotation}deg)
+                skew(${skewX}deg, ${skewY}deg)
+                scale(${scaleX}, ${scaleY})
+            `;
+            
+            // Прозрачность в зависимости от позиции
+            const opacity = Math.max(0.3, Math.min(0.7, 1 - (block.x / containerWidth)));
+            block.element.style.opacity = opacity;
         });
         
         animationFrame = requestAnimationFrame(animate);

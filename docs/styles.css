@@ -25,6 +25,7 @@ body {
     background: var(--bg-primary);
     color: var(--text-primary);
     overflow-x: hidden;
+    overflow-y: auto;
     line-height: 1.6;
     min-height: 100vh;
 }
@@ -299,11 +300,19 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Hero секция */
+/* Hero секция с 3D эффектом */
 .hero {
     text-align: center;
-    padding: 60px 0;
+    padding: 100px 0;
     margin-bottom: 60px;
+    position: relative;
+    perspective: 1000px;
+    transform-style: preserve-3d;
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .hero-title {
@@ -311,6 +320,13 @@ body {
     font-weight: 700;
     margin-bottom: 20px;
     letter-spacing: 5px;
+    transform-style: preserve-3d;
+    transition: transform 0.3s ease;
+    cursor: default;
+}
+
+.hero-title:hover {
+    transform: translateZ(50px) rotateX(5deg);
 }
 
 .hero-subtitle {
@@ -318,12 +334,30 @@ body {
     color: var(--text-secondary);
     margin-bottom: 30px;
     font-style: italic;
+    transform: translateZ(30px);
+    transition: transform 0.3s ease;
+}
+
+.hero:hover .hero-subtitle {
+    transform: translateZ(50px);
 }
 
 .hero-description {
     font-size: 1.1rem;
     color: var(--text-secondary);
     line-height: 2;
+    transform: translateZ(20px);
+    transition: transform 0.3s ease;
+}
+
+.hero:hover .hero-description {
+    transform: translateZ(40px);
+}
+
+/* 3D эффект при движении мыши */
+.hero-3d-container {
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease-out;
 }
 
 /* Сетка контента */

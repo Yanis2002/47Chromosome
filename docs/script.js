@@ -41,6 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initVideoTabs();
     // Инициализируем эффект бегающего текста
     initMatrixRain();
+    // Инициализируем 3D эффект для hero
+    initHero3D();
     // Загружаем локальную музыку
     loadLocalMusic();
     // Загружаем видео из папки
@@ -607,6 +609,30 @@ function initSmoothScroll() {
                 }
             }
         });
+    });
+}
+
+// Инициализация 3D эффекта для hero секции
+function initHero3D() {
+    const hero = document.querySelector('.hero');
+    if (!hero) return;
+    
+    hero.addEventListener('mousemove', (e) => {
+        const rect = hero.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        const rotateX = (y - centerY) / 20;
+        const rotateY = (centerX - x) / 20;
+        
+        hero.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    });
+    
+    hero.addEventListener('mouseleave', () => {
+        hero.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
     });
 }
 

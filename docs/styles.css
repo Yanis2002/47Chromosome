@@ -344,19 +344,19 @@ body {
     color: var(--glitch-blue);
 }
 
-/* Анимация paths для glitch эффекта - перерывы увеличены в 5 раз */
+/* Анимация paths для glitch эффекта - перерывы увеличены в 5 раз (длительность увеличена в 5 раз) */
 .nav-logo .glitch-text span {
-    animation: glitch-paths-slow 5s step-end infinite;
+    animation: glitch-paths-slow 25s step-end infinite;
 }
 
 .nav-logo .glitch-text::before {
-    animation: glitch-paths-slow 5s step-end infinite, glitch-opacity-slow 5s step-end infinite,
-        glitch-font-slow 8s step-end infinite, glitch-movement-slow 10s step-end infinite;
+    animation: glitch-paths-slow 25s step-end infinite, glitch-opacity-slow 25s step-end infinite,
+        glitch-font-slow 40s step-end infinite, glitch-movement-slow 50s step-end infinite;
 }
 
 .nav-logo .glitch-text::after {
-    animation: glitch-paths-slow 5s step-end infinite, glitch-opacity-slow 5s step-end infinite,
-        glitch-font-slow 7s step-end infinite, glitch-movement-slow 8s step-end infinite;
+    animation: glitch-paths-slow 25s step-end infinite, glitch-opacity-slow 25s step-end infinite,
+        glitch-font-slow 35s step-end infinite, glitch-movement-slow 40s step-end infinite;
 }
 
 /* Простой старый стиль глитча для hero-title (WELCOME) */

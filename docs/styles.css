@@ -88,6 +88,63 @@ body {
     50% { opacity: 0.5; }
 }
 
+/* Matrix Rain эффект (бегающий текст) */
+.matrix-rain {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    opacity: 0.15;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.2;
+    color: var(--accent-cyan);
+    text-shadow: 0 0 5px var(--accent-cyan);
+}
+
+.matrix-column {
+    position: absolute;
+    top: -100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    white-space: nowrap;
+}
+
+.matrix-char {
+    color: var(--accent-cyan);
+    opacity: 0.8;
+    text-shadow: 0 0 3px var(--accent-cyan);
+    transition: opacity 0.1s ease;
+}
+
+.matrix-char.highlight {
+    color: var(--accent-neon);
+    opacity: 1;
+    text-shadow: 0 0 8px var(--accent-neon), 0 0 15px var(--accent-neon);
+}
+
+.matrix-char.fade {
+    opacity: 0.2;
+}
+
+@keyframes matrixFall {
+    0% {
+        transform: translateY(-100%);
+    }
+    100% {
+        transform: translateY(calc(100vh + 100%));
+    }
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+    .matrix-rain {
+        font-size: 10px;
+        opacity: 0.1;
+    }
+}
+
 /* Контейнер */
 .container {
     max-width: 1400px;

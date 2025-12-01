@@ -39,6 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initShopButton();
     initSmoothScroll();
     initVideoTabs();
+    // Инициализируем эффект бегающего текста
+    initMatrixRain();
     // Загружаем локальную музыку
     loadLocalMusic();
     // Загружаем видео из папки
@@ -606,6 +608,82 @@ function initSmoothScroll() {
             }
         });
     });
+}
+
+// Инициализация эффекта бегающего текста (Matrix Rain)
+function initMatrixRain() {
+    const matrixContainer = document.getElementById('matrixRain');
+    if (!matrixContainer) return;
+    
+    // Символы для генерации текста
+    const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?/~`';
+    const codeWords = ['imagine', 'create', 'design', 'art', 'digital', 'code', 'matrix', 'system', 'data', 'pixel', 'glitch', 'cyber', 'void', 'space', 'render', 'generate', 'prompt', 'style', 'aesthetic', 'visual', '47Chromosome', 'maidcore', 'music', 'video', 'photo'];
+    
+    // Количество колонок
+    const columnCount = Math.floor(window.innerWidth / 20);
+    const columns = [];
+    
+    // Создаем колонки
+    for (let i = 0; i < columnCount; i++) {
+        const column = document.createElement('div');
+        column.className = 'matrix-column';
+        column.style.left = `${(i * 100) / columnCount}%`;
+        const duration = 15 + Math.random() * 20;
+        column.style.animationDuration = `${duration}s`;
+        column.style.animationDelay = `${Math.random() * 5}s`;
+        column.style.animation = `matrixFall ${duration}s linear infinite`;
+        
+        // Генерируем символы для колонки
+        const charCount = 30 + Math.floor(Math.random() * 20);
+        for (let j = 0; j < charCount; j++) {
+            const char = document.createElement('span');
+            char.className = 'matrix-char';
+            
+            // Иногда используем слова из codeWords
+            if (Math.random() < 0.1 && j > 5) {
+                const word = codeWords[Math.floor(Math.random() * codeWords.length)];
+                char.textContent = word;
+                char.style.color = 'var(--accent-neon)';
+            } else {
+                char.textContent = charSet[Math.floor(Math.random() * charSet.length)];
+            }
+            
+            // Первые несколько символов ярче
+            if (j < 3) {
+                char.classList.add('highlight');
+            } else if (j > charCount - 5) {
+                char.classList.add('fade');
+            }
+            
+            column.appendChild(char);
+        }
+        
+        matrixContainer.appendChild(column);
+        columns.push(column);
+    }
+    
+    // Анимация обновления символов
+    setInterval(() => {
+        columns.forEach(column => {
+            const charElements = column.querySelectorAll('.matrix-char');
+            charElements.forEach((char, index) => {
+                // Обновляем только некоторые символы
+                if (Math.random() < 0.1) {
+                    if (Math.random() < 0.15 && index > 5) {
+                        const word = codeWords[Math.floor(Math.random() * codeWords.length)];
+                        char.textContent = word;
+                        char.style.color = 'var(--accent-neon)';
+                        setTimeout(() => {
+                            char.textContent = charSet[Math.floor(Math.random() * charSet.length)];
+                            char.style.color = '';
+                        }, 1000);
+                    } else {
+                        char.textContent = charSet[Math.floor(Math.random() * charSet.length)];
+                    }
+                }
+            });
+        });
+    }, 100);
 }
 
 // Инициализация вкладок для видео

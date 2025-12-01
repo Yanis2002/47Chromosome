@@ -2356,10 +2356,11 @@ function loadLocalPhotos() {
                 console.log('Получены фото из JSON:', photos);
                 if (photos && Array.isArray(photos)) {
                     console.log('Всего фото для загрузки:', photos.length);
+                    // Добавляем все фото, но скрываем те, что не на первой странице
                     photos.forEach((photo, index) => {
                         try {
                             if (photo.src) {
-                                addPhoto(photo.src, photo.alt || '');
+                                addPhoto(photo.src, photo.alt || '', index);
                                 if (index % 5 === 0) {
                                     console.log(`Загружено фото: ${index + 1}/${photos.length}`);
                                 }
@@ -2368,6 +2369,8 @@ function loadLocalPhotos() {
                             console.error('Ошибка добавления фото из JSON:', e, photo);
                         }
                     });
+                    // Инициализируем пагинацию для фото
+                    initPhotoPagination(photos.length);
                     console.log('Все фото загружены, всего:', photos.length);
                 } else {
                     console.warn('Фото не являются массивом:', photos);

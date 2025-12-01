@@ -14,8 +14,9 @@
     --accent-neon: #ff00ff;
     --accent-cyan: #00ffff;
     --accent-purple: #9d4edd;
-    --glitch-red: #ff0000;
-    --glitch-blue: #00ff00;
+    --glitch-red: #e0287d;
+    --glitch-blue: #1bc7fb;
+    --glitch-pink: #e0287d;
     --border-color: #333;
     --shadow-glow: 0 0 20px rgba(255, 0, 255, 0.3);
 }
@@ -314,46 +315,112 @@ body {
 }
 
 /* Глитч эффект для текста */
+/* Cyberpunk Glitch стиль */
 .glitch-text {
     position: relative;
     display: inline-block;
-    color: var(--text-primary);
-    text-shadow: 
-        2px 0 var(--glitch-red),
-        -2px 0 var(--glitch-blue);
-    animation: glitch 3s infinite;
+    color: #fff;
+    font-size: clamp(40px, 10vw, 100px);
+    line-height: 1;
+    letter-spacing: 10px;
+    filter: drop-shadow(0 1px 3px);
+    z-index: 2;
 }
 
-.glitch-text::before,
-.glitch-text::after {
+.glitch-text.layers::before,
+.glitch-text.layers::after {
     content: attr(data-text);
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    width: 110%;
+    z-index: -1;
 }
 
-.glitch-text::before {
-    left: 2px;
-    text-shadow: -2px 0 var(--glitch-red);
-    clip: rect(44px, 450px, 56px, 0);
-    animation: glitch-anim 5s infinite linear alternate-reverse;
+.glitch-text.layers::before {
+    top: 10px;
+    left: 15px;
+    color: var(--glitch-pink);
 }
 
-.glitch-text::after {
-    left: -2px;
-    text-shadow: 2px 0 var(--glitch-blue);
-    clip: rect(44px, 450px, 56px, 0);
-    animation: glitch-anim 1s infinite linear alternate-reverse;
+.glitch-text.layers::after {
+    top: 5px;
+    left: -10px;
+    color: var(--glitch-blue);
 }
 
-@keyframes glitch {
-    0%, 100% { transform: translate(0); }
-    20% { transform: translate(-2px, 2px); }
-    40% { transform: translate(-2px, -2px); }
-    60% { transform: translate(2px, 2px); }
-    80% { transform: translate(2px, -2px); }
+.glitch-text.glitch span {
+    animation: glitch-paths 5s step-end infinite;
+}
+
+.glitch-text.glitch::before {
+    animation: glitch-paths 5s step-end infinite, glitch-opacity 5s step-end infinite,
+        glitch-font 8s step-end infinite, glitch-movement 10s step-end infinite;
+}
+
+.glitch-text.glitch::after {
+    animation: glitch-paths 5s step-end infinite, glitch-opacity 5s step-end infinite,
+        glitch-font 7s step-end infinite, glitch-movement 8s step-end infinite;
+}
+
+@keyframes glitch-paths {
+    0% {
+        clip-path: polygon(
+            0% 43%, 83% 43%, 83% 22%, 23% 22%, 23% 24%, 91% 24%, 91% 26%, 18% 26%, 18% 83%, 29% 83%, 29% 17%, 41% 17%, 41% 39%, 18% 39%, 18% 82%, 54% 82%, 54% 88%, 19% 88%, 19% 4%, 39% 4%, 39% 14%, 76% 14%, 76% 52%, 23% 52%, 23% 35%, 19% 35%, 19% 8%, 36% 8%, 36% 31%, 73% 31%, 73% 16%, 1% 16%, 1% 56%, 50% 56%, 50% 8%
+        );
+    }
+    5% {
+        clip-path: polygon(
+            0% 29%, 44% 29%, 44% 83%, 94% 83%, 94% 56%, 11% 56%, 11% 64%, 94% 64%, 94% 70%, 88% 70%, 88% 32%, 18% 32%, 18% 96%, 10% 96%, 10% 62%, 9% 62%, 9% 84%, 68% 84%, 68% 50%, 52% 50%, 52% 55%, 35% 55%, 35% 87%, 25% 87%, 25% 39%, 15% 39%, 15% 88%, 52% 88%
+        );
+    }
+    30% {
+        clip-path: polygon(
+            0% 53%, 93% 53%, 93% 62%, 68% 62%, 68% 37%, 97% 37%, 97% 89%, 13% 89%, 13% 45%, 51% 45%, 51% 88%, 17% 88%, 17% 54%, 81% 54%, 81% 75%, 79% 75%, 79% 76%, 38% 76%, 38% 28%, 61% 28%, 61% 12%, 55% 12%, 55% 62%, 68% 62%, 68% 51%, 0% 51%, 0% 92%, 63% 92%, 63% 4%, 65% 4%
+        );
+    }
+    45% {
+        clip-path: polygon(
+            0% 33%, 2% 33%, 2% 69%, 58% 69%, 58% 94%, 55% 94%, 55% 25%, 33% 25%, 33% 85%, 16% 85%, 16% 19%, 5% 19%, 5% 20%, 79% 20%, 79% 96%, 93% 96%, 93% 50%, 5% 50%, 5% 74%, 55% 74%, 55% 57%, 96% 57%, 96% 59%, 87% 59%, 87% 65%, 82% 65%, 82% 39%, 63% 39%, 63% 92%, 4% 92%, 4% 36%, 24% 36%, 24% 70%, 1% 70%, 1% 43%, 15% 43%, 15% 28%, 23% 28%, 23% 71%, 90% 71%, 90% 86%, 97% 86%, 97% 1%, 60% 1%, 60% 67%, 71% 67%, 71% 91%, 17% 91%, 17% 14%, 39% 14%, 39% 30%, 58% 30%, 58% 11%, 52% 11%, 52% 83%, 68% 83%
+        );
+    }
+    76% {
+        clip-path: polygon(
+            0% 26%, 15% 26%, 15% 73%, 72% 73%, 72% 70%, 77% 70%, 77% 75%, 8% 75%, 8% 42%, 4% 42%, 4% 61%, 17% 61%, 17% 12%, 26% 12%, 26% 63%, 73% 63%, 73% 43%, 90% 43%, 90% 67%, 50% 67%, 50% 41%, 42% 41%, 42% 46%, 50% 46%, 50% 84%, 96% 84%, 96% 78%, 49% 78%, 49% 25%, 63% 25%, 63% 14%
+        );
+    }
+    90% {
+        clip-path: polygon(
+            0% 41%, 13% 41%, 13% 6%, 87% 6%, 87% 93%, 10% 93%, 10% 13%, 89% 13%, 89% 6%, 3% 6%, 3% 8%, 16% 8%, 16% 79%, 0% 79%, 0% 99%, 92% 99%, 92% 90%, 5% 90%, 5% 60%, 0% 60%, 0% 48%, 89% 48%, 89% 13%, 80% 13%, 80% 43%, 95% 43%, 95% 19%, 80% 19%, 80% 85%, 38% 85%, 38% 62%
+        );
+    }
+    1%, 7%, 33%, 47%, 78%, 93% {
+        clip-path: none;
+    }
+}
+
+@keyframes glitch-movement {
+    0% { top: 0px; left: -20px; }
+    15% { top: 10px; left: 10px; }
+    60% { top: 5px; left: -10px; }
+    75% { top: -5px; left: 20px; }
+    100% { top: 10px; left: 5px; }
+}
+
+@keyframes glitch-opacity {
+    0% { opacity: 0.1; }
+    5% { opacity: 0.7; }
+    30% { opacity: 0.4; }
+    45% { opacity: 0.6; }
+    76% { opacity: 0.4; }
+    90% { opacity: 0.8; }
+    1%, 7%, 33%, 47%, 78%, 93% { opacity: 0; }
+}
+
+@keyframes glitch-font {
+    0% { font-weight: 100; color: var(--glitch-pink); filter: blur(3px); }
+    20% { font-weight: 500; color: #fff; filter: blur(0); }
+    50% { font-weight: 300; color: var(--glitch-blue); filter: blur(2px); }
+    60% { font-weight: 700; color: #fff; filter: blur(0); }
+    90% { font-weight: 500; color: var(--glitch-pink); filter: blur(6px); }
 }
 
 @keyframes glitch-anim {
@@ -2026,6 +2093,86 @@ body {
         flex-direction: column;
         text-align: center;
     }
+}
+
+/* Пагинация для фото и аудио */
+.pagination {
+    --size: 36px;
+    --inset: 2px;
+    --pagination-radius: 4;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+.pagination__list {
+    display: flex;
+    list-style: none;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    gap: 4px;
+}
+
+.pagination__item {
+    width: var(--size);
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+}
+
+.pagination__link {
+    display: grid;
+    place-items: center;
+    color: var(--text-secondary);
+    text-decoration: none;
+    width: 100%;
+    height: 100%;
+    user-select: none;
+    position: relative;
+    border-radius: calc(var(--pagination-radius) * 1px);
+    transition: color 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+.pagination__link:hover {
+    color: var(--text-primary);
+}
+
+.pagination__link[aria-current="page"] {
+    color: var(--accent-neon);
+    background: color-mix(in srgb, var(--accent-neon) 10%, var(--bg-secondary));
+}
+
+.pagination__link--disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.pagination__link--arrow {
+    color: var(--text-primary);
+}
+
+.pagination__link--arrow:hover {
+    color: var(--accent-neon);
+}
+
+.pagination__link--gap {
+    pointer-events: none;
+    color: var(--text-secondary);
+}
+
+/* Контейнеры с пагинацией */
+.photo-gallery-container,
+.audio-list-container {
+    position: relative;
+}
+
+.photo-gallery-container .pagination,
+.audio-list-container .pagination {
+    margin-top: 20px;
+}
 
     .player-controls {
         flex-wrap: wrap;

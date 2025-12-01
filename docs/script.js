@@ -1039,9 +1039,14 @@ function addAudioTrack(src, title, duration) {
         originalTrackOrder = [...audioTracks];
     }
     
+    const page = Math.floor(trackIndex / audioPageSize) + 1;
     const item = document.createElement('div');
     item.className = 'audio-item';
     item.dataset.trackIndex = trackIndex;
+    item.dataset.page = page;
+    if (page === 1) {
+        item.classList.add('visible');
+    }
     
     // Используем безопасные методы вместо innerHTML
     const container = document.createElement('div');
@@ -1205,7 +1210,15 @@ function addVideo(src, title) {
     videoGrid.appendChild(item);
 }
 
-function addPhoto(src, alt) {
+// Глобальные переменные для пагинации
+let photoPageSize = 20; // Количество фото на странице
+let audioPageSize = 20; // Количество треков на странице
+let currentPhotoPage = 1;
+let currentAudioPage = 1;
+let totalPhotos = 0;
+let totalAudios = 0;
+
+function addPhoto(src, alt, index = 0) {
     const photoGallery = document.getElementById('photoGallery');
     if (!photoGallery) return;
     
@@ -1215,8 +1228,14 @@ function addPhoto(src, alt) {
         photoGallery.innerHTML = '';
     }
     
+    const page = Math.floor(index / photoPageSize) + 1;
     const item = document.createElement('div');
     item.className = 'photo-item';
+    item.dataset.page = page;
+    if (page === 1) {
+        item.classList.add('visible');
+    }
+    
     const img = document.createElement('img');
     // Безопасная установка src и alt (автоматически экранирует специальные символы)
     // Пути вида photo/file.jpg работают и на localhost, и на GitHub Pages когда docs/ - корень сайта
@@ -1931,6 +1950,507 @@ function addYouTubeVideo(videoId, title, thumbnail) {
                         Видео недоступно через прокси. Используйте VPN или откройте напрямую:
                     </p>
                     <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" class="youtube-link">
+                        Открыть на YouTube →
+                    </a>
+                    <div style="margin-top: 15px;">
+                        <p style="color: var(--text-secondary); font-size: 0.85rem;">
+                            Альтернативные сервисы:
+                        </p>
+                        <a href="https://invidious.io/watch?v=${videoId}" target="_blank" style="color: var(--accent-cyan); margin-right: 15px;">Invidious</a>
+                        <a href="https://piped.video/watch?v=${videoId}" target="_blank" style="color: var(--accent-cyan);">Piped</a>
+                    </div>
+                </div>
+            `;
+        }
+    };
+    
+    // Обработка ошибок загрузки
+    iframe.onerror = () => {
+        setTimeout(loadNextEmbed, 1000); // Задержка перед следующей попыткой
+    };
+    
+    // Проверка успешной загрузки
+    iframe.onload = () => {
+        // Если iframe загрузился, считаем успешным
+        loadAttempts = 0;
+    };
+    
+    // Таймаут для проверки загрузки (если iframe не загрузился за 5 секунд, пробуем следующий)
+    const loadTimeout = setTimeout(() => {
+        if (loadAttempts < maxLoadAttempts && currentEmbedIndex < embedUrls.length) {
+            loadNextEmbed();
+        }
+    }, 5000);
+    
+    // Очищаем таймаут при успешной загрузке
+    iframe.addEventListener('load', () => {
+        clearTimeout(loadTimeout);
+    });
+    
+    // Начинаем загрузку с первого варианта
+    loadNextEmbed();
+    
+    item.appendChild(iframe);
+    item.appendChild(titleDiv);
+    
+    youtubeList.appendChild(item);
+}
+
+// Добавление YouTube видео по URL
+function addYouTubeVideoByURL(url, title) {
+    // Извлекаем ID из различных форматов YouTube URL
+    let videoId = '';
+    
+    const patterns = [
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+        /youtube\.com\/.*[?&]v=([^&\n?#]+)/
+    ];
+    
+    for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match && match[1]) {
+            videoId = match[1];
+            break;
+        }
+    }
+    
+    if (videoId) {
+        addYouTubeVideo(videoId, title);
+    } else {
+        console.error('Не удалось извлечь ID видео из URL:', url);
+    }
+}
+
+// Загрузка локальных видео из папки video
+function loadLocalVideos() {
+    try {
+        // Список локальных видео файлов (добавьте ваши файлы)
+        const localVideos = [
+
+    ];
+        
+        localVideos.forEach(video => {
+            try {
+                addVideo(video.src, video.title);
+            } catch (e) {
+                console.error('Ошибка добавления видео:', e, video);
+            }
+        });
+    } catch (error) {
+        console.error('Критическая ошибка в loadLocalVideos:', error);
+    }
+}
+
+// Загрузка YouTube ссылок из файла
+// Глобальный массив видео для телевизора
+let tvVideos = [];
+let currentVideoIndex = 0;
+
+async function loadYouTubeLinks() {
+    try {
+        const channelList = document.getElementById('tvChannelList');
+        const tvPlayer = document.getElementById('tvPlayer');
+        const tvStatic = document.getElementById('tvStatic');
+        
+        if (!channelList) {
+            console.warn('Элемент tvChannelList не найден, пробуем еще раз...');
+            setTimeout(loadYouTubeLinks, 500);
+            return;
+        }
+        
+        if (!tvPlayer) {
+            console.warn('Элемент tvPlayer не найден, пробуем еще раз...');
+            setTimeout(loadYouTubeLinks, 500);
+            return;
+        }
+        
+        tvVideos = [];
+    
+    try {
+        // Пытаемся загрузить JSON файл со ссылками
+        const response = await fetch('video/youtube.json');
+        if (response.ok) {
+            const videos = await response.json();
+            videos.forEach(video => {
+                let videoId = '';
+                if (video.id) {
+                    videoId = video.id;
+                } else if (video.url) {
+                    const patterns = [
+                        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+                        /youtube\.com\/.*[?&]v=([^&\n?#]+)/
+                    ];
+                    for (const pattern of patterns) {
+                        const match = video.url.match(pattern);
+                        if (match && match[1]) {
+                            videoId = match[1];
+                            break;
+                        }
+                    }
+                }
+                if (videoId) {
+                    tvVideos.push({
+                        id: videoId,
+                        title: video.title || 'YouTube видео'
+                    });
+                }
+            });
+        }
+    } catch (e) {
+        // Игнорируем ошибку, если файл не найден
+    }
+    
+    // Если JSON не найден, пытаемся загрузить текстовый файл со ссылками
+    if (tvVideos.length === 0) {
+        try {
+            const response = await fetch('video/links.txt');
+            if (response.ok) {
+                const text = await response.text();
+                const lines = text.split('\n').filter(line => line.trim() && !line.startsWith('#'));
+                for (const link of lines) {
+                    const trimmedLink = link.trim();
+                    if (trimmedLink && trimmedLink.includes('youtube')) {
+                        // Обработка обычных ссылок на видео
+                        let videoId = '';
+                        const videoPatterns = [
+                            /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+                            /youtube\.com\/.*[?&]v=([^&\n?#]+)/
+                        ];
+                        for (const pattern of videoPatterns) {
+                            const match = trimmedLink.match(pattern);
+                            if (match && match[1]) {
+                                videoId = match[1];
+                                break;
+                            }
+                        }
+                        
+                        // Обработка плейлистов
+                        if (!videoId) {
+                            const playlistMatch = trimmedLink.match(/youtube\.com\/playlist\?list=([^&\n?#]+)/);
+                            if (playlistMatch && playlistMatch[1]) {
+                                // Для плейлистов добавляем как отдельный элемент
+                                tvVideos.push({
+                                    id: playlistMatch[1],
+                                    title: `Плейлист ${tvVideos.length + 1}`,
+                                    isPlaylist: true
+                                });
+                                continue; // Пропускаем дальнейшую обработку для плейлистов
+                            }
+                        }
+                        
+                        if (videoId) {
+                            // Извлекаем название из URL если возможно
+                            let videoTitle = `Видео ${tvVideos.length + 1}`;
+                            
+                            tvVideos.push({
+                                id: videoId,
+                                title: videoTitle
+                            });
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            console.log('Ошибка загрузки links.txt:', e);
+        }
+    }
+    
+    // Создаем список каналов (видео)
+    channelList.innerHTML = '';
+    tvVideos.forEach((video, index) => {
+        const channelItem = document.createElement('div');
+        channelItem.className = 'tv-channel-item';
+        if (index === 0) {
+            channelItem.classList.add('active');
+        }
+        channelItem.textContent = video.title || `Канал ${index + 1}`;
+        channelItem.addEventListener('click', () => {
+            switchToVideo(index);
+        });
+        channelList.appendChild(channelItem);
+    });
+    
+        // Загружаем первое видео
+        if (tvVideos.length > 0) {
+            switchToVideo(0);
+        } else {
+            // Показываем статику, если нет видео
+            if (tvStatic) {
+                tvStatic.classList.add('active');
+            }
+        }
+    } catch (error) {
+        console.error('Критическая ошибка в loadYouTubeLinks:', error);
+        // Пробуем еще раз через секунду
+        setTimeout(loadYouTubeLinks, 1000);
+    }
+}
+
+// Переключение на видео
+function switchToVideo(index) {
+    try {
+        if (index < 0 || index >= tvVideos.length) {
+            console.warn('Неверный индекс видео:', index, 'Всего видео:', tvVideos.length);
+            return;
+        }
+        
+        currentVideoIndex = index;
+        const video = tvVideos[index];
+        const tvPlayer = document.getElementById('tvPlayer');
+        const tvStatic = document.getElementById('tvStatic');
+        const channelItems = document.querySelectorAll('.tv-channel-item');
+        
+        if (!tvPlayer) {
+            console.warn('Элемент tvPlayer не найден');
+            return;
+        }
+        
+        // Обновляем активный канал
+        channelItems.forEach((item, i) => {
+            try {
+                if (i === index) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            } catch (e) {
+                console.error('Ошибка обновления канала:', e);
+            }
+        });
+        
+        // Показываем статику при переключении
+        if (tvStatic) {
+            tvStatic.classList.add('active');
+            tvPlayer.classList.remove('loaded');
+        }
+        
+        if (!video || !video.id) {
+            console.error('Неверные данные видео:', video);
+            return;
+        }
+        
+        // Если это плейлист, используем специальный URL
+        if (video.isPlaylist) {
+            // Для плейлистов используем embed URL плейлиста
+            const embedUrls = [
+                `https://invidious.io/embed?list=${video.id}`,
+                `https://yewtu.be/embed?list=${video.id}`,
+                `https://piped.video/embed?list=${video.id}`,
+                `https://www.youtube.com/embed/videoseries?list=${video.id}`
+            ];
+            
+            let currentEmbedIndex = 0;
+            const loadPlaylist = () => {
+                if (currentEmbedIndex < embedUrls.length) {
+                    tvPlayer.src = embedUrls[currentEmbedIndex];
+                    currentEmbedIndex++;
+                }
+            };
+            
+            const onLoad = () => {
+                try {
+                    if (tvStatic) {
+    setTimeout(() => {
+                            tvStatic.classList.remove('active');
+                            tvPlayer.classList.add('loaded');
+                        }, 500);
+                    }
+                    tvPlayer.removeEventListener('load', onLoad);
+                } catch (e) {
+                    console.error('Ошибка обработки загрузки:', e);
+                }
+            };
+            
+            tvPlayer.addEventListener('load', onLoad);
+            
+            tvPlayer.onerror = () => {
+                if (currentEmbedIndex < embedUrls.length) {
+                    setTimeout(loadPlaylist, 1000);
+                }
+            };
+            
+            loadPlaylist();
+        } else {
+            // Обычное видео
+            // Используем альтернативные сервисы для обхода блокировок
+            const embedUrls = [
+                `https://invidious.io/embed/${video.id}`,
+                `https://yewtu.be/embed/${video.id}`,
+                `https://invidious.flokinet.to/embed/${video.id}`,
+                `https://piped.video/embed/${video.id}`,
+                `https://piped.kavin.rocks/embed/${video.id}`,
+                `https://www.youtube-nocookie.com/embed/${video.id}?rel=0&modestbranding=1`
+            ];
+            
+            let currentEmbedIndex = 0;
+            
+            const loadVideo = () => {
+                try {
+                    if (currentEmbedIndex < embedUrls.length) {
+                        tvPlayer.src = embedUrls[currentEmbedIndex];
+                        currentEmbedIndex++;
+                    }
+                } catch (e) {
+                    console.error('Ошибка загрузки видео:', e);
+                }
+            };
+            
+            // Обработка успешной загрузки
+            const onLoad = () => {
+                try {
+                    if (tvStatic) {
+                        setTimeout(() => {
+                            tvStatic.classList.remove('active');
+                            tvPlayer.classList.add('loaded');
+                        }, 500);
+                    }
+                    tvPlayer.removeEventListener('load', onLoad);
+                } catch (e) {
+                    console.error('Ошибка обработки загрузки:', e);
+                }
+            };
+            
+            tvPlayer.addEventListener('load', onLoad);
+            
+            // Обработка ошибки - пробуем следующий сервис
+            const onError = () => {
+                try {
+                    if (currentEmbedIndex < embedUrls.length) {
+                        setTimeout(loadVideo, 1000);
+                    }
+                } catch (e) {
+                    console.error('Ошибка обработки ошибки загрузки:', e);
+                }
+            };
+            
+            tvPlayer.onerror = onError;
+            
+            // Начинаем загрузку
+            loadVideo();
+        }
+    } catch (error) {
+        console.error('Критическая ошибка в switchToVideo:', error);
+    }
+}
+
+// Загрузка фотографий из папки photo
+function loadLocalPhotos() {
+    try {
+        const photoGallery = document.getElementById('photoGallery');
+        if (!photoGallery) {
+            console.warn('Элемент photoGallery не найден, пробуем еще раз...');
+            setTimeout(loadLocalPhotos, 500);
+            return;
+        }
+        
+        console.log('Загрузка фото, найден элемент:', photoGallery);
+        
+        // Список фотографий (добавьте ваши файлы)
+        // В реальном проекте это можно сделать через серверный скрипт
+        // или использовать список файлов
+        const localPhotos = [
+            // Пример:
+            // { src: 'photo/my-photo.jpg', alt: 'Описание фото' }
+        ];
+        
+        localPhotos.forEach(photo => {
+            try {
+                addPhoto(photo.src, photo.alt);
+            } catch (e) {
+                console.error('Ошибка добавления фото:', e);
+            }
+        });
+        
+        // Альтернативный способ: загрузка через список файлов
+        // Если у вас есть файл photo/list.json, можно загрузить оттуда
+        console.log('Загрузка фото из photo/list.json...');
+        fetch('photo/list.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Файл не найден');
+                }
+                return response.json();
+            })
+            .then(photos => {
+                console.log('Получены фото из JSON:', photos);
+                if (photos && Array.isArray(photos)) {
+                    console.log('Всего фото для загрузки:', photos.length);
+                    // Добавляем все фото, но скрываем те, что не на первой странице
+                    photos.forEach((photo, index) => {
+                        try {
+                            if (photo.src) {
+                                addPhoto(photo.src, photo.alt || '', index);
+                                if (index % 5 === 0) {
+                                    console.log(`Загружено фото: ${index + 1}/${photos.length}`);
+                                }
+                            }
+                        } catch (e) {
+                            console.error('Ошибка добавления фото из JSON:', e, photo);
+                        }
+                    });
+                    // Инициализируем пагинацию для фото
+                    initPhotoPagination(photos.length);
+                    console.log('Все фото загружены, всего:', photos.length);
+                } else {
+                    console.warn('Фото не являются массивом:', photos);
+                }
+            })
+            .catch((error) => {
+                console.error('Ошибка загрузки фото из JSON:', error);
+                // Файл не найден, это нормально
+            });
+    } catch (error) {
+        console.error('Критическая ошибка в loadLocalPhotos:', error);
+    }
+}
+
+// Добавление демо-контента для тестирования
+function addDemoContent() {
+    // Примеры изображений (используем placeholder изображения)
+    setTimeout(() => {
+
+        // Видео - примеры локальных видео
+        const videoExamples = [
+            { src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', title: 'Пример видео 1' },
+            { src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', title: 'Пример видео 2' }
+        ];
+
+        videoExamples.forEach(item => {
+            addVideo(item.src, item.title);
+        });
+
+        // Фото - примеры
+        const photoExamples = [
+            { src: 'https://via.placeholder.com/400x400/ff00ff/ffffff?text=Photo+1', alt: 'Фото 1' },
+            { src: 'https://via.placeholder.com/400x400/00ffff/000000?text=Photo+2', alt: 'Фото 2' },
+            { src: 'https://via.placeholder.com/400x400/9d4edd/ffffff?text=Photo+3', alt: 'Фото 3' }
+        ];
+
+        // Фото загружаются из photo/list.json, не добавляем примеры
+        // photoExamples.forEach(item => {
+        //     addPhoto(item.src, item.alt);
+        // });
+
+        // Библиотека - примеры
+        addLibraryItem('Материал 1', 'Описание первого материала', 'https://example.com');
+        addLibraryItem('Материал 2', 'Описание второго материала', null);
+        addLibraryItem('Материал 3', 'Описание третьего материала', 'https://example.com');
+        
+        // Пример YouTube видео (закомментируйте если не нужно)
+        // addYouTubeVideo('dQw4w9WgXcQ', 'Пример YouTube видео');
+    }, 100);
+}
+
+// Экспорт функций для использования
+window.addLink = addLink;
+window.addAudioTrack = addAudioTrack;
+window.addVideo = addVideo;
+window.addPhoto = addPhoto;
+window.addLibraryItem = addLibraryItem;
+window.addYouTubeVideo = addYouTubeVideo;
+window.addYouTubeVideoByURL = addYouTubeVideoByURL;
+
+
                         Открыть на YouTube →
                     </a>
                     <div style="margin-top: 15px;">

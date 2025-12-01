@@ -701,8 +701,11 @@ function initHeroMatrix() {
 }
 
 function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, codeWords) {
+    // Очищаем контейнер
+    matrixContainer.innerHTML = '';
+    
     // Создаем колонки с падающими словами (как в Midjourney)
-    const columnCount = Math.floor(containerWidth / 30);
+    const columnCount = Math.max(10, Math.floor(containerWidth / 30));
     const columns = [];
     
     // Символы для заполнения
@@ -769,6 +772,11 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
     // Анимация падения и искажения слов
     let animationFrame;
     const animate = () => {
+        if (!matrixContainer.parentElement) {
+            cancelAnimationFrame(animationFrame);
+            return;
+        }
+        
         columns.forEach(column => {
             column.words.forEach(word => {
                 word.time += 0.016;

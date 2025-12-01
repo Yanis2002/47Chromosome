@@ -1,3 +1,2 @@
-# 47Chromosome
+# 47Chromosome - Личный сайт
 
-Личный сайт

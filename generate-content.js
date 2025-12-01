@@ -19,7 +19,6 @@ const DOCS_DIR = path.join(__dirname, 'docs');
 const MUSIC_DIR = path.join(DOCS_DIR, 'music');
 const PHOTO_DIR = path.join(DOCS_DIR, 'photo');
 const VIDEO_DIR = path.join(DOCS_DIR, 'video');
-const SCRIPT_FILE = path.join(DOCS_DIR, 'script.js');
 
 // Поддерживаемые форматы
 const AUDIO_FORMATS = ['.mp3', '.wav', '.ogg', '.flac', '.m4a'];
@@ -79,7 +78,8 @@ function generateMusicList() {
     });
     
     // Обновляем script.js
-    let scriptContent = fs.readFileSync(SCRIPT_FILE, 'utf8');
+    const scriptPath = path.join(DOCS_DIR, 'script.js');
+    let scriptContent = fs.readFileSync(scriptPath, 'utf8');
     
     // Находим функцию loadLocalMusic и заменяем массив
     const musicArrayStart = scriptContent.indexOf('const localMusic = [');
@@ -89,9 +89,7 @@ function generateMusicList() {
             const indent = '        ';
             const musicArrayString = musicList.map(track => {
                 const titleEscaped = track.title.replace(/'/g, "\\'");
-                // Убираем docs/ из пути если есть
-                const src = track.src.replace(/^docs\//, '');
-                return `${indent}{ src: '${src}', title: '${titleEscaped}', duration: '${track.duration}' }`;
+                return `${indent}{ src: '${track.src}', title: '${titleEscaped}', duration: '${track.duration}' }`;
             }).join(',\n');
             
             const newMusicArray = `const localMusic = [\n${musicArrayString}\n    ];`;
@@ -99,7 +97,7 @@ function generateMusicList() {
                           newMusicArray + 
                           scriptContent.substring(musicArrayEnd + 2);
             
-            fs.writeFileSync(SCRIPT_FILE, scriptContent, 'utf8');
+            fs.writeFileSync(scriptPath, scriptContent, 'utf8');
             console.log(`✅ Обновлен script.js: добавлено ${musicList.length} треков`);
         }
     }
@@ -148,7 +146,8 @@ function generateVideoList() {
     });
     
     // Обновляем script.js
-    let scriptContent = fs.readFileSync(SCRIPT_FILE, 'utf8');
+    const scriptPath = path.join(DOCS_DIR, 'script.js');
+    let scriptContent = fs.readFileSync(scriptPath, 'utf8');
     
     // Находим функцию loadLocalVideos и заменяем массив
     const videoArrayStart = scriptContent.indexOf('const localVideos = [');
@@ -158,9 +157,7 @@ function generateVideoList() {
             const indent = '    ';
             const videoArrayString = videoList.map(video => {
                 const titleEscaped = video.title.replace(/'/g, "\\'");
-                // Убираем docs/ из пути если есть
-                const src = video.src.replace(/^docs\//, '');
-                return `${indent}{ src: '${src}', title: '${titleEscaped}' }`;
+                return `${indent}{ src: '${video.src}', title: '${titleEscaped}' }`;
             }).join(',\n');
             
             const newVideoArray = `const localVideos = [\n${videoArrayString}\n    ];`;
@@ -168,7 +165,7 @@ function generateVideoList() {
                           newVideoArray + 
                           scriptContent.substring(videoArrayEnd + 2);
             
-            fs.writeFileSync(SCRIPT_FILE, scriptContent, 'utf8');
+            fs.writeFileSync(scriptPath, scriptContent, 'utf8');
             console.log(`✅ Обновлен script.js: добавлено ${videoList.length} видео`);
         }
     }

@@ -93,6 +93,89 @@
             <!-- Секция Аудио -->
             <section id="audio" class="section">
                 <div class="audio-player-container">
+                    <!-- Winamp-стиль плеер -->
+                    <div class="winamp-player" id="winampPlayer">
+                        <div class="winamp-titlebar">
+                            <div class="winamp-titlebar-left">
+                                <span class="winamp-lightning">⚡</span>
+                                <span class="winamp-title">WINAMP</span>
+                            </div>
+                            <div class="winamp-titlebar-right">
+                                <button class="winamp-window-btn" id="winampMinimize">−</button>
+                                <button class="winamp-window-btn" id="winampMaximize">□</button>
+                                <button class="winamp-window-btn" id="winampClose">×</button>
+                            </div>
+                        </div>
+                        <div class="winamp-main">
+                            <div class="winamp-display">
+                                <div class="winamp-display-left">
+                                    <div class="winamp-audio-label">AUDIO</div>
+                                    <div class="winamp-indicators">
+                                        <div class="winamp-indicator" id="winampPlayIndicator"></div>
+                                    </div>
+                                    <div class="winamp-time" id="winampTime">-00:00</div>
+                                    <div class="winamp-visualizer" id="winampVisualizer">
+                                        <canvas id="winampCanvas"></canvas>
+                                    </div>
+                                </div>
+                                <div class="winamp-display-right">
+                                    <div class="winamp-track-info" id="winampTrackInfo">Выберите трек</div>
+                                    <div class="winamp-track-duration" id="winampTrackDuration"><2:50></div>
+                                    <div class="winamp-audio-info">
+                                        <span id="winampBitrate">128 kbps</span>
+                                        <span id="winampSampleRate">44 kHz</span>
+                                        <span class="winamp-mono">mono</span>
+                                        <span class="winamp-stereo active">stereo</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="winamp-controls-top">
+                                <div class="winamp-sliders">
+                                    <div class="winamp-slider-container">
+                                        <div class="winamp-slider-label">III</div>
+                                        <div class="winamp-slider" id="winampVolumeSlider">
+                                            <div class="winamp-slider-track"></div>
+                                            <div class="winamp-slider-fill" id="winampVolumeFill"></div>
+                                            <div class="winamp-slider-handle" id="winampVolumeHandle"></div>
+                                        </div>
+                                    </div>
+                                    <div class="winamp-slider-container">
+                                        <div class="winamp-slider-label">III</div>
+                                        <div class="winamp-slider" id="winampBalanceSlider">
+                                            <div class="winamp-slider-track"></div>
+                                            <div class="winamp-slider-fill" id="winampBalanceFill"></div>
+                                            <div class="winamp-slider-handle" id="winampBalanceHandle"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="winamp-buttons-top">
+                                    <button class="winamp-btn" id="winampEQ">EQ</button>
+                                    <button class="winamp-btn" id="winampPL">PL</button>
+                                </div>
+                            </div>
+                            <div class="winamp-progress">
+                                <div class="winamp-progress-track">
+                                    <div class="winamp-progress-fill" id="winampProgressFill"></div>
+                                    <div class="winamp-progress-handle" id="winampProgressHandle"></div>
+                                </div>
+                            </div>
+                            <div class="winamp-controls-bottom">
+                                <div class="winamp-playback-controls">
+                                    <button class="winamp-playback-btn" id="winampPrev">⏮</button>
+                                    <button class="winamp-playback-btn" id="winampPlay">▶</button>
+                                    <button class="winamp-playback-btn" id="winampPause">⏸</button>
+                                    <button class="winamp-playback-btn" id="winampStop">⏹</button>
+                                    <button class="winamp-playback-btn" id="winampNext">⏭</button>
+                                    <button class="winamp-playback-btn" id="winampEject">⏏</button>
+                                </div>
+                                <div class="winamp-utility-buttons">
+                                    <button class="winamp-utility-btn" id="winampShuffle">SHUFFLE</button>
+                                    <button class="winamp-utility-btn" id="winampRepeat">🔁</button>
+                                    <button class="winamp-utility-btn" id="winampJump">⚡</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="audio-list" id="audioList">
                         <!-- Список треков будет заполнен через JS -->
                     </div>

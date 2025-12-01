@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initModals(); // Сначала создаем модальное окно
     initNavigation();
     initAudioPlayer();
+    initWinampPlayer();
     initContentCards();
     initPlaceholders();
     initSoundEffects();
@@ -153,20 +154,318 @@ function initAudioPlayer() {
     });
 }
 
+// Winamp-стиль плеер
+let winampVisualizer = null;
+let winampVisualizerContext = null;
+let winampAnalyser = null;
+let winampDataArray = null;
+
+function initWinampPlayer() {
+    const audioElement = document.getElementById('audioElement');
+    const winampPlay = document.getElementById('winampPlay');
+    const winampPause = document.getElementById('winampPause');
+    const winampStop = document.getElementById('winampStop');
+    const winampPrev = document.getElementById('winampPrev');
+    const winampNext = document.getElementById('winampNext');
+    const winampEject = document.getElementById('winampEject');
+    const winampShuffle = document.getElementById('winampShuffle');
+    const winampRepeat = document.getElementById('winampRepeat');
+    const winampVolumeSlider = document.getElementById('winampVolumeSlider');
+    const winampVolumeHandle = document.getElementById('winampVolumeHandle');
+    const winampVolumeFill = document.getElementById('winampVolumeFill');
+    const winampBalanceSlider = document.getElementById('winampBalanceSlider');
+    const winampBalanceHandle = document.getElementById('winampBalanceHandle');
+    const winampBalanceFill = document.getElementById('winampBalanceFill');
+    const winampProgressTrack = document.querySelector('.winamp-progress-track');
+    const winampProgressHandle = document.getElementById('winampProgressHandle');
+    const winampProgressFill = document.getElementById('winampProgressFill');
+    const winampTime = document.getElementById('winampTime');
+    const winampTrackInfo = document.getElementById('winampTrackInfo');
+    const winampTrackDuration = document.getElementById('winampTrackDuration');
+    const winampPlayIndicator = document.getElementById('winampPlayIndicator');
+    const winampCanvas = document.getElementById('winampCanvas');
+    
+    // Инициализация визуализатора
+    if (winampCanvas) {
+        winampVisualizerContext = winampCanvas.getContext('2d');
+        winampCanvas.width = winampCanvas.offsetWidth;
+        winampCanvas.height = winampCanvas.offsetHeight;
+        
+        // Создаем AudioContext для анализа (только один раз)
+        if (!winampAudioContext) {
+            try {
+                winampAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+                winampAnalyser = winampAudioContext.createAnalyser();
+                winampAnalyser.fftSize = 256;
+                winampDataArray = new Uint8Array(winampAnalyser.frequencyBinCount);
+                
+                // Подключаем к аудио элементу
+                const audioElement = document.getElementById('audioElement');
+                if (audioElement && !winampSource) {
+                    winampSource = winampAudioContext.createMediaElementSource(audioElement);
+                    winampSource.connect(winampAnalyser);
+                    winampAnalyser.connect(winampAudioContext.destination);
+                }
+            } catch (e) {
+                console.log('AudioContext не поддерживается:', e);
+            }
+        }
+        
+        // Запускаем визуализацию
+        animateVisualizer();
+    }
+    
+    // Кнопки управления
+    winampPlay.addEventListener('click', () => {
+        if (currentAudio) {
+            audioElement.play();
+            winampPlayIndicator.classList.add('active');
+            isPlaying = true;
+            playSound('click');
+        }
+    });
+    
+    winampPause.addEventListener('click', () => {
+        audioElement.pause();
+        winampPlayIndicator.classList.remove('active');
+        isPlaying = false;
+        playSound('click');
+    });
+    
+    winampStop.addEventListener('click', () => {
+        audioElement.pause();
+        audioElement.currentTime = 0;
+        winampPlayIndicator.classList.remove('active');
+        isPlaying = false;
+        playSound('click');
+    });
+    
+    winampPrev.addEventListener('click', () => {
+        // Переключение на предыдущий трек
+        playSound('click');
+    });
+    
+    winampNext.addEventListener('click', () => {
+        // Переключение на следующий трек
+        playSound('click');
+    });
+    
+    winampEject.addEventListener('click', () => {
+        audioElement.pause();
+        audioElement.src = '';
+        winampTrackInfo.textContent = 'Выберите трек';
+        winampTime.textContent = '-00:00';
+        winampTrackDuration.textContent = '<0:00>';
+        winampPlayIndicator.classList.remove('active');
+        isPlaying = false;
+        playSound('click');
+    });
+    
+    winampShuffle.addEventListener('click', () => {
+        winampShuffle.classList.toggle('active');
+        playSound('click');
+    });
+    
+    winampRepeat.addEventListener('click', () => {
+        winampRepeat.classList.toggle('active');
+        audioElement.loop = winampRepeat.classList.contains('active');
+        playSound('click');
+    });
+    
+    // Слайдер громкости
+    let isDraggingVolume = false;
+    winampVolumeSlider.addEventListener('mousedown', (e) => {
+        isDraggingVolume = true;
+        updateVolumeSlider(e);
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+        if (isDraggingVolume) {
+            updateVolumeSlider(e);
+        }
+    });
+    
+    document.addEventListener('mouseup', () => {
+        isDraggingVolume = false;
+    });
+    
+    function updateVolumeSlider(e) {
+        const rect = winampVolumeSlider.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const percent = Math.max(0, Math.min(100, (x / rect.width) * 100));
+        audioElement.volume = percent / 100;
+        winampVolumeFill.style.width = percent + '%';
+        winampVolumeHandle.style.right = (100 - percent) + '%';
+    }
+    
+    // Слайдер баланса
+    let isDraggingBalance = false;
+    winampBalanceSlider.addEventListener('mousedown', (e) => {
+        isDraggingBalance = true;
+        updateBalanceSlider(e);
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+        if (isDraggingBalance) {
+            updateBalanceSlider(e);
+        }
+    });
+    
+    document.addEventListener('mouseup', () => {
+        isDraggingBalance = false;
+    });
+    
+    function updateBalanceSlider(e) {
+        const rect = winampBalanceSlider.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const percent = Math.max(0, Math.min(100, (x / rect.width) * 100));
+        // Баланс (pan) - от -1 (лево) до 1 (право)
+        const panValue = (percent - 50) / 50;
+        if (audioElement.setStereoPan) {
+            audioElement.setStereoPan(panValue);
+        }
+        winampBalanceFill.style.width = percent + '%';
+        winampBalanceHandle.style.right = (100 - percent) + '%';
+    }
+    
+    // Прогресс-бар
+    let isDraggingProgress = false;
+    winampProgressTrack.addEventListener('mousedown', (e) => {
+        isDraggingProgress = true;
+        updateProgress(e);
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+        if (isDraggingProgress) {
+            updateProgress(e);
+        }
+    });
+    
+    document.addEventListener('mouseup', () => {
+        isDraggingProgress = false;
+    });
+    
+    function updateProgress(e) {
+        const rect = winampProgressTrack.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const percent = Math.max(0, Math.min(100, (x / rect.width) * 100));
+        if (audioElement.duration) {
+            audioElement.currentTime = (percent / 100) * audioElement.duration;
+        }
+    }
+    
+    // Обновление времени и прогресса
+    audioElement.addEventListener('timeupdate', () => {
+        if (audioElement.duration) {
+            const current = audioElement.currentTime;
+            const duration = audioElement.duration;
+            const remaining = duration - current;
+            
+            const formatTime = (seconds) => {
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `-${mins}:${secs.toString().padStart(2, '0')}`;
+            };
+            
+            winampTime.textContent = formatTime(remaining);
+            
+            const progress = (current / duration) * 100;
+            winampProgressFill.style.width = progress + '%';
+            winampProgressHandle.style.left = progress + '%';
+        }
+    });
+    
+    // Обновление индикатора воспроизведения
+    audioElement.addEventListener('play', () => {
+        winampPlayIndicator.classList.add('active');
+        isPlaying = true;
+    });
+    
+    audioElement.addEventListener('pause', () => {
+        winampPlayIndicator.classList.remove('active');
+        isPlaying = false;
+    });
+}
+
+// Анимация визуализатора
+function animateVisualizer() {
+    if (!winampVisualizerContext || !winampAnalyser || !winampDataArray) {
+        requestAnimationFrame(animateVisualizer);
+        return;
+    }
+    
+    const canvas = winampVisualizerContext.canvas;
+    winampAnalyser.getByteFrequencyData(winampDataArray);
+    
+    // Очищаем canvas
+    winampVisualizerContext.fillStyle = '#000';
+    winampVisualizerContext.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Рисуем сетку
+    winampVisualizerContext.strokeStyle = '#00ff00';
+    winampVisualizerContext.globalAlpha = 0.2;
+    for (let i = 0; i < canvas.height; i += 5) {
+        winampVisualizerContext.beginPath();
+        winampVisualizerContext.moveTo(0, i);
+        winampVisualizerContext.lineTo(canvas.width, i);
+        winampVisualizerContext.stroke();
+    }
+    
+    // Рисуем волну
+    winampVisualizerContext.strokeStyle = '#00ff00';
+    winampVisualizerContext.globalAlpha = 1;
+    winampVisualizerContext.lineWidth = 2;
+    winampVisualizerContext.beginPath();
+    
+    const sliceWidth = canvas.width / winampDataArray.length;
+    let x = 0;
+    const centerY = canvas.height / 2;
+    
+    for (let i = 0; i < winampDataArray.length; i++) {
+        const v = winampDataArray[i] / 255.0;
+        const y = centerY - (v * centerY);
+        
+        if (i === 0) {
+            winampVisualizerContext.moveTo(x, y);
+        } else {
+            winampVisualizerContext.lineTo(x, y);
+        }
+        
+        x += sliceWidth;
+    }
+    
+    winampVisualizerContext.stroke();
+    
+    requestAnimationFrame(animateVisualizer);
+}
+
 function loadAudio(src, title) {
     const audioElement = document.getElementById('audioElement');
     const playerTitle = document.getElementById('playerTitle');
     const audioPlayer = document.getElementById('audioPlayer');
     const playPauseBtn = document.getElementById('playPauseBtn');
+    const winampTrackInfo = document.getElementById('winampTrackInfo');
+    const winampTrackDuration = document.getElementById('winampTrackDuration');
+    const winampPlayIndicator = document.getElementById('winampPlayIndicator');
 
     audioElement.src = src;
     playerTitle.textContent = title;
     audioPlayer.classList.add('active');
     currentAudio = src;
     
+    // Обновляем Winamp-плеер
+    if (winampTrackInfo) {
+        winampTrackInfo.textContent = title || 'Неизвестный трек';
+    }
+    
     // Загружаем метаданные для определения длительности
     audioElement.addEventListener('loadedmetadata', () => {
         updateTimeDisplay();
+        if (winampTrackDuration && audioElement.duration) {
+            const mins = Math.floor(audioElement.duration / 60);
+            const secs = Math.floor(audioElement.duration % 60);
+            winampTrackDuration.textContent = `<${mins}:${secs.toString().padStart(2, '0')}>`;
+        }
     }, { once: true });
     
     audioElement.load();
@@ -175,6 +474,9 @@ function loadAudio(src, title) {
     // Автоматически начинаем воспроизведение
     audioElement.play().then(() => {
         playPauseBtn.textContent = '⏸';
+        if (winampPlayIndicator) {
+            winampPlayIndicator.classList.add('active');
+        }
         isPlaying = true;
     }).catch(err => {
         console.log('Автовоспроизведение заблокировано:', err);

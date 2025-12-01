@@ -852,11 +852,22 @@ function addLink(url, title, description) {
     
     const item = document.createElement('div');
     item.className = 'library-item';
-    item.innerHTML = `
-        <h3>${title || 'Ссылка'}</h3>
-        <p>${description || ''}</p>
-        <a href="${url}" target="_blank" class="library-link">Открыть →</a>
-    `;
+    
+    // Используем безопасные методы вместо innerHTML
+    const titleEl = document.createElement('h3');
+    titleEl.textContent = title || 'Ссылка';
+    const descEl = document.createElement('p');
+    descEl.textContent = description || '';
+    const linkEl = document.createElement('a');
+    linkEl.href = url;
+    linkEl.target = '_blank';
+    linkEl.rel = 'noopener noreferrer';
+    linkEl.className = 'library-link';
+    linkEl.textContent = 'Открыть →';
+    
+    item.appendChild(titleEl);
+    item.appendChild(descEl);
+    item.appendChild(linkEl);
     
     // Добавляем обработчик клика
     item.addEventListener('click', (e) => {
@@ -866,6 +877,37 @@ function addLink(url, title, description) {
     });
     
     linksContent.appendChild(item);
+}
+
+// Загрузка ссылок
+function loadLinks() {
+    try {
+        const linksContent = document.getElementById('linksContent');
+        if (!linksContent) {
+            console.warn('Элемент linksContent не найден, пробуем еще раз...');
+            setTimeout(loadLinks, 500);
+            return;
+        }
+        
+        console.log('Загрузка ссылок, найден элемент:', linksContent);
+        
+        // Список ссылок
+        const links = [
+            { url: 'https://alternativeto.net/', title: 'AlternativeTo', description: 'Альтернативы популярным приложениям и сервисам' }
+        ];
+        
+        links.forEach(link => {
+            try {
+                addLink(link.url, link.title, link.description);
+            } catch (e) {
+                console.error('Ошибка добавления ссылки:', e, link);
+            }
+        });
+        
+        console.log('Все ссылки загружены, всего:', links.length);
+    } catch (error) {
+        console.error('Критическая ошибка в loadLinks:', error);
+    }
 }
 
 // Вспомогательная функция для безопасной вставки текста (предотвращает ошибки с кавычками)

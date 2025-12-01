@@ -886,44 +886,47 @@ body {
     transform: translateX(5px);
 }
 
-/* Matrix Rain эффект для hero с искажением формы текста (2D, один массив) */
+/* Matrix Rain эффект для hero (Midjourney style - падающие искаженные слова) */
 .hero-matrix-bg {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    overflow: visible;
+    overflow: hidden;
     opacity: 0.4;
     pointer-events: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
-.matrix-text-block {
+.matrix-column {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 80%;
-    max-width: 1000px;
+    top: 0;
+    width: 30px;
+    height: 100%;
+}
+
+.matrix-word {
+    position: absolute;
     font-family: 'Courier New', monospace;
     font-size: 14px;
-    font-weight: 400;
+    font-weight: 500;
     color: var(--accent-cyan);
     text-shadow: 
-        0 0 8px var(--accent-cyan),
-        0 0 15px rgba(0, 255, 255, 0.3);
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    will-change: transform, opacity, filter, clip-path;
+        0 0 6px var(--accent-cyan),
+        0 0 12px rgba(0, 255, 255, 0.4);
+    white-space: nowrap;
+    will-change: transform, opacity;
     user-select: none;
-    line-height: 1.8;
-    letter-spacing: 1.5px;
-    text-align: left;
     transform-origin: center center;
-    transition: none;
+}
+
+.matrix-word.word-highlight {
+    color: var(--accent-neon);
+    text-shadow: 
+        0 0 8px var(--accent-neon),
+        0 0 15px rgba(255, 0, 255, 0.5);
+    font-weight: 600;
+    font-size: 13px;
 }
 
 /* Matrix Rain эффект (общий) */

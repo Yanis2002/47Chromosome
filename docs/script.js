@@ -701,87 +701,110 @@ function initHeroMatrix() {
 }
 
 function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, codeWords) {
-    // Создаем один текстовый блок (массив) как в книге
-    const textElement = document.createElement('div');
-    textElement.className = 'matrix-text-block';
+    // Создаем колонки с падающими словами (как в Midjourney)
+    const columnCount = Math.floor(containerWidth / 30);
+    const columns = [];
     
-    // Генерируем полный текст - много строк одна под другой
-    let fullText = '';
-    const lineCount = 25 + Math.floor(Math.random() * 20);
-    const wordsPerLine = 12 + Math.floor(Math.random() * 10);
+    // Символы для заполнения
+    const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?/~`';
     
-    for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
-        let lineText = '';
-        for (let wordIndex = 0; wordIndex < wordsPerLine; wordIndex++) {
-            const word = codeWords[Math.floor(Math.random() * codeWords.length)];
-            lineText += word + ' ';
+    for (let i = 0; i < columnCount; i++) {
+        const column = document.createElement('div');
+        column.className = 'matrix-column';
+        column.style.left = `${(i * 100) / columnCount}%`;
+        
+        const words = [];
+        const wordCount = 15 + Math.floor(Math.random() * 10);
+        
+        // Создаем слова в колонке
+        for (let j = 0; j < wordCount; j++) {
+            const wordElement = document.createElement('div');
+            wordElement.className = 'matrix-word';
+            
+            // Иногда используем слова из списка (30% вероятность), иначе символы
+            if (Math.random() < 0.3 && j > 2) {
+                const word = codeWords[Math.floor(Math.random() * codeWords.length)];
+                wordElement.textContent = word;
+                wordElement.classList.add('word-highlight');
+            } else {
+                wordElement.textContent = charSet[Math.floor(Math.random() * charSet.length)];
+            }
+            
+            // Параметры для искажения каждого слова
+            const startY = -100 - (j * 40);
+            const speed = 0.5 + Math.random() * 1.5;
+            const rotation = (Math.random() - 0.5) * 360;
+            const rotationSpeed = (Math.random() - 0.5) * 3;
+            const skewX = (Math.random() - 0.5) * 20;
+            const skewY = (Math.random() - 0.5) * 15;
+            const scaleX = 0.8 + Math.random() * 0.4;
+            const scaleY = 0.8 + Math.random() * 0.4;
+            const wavePhase = Math.random() * Math.PI * 2;
+            const waveAmplitude = 5 + Math.random() * 15;
+            
+            wordElement.style.top = startY + 'px';
+            
+            words.push({
+                element: wordElement,
+                y: startY,
+                speed: speed,
+                rotation: rotation,
+                rotationSpeed: rotationSpeed,
+                skewX: skewX,
+                skewY: skewY,
+                scaleX: scaleX,
+                scaleY: scaleY,
+                wavePhase: wavePhase,
+                waveAmplitude: waveAmplitude,
+                time: Math.random() * 100
+            });
+            
+            column.appendChild(wordElement);
         }
-        fullText += lineText.trim() + '\n';
+        
+        matrixContainer.appendChild(column);
+        columns.push({ element: column, words: words });
     }
     
-    textElement.textContent = fullText.trim();
-    matrixContainer.appendChild(textElement);
-    
-    // Параметры для сложных искажений формы текста
-    let time = 0;
-    const wavePhase = Math.random() * Math.PI * 2;
-    
-    // Анимация искажения формы текста (закручивание, волны, изгибы)
+    // Анимация падения и искажения слов
     let animationFrame;
     const animate = () => {
-        time += 0.016; // Примерно 60 FPS
-        
-        // Сложные математические искажения формы текста
-        
-        // 1. Закручивание (спиральное искажение)
-        const spiralRotation = Math.sin(time * 0.15) * 12 + Math.cos(time * 0.1) * 8;
-        
-        // 2. Волновое искажение (skew для закручивания)
-        const skewX = Math.sin(time * 0.25) * 15 + Math.cos(time * 0.2) * 10;
-        const skewY = Math.cos(time * 0.3) * 12 + Math.sin(time * 0.18) * 8;
-        
-        // 3. Масштабирование с разными коэффициентами (растяжение/сжатие)
-        const scaleX = 1 + Math.sin(time * 0.3) * 0.2 + Math.cos(time * 0.25) * 0.1;
-        const scaleY = 1 + Math.cos(time * 0.35) * 0.15 + Math.sin(time * 0.28) * 0.08;
-        
-        // 4. Матричное искажение для более сложных форм
-        const matrixA = Math.cos(spiralRotation * Math.PI / 180) * scaleX;
-        const matrixB = -Math.sin(spiralRotation * Math.PI / 180) * scaleY;
-        const matrixC = Math.sin(spiralRotation * Math.PI / 180) * scaleX;
-        const matrixD = Math.cos(spiralRotation * Math.PI / 180) * scaleY;
-        
-        // 5. Дополнительные искажения через translate для волн
-        const waveX = Math.sin(time * 0.2 + wavePhase) * 30;
-        const waveY = Math.cos(time * 0.15 + wavePhase) * 20;
-        
-        // Применяем сложные 2D трансформации с матрицей для закручивания
-        textElement.style.transform = `
-            translate(${waveX}px, ${waveY}px)
-            matrix(${matrixA}, ${matrixB}, ${matrixC}, ${matrixD}, 0, 0)
-            skew(${skewX}deg, ${skewY}deg)
-        `;
-        
-        // Искажение формы через CSS clip-path для волновых форм
-        const clipWave1 = Math.sin(time * 0.2) * 5;
-        const clipWave2 = Math.cos(time * 0.25) * 7;
-        const clipWave3 = Math.sin(time * 0.3) * 4;
-        textElement.style.clipPath = `polygon(
-            0% ${50 - clipWave1}%, 
-            25% ${50 + clipWave2}%, 
-            50% ${50 - clipWave3}%, 
-            75% ${50 + clipWave1}%, 
-            100% ${50 - clipWave2}%, 
-            100% 100%, 
-            0% 100%
-        )`;
-        
-        // Дополнительное искажение через CSS filter
-        const blurAmount = Math.abs(Math.sin(time * 0.08)) * 0.3;
-        textElement.style.filter = `blur(${blurAmount}px)`;
-        
-        // Прозрачность
-        const opacity = 0.5 + Math.sin(time * 0.12) * 0.2;
-        textElement.style.opacity = Math.max(0.3, Math.min(0.7, opacity));
+        columns.forEach(column => {
+            column.words.forEach(word => {
+                word.time += 0.016;
+                word.y += word.speed;
+                word.rotation += word.rotationSpeed;
+                
+                // Если слово упало вниз, возвращаем его наверх
+                if (word.y > containerHeight + 100) {
+                    word.y = -100;
+                }
+                
+                // Математические искажения формы слова
+                // Волновое искажение по X
+                const waveX = Math.sin(word.time * 0.3 + word.wavePhase) * word.waveAmplitude;
+                
+                // Динамическое изменение skew
+                const dynamicSkewX = word.skewX + Math.sin(word.time * 0.2) * 5;
+                const dynamicSkewY = word.skewY + Math.cos(word.time * 0.25) * 4;
+                
+                // Динамическое изменение scale
+                const dynamicScaleX = word.scaleX + Math.sin(word.time * 0.15) * 0.1;
+                const dynamicScaleY = word.scaleY + Math.cos(word.time * 0.18) * 0.1;
+                
+                // Применяем трансформации с искажениями
+                word.element.style.transform = `
+                    translate(${waveX}px, ${word.y}px)
+                    rotate(${word.rotation}deg)
+                    skew(${dynamicSkewX}deg, ${dynamicSkewY}deg)
+                    scale(${dynamicScaleX}, ${dynamicScaleY})
+                `;
+                
+                // Прозрачность в зависимости от позиции
+                const opacity = Math.max(0.2, Math.min(0.8, 1 - (word.y / containerHeight)));
+                word.element.style.opacity = opacity;
+            });
+        });
         
         animationFrame = requestAnimationFrame(animate);
     };

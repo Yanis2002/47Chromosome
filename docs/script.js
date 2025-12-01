@@ -1854,7 +1854,7 @@ function loadLocalMusic() {
         console.log('Всего треков для загрузки:', localMusic.length);
         localMusic.forEach((track, index) => {
             try {
-        addAudioTrack(track.src, track.title, track.duration);
+                addAudioTrack(track.src, track.title, track.duration, index);
                 if (index % 10 === 0) {
                     console.log(`Загружено треков: ${index + 1}/${localMusic.length}`);
                 }

@@ -48,8 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loadLocalPhotos();
     // Загружаем YouTube ссылки из папки
     loadYouTubeLinks();
-    // Загружаем GIF баннеры
-    loadGifBanners();
+    // Загружаем GIF баннеры в футер
+    loadFooterBanners();
     // Добавляем примеры контента для демонстрации
     addDemoContent();
 });
@@ -642,25 +642,25 @@ function initSmoothScroll() {
     });
 }
 
-// Загрузка GIF баннеров
-function loadGifBanners() {
-    const bannersGrid = document.getElementById('bannersGrid');
-    if (!bannersGrid) return;
+// Загрузка GIF баннеров в футер
+function loadFooterBanners() {
+    const footerBanners = document.getElementById('footerBanners');
+    if (!footerBanners) return;
     
-    // Список всех GIF баннеров 88x31
+    // Список всех GIF баннеров 88x31 из папки banners/
     const banners = [
-        { src: 'z3r0s.gif', alt: 'z3r0s' },
-        { src: 'hoho.gif', alt: 'hoho' },
-        { src: 'hash_now.gif', alt: 'hash_now' },
-        { src: 'webpassion.gif', alt: 'webpassion' },
-        { src: 'winamp3.gif', alt: 'winamp3' },
-        { src: 'anythingbut.gif', alt: 'anythingbut' },
-        { src: 'php_powered.gif', alt: 'php_powered' }
+        { src: 'banners/z3r0s.gif', alt: 'z3r0s' },
+        { src: 'banners/hoho.gif', alt: 'hoho' },
+        { src: 'banners/hash_now.gif', alt: 'hash_now' },
+        { src: 'banners/webpassion.gif', alt: 'webpassion' },
+        { src: 'banners/winamp3.gif', alt: 'winamp3' },
+        { src: 'banners/anythingbut.gif', alt: 'anythingbut' },
+        { src: 'banners/php_powered.gif', alt: 'php_powered' }
     ];
     
     banners.forEach(banner => {
         const item = document.createElement('div');
-        item.className = 'banner-item';
+        item.className = 'footer-banner-item';
         const img = document.createElement('img');
         img.src = banner.src;
         img.alt = banner.alt;
@@ -671,15 +671,8 @@ function loadGifBanners() {
             item.style.display = 'none';
         };
         
-        // При клике открываем в модальном окне
-        item.addEventListener('click', () => {
-            if (window.showImageModal) {
-                window.showImageModal(banner.src, banner.alt);
-            }
-        });
-        
         item.appendChild(img);
-        bannersGrid.appendChild(item);
+        footerBanners.appendChild(item);
     });
 }
 

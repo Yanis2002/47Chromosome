@@ -1063,8 +1063,9 @@ function addPhoto(src, alt) {
     const item = document.createElement('div');
     item.className = 'photo-item';
     const img = document.createElement('img');
-    img.src = src;
-    img.alt = alt || '';
+    // Безопасная установка src и alt (автоматически экранирует специальные символы)
+    img.setAttribute('src', src);
+    img.setAttribute('alt', alt || '');
     img.loading = 'lazy';
     
     // Обработка ошибок загрузки - просто скрываем элемент

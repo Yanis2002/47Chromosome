@@ -701,143 +701,113 @@ function initHeroMatrix() {
 }
 
 function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, codeWords) {
-    const words = [];
-    const wordCount = 40 + Math.floor(Math.random() * 20);
+    const textLines = [];
+    const lineCount = 15 + Math.floor(Math.random() * 10);
+    const wordsPerLine = 8 + Math.floor(Math.random() * 6);
     
-    // Создаем слова с 3D позициями и математическими искажениями
-    for (let i = 0; i < wordCount; i++) {
-        const word = codeWords[Math.floor(Math.random() * codeWords.length)];
-        const wordElement = document.createElement('div');
-        wordElement.className = 'matrix-word-3d';
-        wordElement.textContent = word;
+    // Создаем текстовые строки с искажением формы
+    for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
+        const lineElement = document.createElement('div');
+        lineElement.className = 'matrix-text-line';
         
-        // Случайная начальная позиция
-        const startX = Math.random() * containerWidth;
-        const startY = Math.random() * containerHeight;
-        const startZ = -500 + Math.random() * 1000; // Глубина от -500 до 500
+        const words = [];
+        let lineText = '';
         
-        // Случайная скорость движения
-        const speedX = (Math.random() - 0.5) * 0.5;
-        const speedY = (Math.random() - 0.5) * 0.5;
-        const speedZ = 0.5 + Math.random() * 1.5; // Движение к камере
+        // Создаем слова для строки
+        for (let wordIndex = 0; wordIndex < wordsPerLine; wordIndex++) {
+            const word = codeWords[Math.floor(Math.random() * codeWords.length)];
+            lineText += word + ' ';
+        }
         
-        // Случайное вращение
-        const rotationX = Math.random() * 360;
-        const rotationY = Math.random() * 360;
-        const rotationZ = Math.random() * 360;
-        const rotationSpeedX = (Math.random() - 0.5) * 2;
-        const rotationSpeedY = (Math.random() - 0.5) * 2;
-        const rotationSpeedZ = (Math.random() - 0.5) * 2;
+        lineElement.textContent = lineText.trim();
         
-        // Параметры для математических искажений
-        const skewX = (Math.random() - 0.5) * 30; // Искажение по X
-        const skewY = (Math.random() - 0.5) * 30; // Искажение по Y
-        const skewSpeedX = (Math.random() - 0.5) * 0.5;
-        const skewSpeedY = (Math.random() - 0.5) * 0.5;
-        
-        // Параметры для волновых искажений
+        // Параметры для искажения формы текста
+        const startY = (lineIndex / lineCount) * containerHeight;
         const wavePhase = Math.random() * Math.PI * 2;
-        const waveAmplitude = 10 + Math.random() * 20;
-        const waveFrequency = 0.01 + Math.random() * 0.02;
+        const waveAmplitude = 20 + Math.random() * 40;
+        const waveFrequency = 0.005 + Math.random() * 0.01;
+        const skewAmount = (Math.random() - 0.5) * 20;
+        const perspectiveAmount = 500 + Math.random() * 500;
         
-        wordElement.style.left = startX + 'px';
-        wordElement.style.top = startY + 'px';
+        // Скорость движения строки
+        const speedX = -0.3 - Math.random() * 0.5;
+        const speedY = (Math.random() - 0.5) * 0.2;
         
-        words.push({
-            element: wordElement,
-            x: startX,
+        lineElement.style.top = startY + 'px';
+        lineElement.style.left = '0px';
+        
+        textLines.push({
+            element: lineElement,
+            x: 0,
             y: startY,
-            z: startZ,
             speedX: speedX,
             speedY: speedY,
-            speedZ: speedZ,
-            rotationX: rotationX,
-            rotationY: rotationY,
-            rotationZ: rotationZ,
-            rotationSpeedX: rotationSpeedX,
-            rotationSpeedY: rotationSpeedY,
-            rotationSpeedZ: rotationSpeedZ,
-            skewX: skewX,
-            skewY: skewY,
-            skewSpeedX: skewSpeedX,
-            skewSpeedY: skewSpeedY,
             wavePhase: wavePhase,
             waveAmplitude: waveAmplitude,
             waveFrequency: waveFrequency,
-            time: 0
+            skewAmount: skewAmount,
+            perspectiveAmount: perspectiveAmount,
+            time: Math.random() * 100
         });
         
-        matrixContainer.appendChild(wordElement);
+        matrixContainer.appendChild(lineElement);
     }
     
-    // Анимация 3D движения с математическими искажениями
+    // Анимация искажения формы текста
     let animationFrame;
     const animate = () => {
-        words.forEach(word => {
-            word.time += 0.016; // Примерно 60 FPS
+        textLines.forEach(line => {
+            line.time += 0.016; // Примерно 60 FPS
             
             // Обновляем позицию
-            word.x += word.speedX;
-            word.y += word.speedY;
-            word.z += word.speedZ;
+            line.x += line.speedX;
+            line.y += line.speedY;
             
-            // Обновляем вращение
-            word.rotationX += word.rotationSpeedX;
-            word.rotationY += word.rotationSpeedY;
-            word.rotationZ += word.rotationSpeedZ;
-            
-            // Обновляем искажения (skew)
-            word.skewX += word.skewSpeedX;
-            word.skewY += word.skewSpeedY;
-            
-            // Ограничиваем искажения
-            if (Math.abs(word.skewX) > 45) word.skewSpeedX *= -1;
-            if (Math.abs(word.skewY) > 45) word.skewSpeedY *= -1;
-            
-            // Если слово ушло за камеру, возвращаем его назад
-            if (word.z > 500) {
-                word.z = -500;
-                word.x = Math.random() * containerWidth;
-                word.y = Math.random() * containerHeight;
+            // Если строка ушла за экран, возвращаем её
+            if (line.x < -containerWidth) {
+                line.x = containerWidth;
+            }
+            if (line.x > containerWidth) {
+                line.x = -containerWidth;
+            }
+            if (line.y < -50) {
+                line.y = containerHeight + 50;
+            }
+            if (line.y > containerHeight + 50) {
+                line.y = -50;
             }
             
-            // Если слово ушло слишком далеко, возвращаем
-            if (word.x < -100) word.x = containerWidth + 100;
-            if (word.x > containerWidth + 100) word.x = -100;
-            if (word.y < -100) word.y = containerHeight + 100;
-            if (word.y > containerHeight + 100) word.y = -100;
+            // Математические искажения формы текста
+            // Волновое искажение по Y (вертикальное)
+            const waveY = Math.sin(line.x * line.waveFrequency + line.wavePhase + line.time * 0.5) * line.waveAmplitude;
             
-            // Математические искажения на основе позиции (волновые функции)
-            const waveX = Math.sin(word.x * word.waveFrequency + word.wavePhase + word.time) * word.waveAmplitude;
-            const waveY = Math.cos(word.y * word.waveFrequency + word.wavePhase + word.time) * word.waveAmplitude;
+            // Искажение перспективы (3D эффект)
+            const perspectiveDistortion = Math.sin(line.x * 0.01 + line.time) * 30;
             
-            // Дополнительные математические искажения (спиральные, синусоидальные)
-            const spiralDistortion = Math.sin(word.time * 0.5 + word.x * 0.01) * 15;
-            const sineDistortion = Math.cos(word.time * 0.3 + word.y * 0.01) * 10;
+            // Искажение наклона (skew) - меняется динамически
+            const dynamicSkew = line.skewAmount + Math.sin(line.time * 0.3) * 10;
             
-            // Применяем 3D трансформации с математическими искажениями
-            const scale = 500 / (500 + word.z); // Перспектива
-            const perspective = 1000;
-            const translateX = (word.x - containerWidth / 2) * scale + waveX;
-            const translateY = (word.y - containerHeight / 2) * scale + waveY;
-            const translateZ = word.z * scale;
+            // Искажение масштаба (текст растягивается/сжимается)
+            const scaleX = 1 + Math.sin(line.x * 0.02 + line.time * 0.5) * 0.2;
+            const scaleY = 1 + Math.cos(line.x * 0.015 + line.time * 0.4) * 0.15;
             
-            // Комбинируем все искажения
-            const finalSkewX = word.skewX + spiralDistortion;
-            const finalSkewY = word.skewY + sineDistortion;
-            
-            word.element.style.transform = `
-                translate3d(${translateX}px, ${translateY}px, ${translateZ}px)
-                rotateX(${word.rotationX}deg)
-                rotateY(${word.rotationY}deg)
-                rotateZ(${word.rotationZ}deg)
-                skew(${finalSkewX}deg, ${finalSkewY}deg)
-                scale(${scale})
+            // Применяем искажения формы текста
+            line.element.style.transform = `
+                translate3d(${line.x}px, ${line.y + waveY}px, 0)
+                perspective(${line.perspectiveAmount}px)
+                rotateX(${perspectiveDistortion}deg)
+                rotateY(${Math.sin(line.time * 0.2) * 5}deg)
+                skewX(${dynamicSkew}deg)
+                scale(${scaleX}, ${scaleY})
             `;
             
-            // Прозрачность в зависимости от глубины
-            const opacity = Math.max(0.15, Math.min(0.9, (500 + word.z) / 1000));
-            word.element.style.opacity = opacity;
+            // Искажение через CSS clip-path для более сложных форм
+            const clipPathY = Math.sin(line.x * 0.01 + line.time) * 5;
+            line.element.style.clipPath = `polygon(0% ${50 + clipPathY}%, 100% ${50 - clipPathY}%, 100% 100%, 0% 100%)`;
+            
+            // Прозрачность в зависимости от позиции
+            const opacity = 0.3 + Math.sin(line.x * 0.005 + line.time) * 0.2;
+            line.element.style.opacity = Math.max(0.2, Math.min(0.6, opacity));
         });
         
         animationFrame = requestAnimationFrame(animate);

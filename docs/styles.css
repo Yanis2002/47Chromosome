@@ -886,7 +886,7 @@ body {
     transform: translateX(5px);
 }
 
-/* Matrix Rain эффект для hero с 3D искажениями */
+/* Matrix Rain эффект для hero с искажением формы текста */
 .hero-matrix-bg {
     position: absolute;
     top: 0;
@@ -894,33 +894,28 @@ body {
     width: 100%;
     height: 100%;
     overflow: visible;
-    opacity: 0.3;
+    opacity: 0.4;
     pointer-events: none;
     perspective: 1000px;
     transform-style: preserve-3d;
 }
 
-.matrix-word-3d {
+.matrix-text-line {
     position: absolute;
     font-family: 'Courier New', monospace;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 500;
     color: var(--accent-cyan);
     text-shadow: 
-        0 0 10px var(--accent-cyan),
-        0 0 20px var(--accent-neon);
+        0 0 8px var(--accent-cyan),
+        0 0 15px rgba(0, 255, 255, 0.3);
     white-space: nowrap;
     transform-style: preserve-3d;
-    will-change: transform, opacity;
-    transition: opacity 0.1s ease;
+    will-change: transform, opacity, clip-path;
     user-select: none;
-}
-
-.matrix-word-3d:hover {
-    color: var(--accent-neon);
-    text-shadow: 
-        0 0 15px var(--accent-neon),
-        0 0 30px var(--accent-purple);
+    line-height: 1.8;
+    letter-spacing: 2px;
+    transform-origin: center center;
 }
 
 /* Matrix Rain эффект (общий) */

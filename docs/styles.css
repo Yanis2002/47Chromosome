@@ -168,12 +168,8 @@ body {
     display: inline-block;
     width: 88px;
     height: 31px;
-    transition: transform 0.3s ease, filter 0.3s ease;
-}
-
-.footer-banner-item:hover {
-    transform: scale(1.1);
-    filter: brightness(1.2);
+    cursor: default;
+    pointer-events: none;
 }
 
 .footer-banner-item img {
@@ -1771,12 +1767,8 @@ body {
     display: inline-block;
     width: 88px;
     height: 31px;
-    transition: transform 0.3s ease, filter 0.3s ease;
-}
-
-.footer-banner-item:hover {
-    transform: scale(1.1);
-    filter: brightness(1.2);
+    cursor: default;
+    pointer-events: none;
 }
 
 .footer-banner-item img {

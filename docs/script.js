@@ -39,10 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initShopButton();
     initSmoothScroll();
     initVideoTabs();
-    // Инициализируем эффект бегающего текста
-    initMatrixRain();
-    // Инициализируем интерактивную зону
-    initInteractiveZone();
     // Загружаем локальную музыку
     loadLocalMusic();
     // Загружаем видео из папки

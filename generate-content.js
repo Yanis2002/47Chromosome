@@ -15,10 +15,10 @@
 const fs = require('fs');
 const path = require('path');
 
-const DOCS_DIR = path.join(__dirname, 'docs');
-const MUSIC_DIR = path.join(DOCS_DIR, 'music');
-const PHOTO_DIR = path.join(DOCS_DIR, 'photo');
-const VIDEO_DIR = path.join(DOCS_DIR, 'video');
+const MUSIC_DIR = path.join(__dirname, 'music');
+const PHOTO_DIR = path.join(__dirname, 'photo');
+const VIDEO_DIR = path.join(__dirname, 'video');
+const SCRIPT_FILE = path.join(__dirname, 'script.js');
 
 // Поддерживаемые форматы
 const AUDIO_FORMATS = ['.mp3', '.wav', '.ogg', '.flac', '.m4a'];
@@ -78,6 +78,8 @@ function generateMusicList() {
     });
     
     // Обновляем script.js
+    
+    // Обновляем script.js
     const scriptPath = path.join(DOCS_DIR, 'script.js');
     let scriptContent = fs.readFileSync(scriptPath, 'utf8');
     
@@ -89,7 +91,9 @@ function generateMusicList() {
             const indent = '        ';
             const musicArrayString = musicList.map(track => {
                 const titleEscaped = track.title.replace(/'/g, "\\'");
-                return `${indent}{ src: '${track.src}', title: '${titleEscaped}', duration: '${track.duration}' }`;
+                // Убираем docs/ из пути если есть
+                const src = track.src.replace(/^docs\//, '');
+                return `${indent}{ src: '${src}', title: '${titleEscaped}', duration: '${track.duration}' }`;
             }).join(',\n');
             
             const newMusicArray = `const localMusic = [\n${musicArrayString}\n    ];`;
@@ -97,7 +101,7 @@ function generateMusicList() {
                           newMusicArray + 
                           scriptContent.substring(musicArrayEnd + 2);
             
-            fs.writeFileSync(scriptPath, scriptContent, 'utf8');
+            fs.writeFileSync(SCRIPT_FILE, scriptContent, 'utf8');
             console.log(`✅ Обновлен script.js: добавлено ${musicList.length} треков`);
         }
     }
@@ -119,6 +123,9 @@ function generatePhotoList() {
             alt: alt
         };
     });
+    
+    // Создаем или обновляем list.json
+    const listJsonPath = path.join(PHOTO_DIR, 'list.json');
     
     // Создаем или обновляем list.json
     const listJsonPath = path.join(PHOTO_DIR, 'list.json');
@@ -146,6 +153,8 @@ function generateVideoList() {
     });
     
     // Обновляем script.js
+    
+    // Обновляем script.js
     const scriptPath = path.join(DOCS_DIR, 'script.js');
     let scriptContent = fs.readFileSync(scriptPath, 'utf8');
     
@@ -157,7 +166,9 @@ function generateVideoList() {
             const indent = '    ';
             const videoArrayString = videoList.map(video => {
                 const titleEscaped = video.title.replace(/'/g, "\\'");
-                return `${indent}{ src: '${video.src}', title: '${titleEscaped}' }`;
+                // Убираем docs/ из пути если есть
+                const src = video.src.replace(/^docs\//, '');
+                return `${indent}{ src: '${src}', title: '${titleEscaped}' }`;
             }).join(',\n');
             
             const newVideoArray = `const localVideos = [\n${videoArrayString}\n    ];`;
@@ -165,7 +176,7 @@ function generateVideoList() {
                           newVideoArray + 
                           scriptContent.substring(videoArrayEnd + 2);
             
-            fs.writeFileSync(scriptPath, scriptContent, 'utf8');
+            fs.writeFileSync(SCRIPT_FILE, scriptContent, 'utf8');
             console.log(`✅ Обновлен script.js: добавлено ${videoList.length} видео`);
         }
     }

@@ -2,14 +2,37 @@
   {
     "src": "photo/WonderlandYakui.webp",
     "alt": "Wonderland Yakui"
+  },
+  {
+    "src": "photo/Yakuithemaid-goodnight-world-cover-art.webp",
+    "alt": "Yakui the Maid - Goodnight World"
+  },
+  {
+    "src": "photo/Pink_Traumacore.webp",
+    "alt": "Pink Traumacore"
+  },
+  {
+    "src": "photo/Synth-sunset-.webp",
+    "alt": "Synth Sunset"
+  },
+  {
+    "src": "photo/Traumacore-Sanrio-01.webp",
+    "alt": "Traumacore Sanrio 01"
+  },
+  {
+    "src": "photo/Traumacore-Sanrio.webp",
+    "alt": "Traumacore Sanrio"
+  },
+  {
+    "src": "photo/C03C26FF-D51D-4525-85F8-1E3FF4E0BFA4.webp",
+    "alt": "Photo"
+  },
+  {
+    "src": "photo/CpjO4S-2N6Ws1_SSEQXtlgbhKHJYhMFzs3dHaBOUU8ZsMPPJrYX9Wxdl1iLIHi9wnOmvHPHtBuqQpCNVjn0SeC21.jpg",
+    "alt": "Photo"
+  },
+  {
+    "src": "photo/photo_2022-11-28_19-30-47 (2).jpg",
+    "alt": "Photo"
   }
 ]
-
-// Добавьте ваши фотографии в этот массив
-// Поддерживаемые форматы: .webp, .jpg, .jpeg, .png, .gif, .svg
-// Формат:
-// {
-//   "src": "photo/название-файла.webp",
-//   "alt": "Описание фото"
-// }
-

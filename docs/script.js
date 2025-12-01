@@ -878,9 +878,18 @@ function addAudioTrack(src, title, duration) {
         audioList.innerHTML = '';
     }
     
+    // Нормализуем путь для GitHub Pages (убираем лишние слеши, добавляем ./ если нужно)
+    let normalizedSrc = src;
+    if (!normalizedSrc.startsWith('http') && !normalizedSrc.startsWith('/')) {
+        // Если путь не начинается с http или /, добавляем ./ для относительного пути
+        if (!normalizedSrc.startsWith('./')) {
+            normalizedSrc = './' + normalizedSrc;
+        }
+    }
+    
     // Добавляем трек в массив
     const trackIndex = audioTracks.length;
-    audioTracks.push({ src, title, duration });
+    audioTracks.push({ src: normalizedSrc, title, duration });
     if (originalTrackOrder.length === 0) {
         originalTrackOrder = [...audioTracks];
     }
@@ -998,6 +1007,15 @@ function addVideo(src, title) {
         videoGrid.innerHTML = '';
     }
     
+    // Нормализуем путь для GitHub Pages (убираем лишние слеши, добавляем ./ если нужно)
+    let normalizedSrc = src;
+    if (!normalizedSrc.startsWith('http') && !normalizedSrc.startsWith('/')) {
+        // Если путь не начинается с http или /, добавляем ./ для относительного пути
+        if (!normalizedSrc.startsWith('./')) {
+            normalizedSrc = './' + normalizedSrc;
+        }
+    }
+    
     const item = document.createElement('div');
     item.className = 'video-item';
     item.style.cursor = 'pointer';
@@ -1005,7 +1023,7 @@ function addVideo(src, title) {
     // Создаем превью видео
     const video = document.createElement('video');
     // Безопасная установка src (автоматически экранирует специальные символы)
-    video.setAttribute('src', src);
+    video.setAttribute('src', normalizedSrc);
     video.preload = 'metadata';
     video.style.width = '100%';
     video.style.height = '100%';
@@ -1060,11 +1078,20 @@ function addPhoto(src, alt) {
         photoGallery.innerHTML = '';
     }
     
+    // Нормализуем путь для GitHub Pages (убираем лишние слеши, добавляем ./ если нужно)
+    let normalizedSrc = src;
+    if (!normalizedSrc.startsWith('http') && !normalizedSrc.startsWith('/')) {
+        // Если путь не начинается с http или /, добавляем ./ для относительного пути
+        if (!normalizedSrc.startsWith('./')) {
+            normalizedSrc = './' + normalizedSrc;
+        }
+    }
+    
     const item = document.createElement('div');
     item.className = 'photo-item';
     const img = document.createElement('img');
     // Безопасная установка src и alt (автоматически экранирует специальные символы)
-    img.setAttribute('src', src);
+    img.setAttribute('src', normalizedSrc);
     img.setAttribute('alt', alt || '');
     img.loading = 'lazy';
     

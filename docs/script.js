@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initShopButton();
     initSmoothScroll();
     initVideoTabs();
+    initHeroMatrix(); // Инициализируем матричный эффект для hero
     // Загружаем локальную музыку
     loadLocalMusic();
     // Загружаем видео из папки
@@ -605,6 +606,109 @@ function initSmoothScroll() {
                 }
             }
         });
+    });
+}
+
+// Инициализация матричного эффекта для hero секции (Midjourney style)
+function initHeroMatrix() {
+    const matrixContainer = document.getElementById('heroMatrix');
+    if (!matrixContainer) return;
+    
+    // Символы для генерации
+    const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?/~`';
+    
+    // Слова для вставки (тематика сайта)
+    const codeWords = [
+        'imagine', 'create', 'design', 'art', 'digital', 'code', 'matrix', 
+        'system', 'data', 'pixel', 'glitch', 'cyber', 'void', 'space', 
+        'render', 'generate', 'prompt', 'style', 'aesthetic', 'visual', 
+        '47Chromosome', 'music', 'video', 'photo', 'breakcore', 'post-rock', 
+        'experimental', 'lo-fi', 'dark', 'neon', 'synth', 'wave', 'vapor', 'dream',
+        'эстетика', 'музыка', 'визуал', 'творчество', 'арт', 'дизайн'
+    ];
+    
+    // Получаем размеры контейнера
+    const container = matrixContainer.parentElement;
+    const containerWidth = container.offsetWidth || window.innerWidth;
+    const containerHeight = container.offsetHeight || 400;
+    
+    // Количество колонок (зависит от ширины)
+    const columnCount = Math.floor(containerWidth / 20);
+    const columns = [];
+    
+    // Создаем колонки
+    for (let i = 0; i < columnCount; i++) {
+        const column = document.createElement('div');
+        column.className = 'matrix-column';
+        column.style.left = `${(i * 100) / columnCount}%`;
+        
+        // Случайная скорость падения
+        const duration = 8 + Math.random() * 12;
+        column.style.animationDuration = `${duration}s`;
+        column.style.animationDelay = `${Math.random() * 3}s`;
+        
+        // Генерируем символы для колонки
+        const charCount = 20 + Math.floor(Math.random() * 15);
+        for (let j = 0; j < charCount; j++) {
+            const char = document.createElement('span');
+            char.className = 'matrix-char';
+            
+            // Иногда используем слова (15% вероятность)
+            if (Math.random() < 0.15 && j > 2) {
+                const word = codeWords[Math.floor(Math.random() * codeWords.length)];
+                char.textContent = word;
+                char.classList.add('word');
+            } else {
+                char.textContent = charSet[Math.floor(Math.random() * charSet.length)];
+            }
+            
+            // Первые несколько символов ярче (эффект головы)
+            if (j < 3) {
+                char.classList.add('highlight');
+            } else if (j > charCount - 5) {
+                char.classList.add('fade');
+            }
+            
+            column.appendChild(char);
+        }
+        
+        matrixContainer.appendChild(column);
+        columns.push(column);
+    }
+    
+    // Анимация обновления символов (каждые 150мс)
+    setInterval(() => {
+        columns.forEach(column => {
+            const charElements = column.querySelectorAll('.matrix-char');
+            charElements.forEach((char, index) => {
+                // Обновляем только некоторые символы (12% вероятность)
+                if (Math.random() < 0.12) {
+                    // Иногда заменяем на слова (20% от обновлений)
+                    if (Math.random() < 0.2 && index > 2) {
+                        const word = codeWords[Math.floor(Math.random() * codeWords.length)];
+                        char.textContent = word;
+                        char.classList.add('word');
+                        setTimeout(() => {
+                            char.textContent = charSet[Math.floor(Math.random() * charSet.length)];
+                            char.classList.remove('word');
+                        }, 2000);
+                    } else {
+                        char.textContent = charSet[Math.floor(Math.random() * charSet.length)];
+                        char.classList.remove('word');
+                    }
+                }
+            });
+        });
+    }, 150);
+    
+    // Обновление при изменении размера окна
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            matrixContainer.innerHTML = '';
+            initHeroMatrix();
+        }, 300);
     });
 }
 

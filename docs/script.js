@@ -1353,44 +1353,92 @@ function addYouTubeVideo(videoId, title, thumbnail) {
     const item = document.createElement('div');
     item.className = 'youtube-item';
     
-    // Используем несколько вариантов для обхода блокировок
+    // Используем альтернативные сервисы для обхода блокировок (VPN-прокси)
+    // Список рабочих Invidious и Piped инстансов
     const embedUrls = [
-        `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`,
-        `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1`,
+        // Invidious инстансы (приоритет - обход блокировок)
         `https://invidious.io/embed/${videoId}`,
-        `https://piped.kavin.rocks/embed/${videoId}`
+        `https://yewtu.be/embed/${videoId}`,
+        `https://invidious.flokinet.to/embed/${videoId}`,
+        `https://invidious.privacyredirect.com/embed/${videoId}`,
+        `https://invidious.osi.kr/embed/${videoId}`,
+        // Piped инстансы
+        `https://piped.video/embed/${videoId}`,
+        `https://piped.kavin.rocks/embed/${videoId}`,
+        `https://piped.mha.fi/embed/${videoId}`,
+        // Прямые YouTube embed (последний вариант)
+        `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1`,
+        `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`
     ];
     
     let currentEmbedIndex = 0;
+    let loadAttempts = 0;
+    const maxLoadAttempts = embedUrls.length;
     
     const iframe = document.createElement('iframe');
-    iframe.src = embedUrls[0];
     iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
     iframe.allowFullscreen = true;
     iframe.className = 'youtube-iframe';
+    iframe.loading = 'lazy';
     
     const titleDiv = document.createElement('div');
     titleDiv.className = 'youtube-title';
     titleDiv.textContent = title || 'YouTube видео';
     
-    const errorHandler = () => {
-        currentEmbedIndex++;
+    // Функция для загрузки следующего варианта
+    const loadNextEmbed = () => {
         if (currentEmbedIndex < embedUrls.length) {
             iframe.src = embedUrls[currentEmbedIndex];
+            currentEmbedIndex++;
+            loadAttempts++;
         } else {
             // Если все варианты не работают, показываем ссылку
             item.innerHTML = `
                 <div class="youtube-fallback">
                     <p>${title || 'YouTube видео'}</p>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 10px 0;">
+                        Видео недоступно через прокси. Используйте VPN или откройте напрямую:
+                    </p>
                     <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" class="youtube-link">
                         Открыть на YouTube →
                     </a>
+                    <div style="margin-top: 15px;">
+                        <p style="color: var(--text-secondary); font-size: 0.85rem;">
+                            Альтернативные сервисы:
+                        </p>
+                        <a href="https://invidious.io/watch?v=${videoId}" target="_blank" style="color: var(--accent-cyan); margin-right: 15px;">Invidious</a>
+                        <a href="https://piped.video/watch?v=${videoId}" target="_blank" style="color: var(--accent-cyan);">Piped</a>
+                    </div>
                 </div>
             `;
         }
     };
     
-    iframe.onerror = errorHandler;
+    // Обработка ошибок загрузки
+    iframe.onerror = () => {
+        setTimeout(loadNextEmbed, 1000); // Задержка перед следующей попыткой
+    };
+    
+    // Проверка успешной загрузки
+    iframe.onload = () => {
+        // Если iframe загрузился, считаем успешным
+        loadAttempts = 0;
+    };
+    
+    // Таймаут для проверки загрузки (если iframe не загрузился за 5 секунд, пробуем следующий)
+    const loadTimeout = setTimeout(() => {
+        if (loadAttempts < maxLoadAttempts && currentEmbedIndex < embedUrls.length) {
+            loadNextEmbed();
+        }
+    }, 5000);
+    
+    // Очищаем таймаут при успешной загрузке
+    iframe.addEventListener('load', () => {
+        clearTimeout(loadTimeout);
+    });
+    
+    // Начинаем загрузку с первого варианта
+    loadNextEmbed();
     
     item.appendChild(iframe);
     item.appendChild(titleDiv);

@@ -701,96 +701,69 @@ function initHeroMatrix() {
 }
 
 function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, codeWords) {
-    const textLines = [];
-    const lineCount = 20 + Math.floor(Math.random() * 15);
-    const wordsPerLine = 10 + Math.floor(Math.random() * 8);
+    // Создаем один текстовый блок (массив) как в книге
+    const textElement = document.createElement('div');
+    textElement.className = 'matrix-text-block';
     
-    // Создаем текст как в книге - строки одна под другой
-    const textContainer = document.createElement('div');
-    textContainer.className = 'matrix-text-container';
+    // Генерируем полный текст - много строк одна под другой
+    let fullText = '';
+    const lineCount = 25 + Math.floor(Math.random() * 20);
+    const wordsPerLine = 12 + Math.floor(Math.random() * 10);
     
     for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
-        const lineElement = document.createElement('div');
-        lineElement.className = 'matrix-text-line';
-        
         let lineText = '';
-        // Создаем слова для строки
         for (let wordIndex = 0; wordIndex < wordsPerLine; wordIndex++) {
             const word = codeWords[Math.floor(Math.random() * codeWords.length)];
             lineText += word + ' ';
         }
-        
-        lineElement.textContent = lineText.trim();
-        
-        // Параметры для искажения формы каждой строки
-        const wavePhase = Math.random() * Math.PI * 2;
-        const waveAmplitude = 15 + Math.random() * 25;
-        const waveFrequency = 0.008 + Math.random() * 0.015;
-        const skewAmount = (Math.random() - 0.5) * 15;
-        const perspectiveAmount = 400 + Math.random() * 400;
-        
-        textLines.push({
-            element: lineElement,
-            wavePhase: wavePhase,
-            waveAmplitude: waveAmplitude,
-            waveFrequency: waveFrequency,
-            skewAmount: skewAmount,
-            perspectiveAmount: perspectiveAmount,
-            time: Math.random() * 100,
-            lineIndex: lineIndex
-        });
-        
-        textContainer.appendChild(lineElement);
+        fullText += lineText.trim() + '\n';
     }
     
-    matrixContainer.appendChild(textContainer);
+    textElement.textContent = fullText.trim();
+    matrixContainer.appendChild(textElement);
     
-    // Анимация искажения формы текста
+    // Параметры для 2D искажений всего текстового блока
+    let time = 0;
+    const wavePhase = Math.random() * Math.PI * 2;
+    const waveAmplitude = 20 + Math.random() * 30;
+    const waveFrequency = 0.005 + Math.random() * 0.01;
+    
+    // Анимация 2D искажений (закручивание, волны, но не 3D)
     let animationFrame;
     const animate = () => {
-        textLines.forEach(line => {
-            line.time += 0.016; // Примерно 60 FPS
-            
-            // Математические искажения формы строки текста
-            // Волновое искажение по X (горизонтальное) - строка изгибается
-            const waveX = Math.sin((line.lineIndex * 0.5 + line.time * 0.3) * line.waveFrequency + line.wavePhase) * line.waveAmplitude;
-            
-            // Искажение перспективы (3D эффект) - строка наклоняется
-            const perspectiveDistortion = Math.sin(line.lineIndex * 0.2 + line.time * 0.2) * 8;
-            
-            // Искажение наклона (skew) - меняется динамически
-            const dynamicSkew = line.skewAmount + Math.sin(line.time * 0.25 + line.lineIndex * 0.1) * 8;
-            
-            // Искажение масштаба (строка растягивается/сжимается по ширине)
-            const scaleX = 1 + Math.sin(line.lineIndex * 0.3 + line.time * 0.4) * 0.15;
-            
-            // Вертикальное смещение для волнового эффекта
-            const waveY = Math.cos(line.lineIndex * 0.4 + line.time * 0.3) * 3;
-            
-            // Применяем искажения формы текста
-            line.element.style.transform = `
-                translateY(${waveY}px)
-                translateX(${waveX}px)
-                perspective(${line.perspectiveAmount}px)
-                rotateX(${perspectiveDistortion}deg)
-                rotateY(${Math.sin(line.time * 0.15 + line.lineIndex * 0.05) * 3}deg)
-                skewX(${dynamicSkew}deg)
-                scaleX(${scaleX})
-            `;
-            
-            // Искажение через CSS clip-path для более сложных форм (волна)
-            const clipPathOffset = Math.sin(line.lineIndex * 0.3 + line.time * 0.2) * 3;
-            line.element.style.clipPath = `polygon(
-                0% ${50 - clipPathOffset}%, 
-                100% ${50 + clipPathOffset}%, 
-                100% ${100 + clipPathOffset}%, 
-                0% ${100 - clipPathOffset}%
-            )`;
-            
-            // Прозрачность в зависимости от позиции
-            const opacity = 0.4 + Math.sin(line.lineIndex * 0.1 + line.time * 0.1) * 0.15;
-            line.element.style.opacity = Math.max(0.25, Math.min(0.7, opacity));
-        });
+        time += 0.016; // Примерно 60 FPS
+        
+        // 2D искажения формы текста (только в плоскости)
+        // Закручивание (rotation в плоскости)
+        const rotation = Math.sin(time * 0.2) * 3;
+        
+        // Волновое искажение (skew для закручивания)
+        const skewX = Math.sin(time * 0.3) * 8;
+        const skewY = Math.cos(time * 0.25) * 5;
+        
+        // Масштабирование (растяжение/сжатие)
+        const scaleX = 1 + Math.sin(time * 0.4) * 0.1;
+        const scaleY = 1 + Math.cos(time * 0.35) * 0.08;
+        
+        // Волновое смещение (текст изгибается волной)
+        const waveOffsetX = Math.sin(time * 0.2 + wavePhase) * waveAmplitude;
+        const waveOffsetY = Math.cos(time * 0.15 + wavePhase) * (waveAmplitude * 0.5);
+        
+        // Применяем 2D трансформации (без 3D, только в плоскости)
+        textElement.style.transform = `
+            translate(${waveOffsetX}px, ${waveOffsetY}px)
+            rotate(${rotation}deg)
+            skew(${skewX}deg, ${skewY}deg)
+            scale(${scaleX}, ${scaleY})
+        `;
+        
+        // Искажение формы через CSS filter для дополнительного эффекта
+        const blurAmount = Math.abs(Math.sin(time * 0.1)) * 0.5;
+        textElement.style.filter = `blur(${blurAmount}px)`;
+        
+        // Прозрачность
+        const opacity = 0.5 + Math.sin(time * 0.1) * 0.15;
+        textElement.style.opacity = Math.max(0.35, Math.min(0.65, opacity));
         
         animationFrame = requestAnimationFrame(animate);
     };

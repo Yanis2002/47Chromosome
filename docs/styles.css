@@ -886,7 +886,7 @@ body {
     transform: translateX(5px);
 }
 
-/* Matrix Rain эффект для hero с искажением формы текста (как в книге) */
+/* Matrix Rain эффект для hero с искажением формы текста (2D, один массив) */
 .hero-matrix-bg {
     position: absolute;
     top: 0;
@@ -894,40 +894,35 @@ body {
     width: 100%;
     height: 100%;
     overflow: visible;
-    opacity: 0.35;
+    opacity: 0.4;
     pointer-events: none;
-    perspective: 1000px;
-    transform-style: preserve-3d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.matrix-text-container {
+.matrix-text-block {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 80%;
-    max-width: 900px;
-    text-align: left;
-}
-
-.matrix-text-line {
-    display: block;
+    max-width: 1000px;
     font-family: 'Courier New', monospace;
     font-size: 14px;
     font-weight: 400;
     color: var(--accent-cyan);
     text-shadow: 
-        0 0 6px var(--accent-cyan),
-        0 0 12px rgba(0, 255, 255, 0.2);
-    white-space: normal;
+        0 0 8px var(--accent-cyan),
+        0 0 15px rgba(0, 255, 255, 0.3);
+    white-space: pre-wrap;
     word-wrap: break-word;
-    transform-style: preserve-3d;
-    will-change: transform, opacity, clip-path;
+    will-change: transform, opacity, filter;
     user-select: none;
-    line-height: 1.6;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
-    transform-origin: left center;
+    line-height: 1.8;
+    letter-spacing: 1.5px;
+    text-align: left;
+    transform-origin: center center;
 }
 
 /* Matrix Rain эффект (общий) */

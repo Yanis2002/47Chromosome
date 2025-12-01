@@ -144,23 +144,52 @@ function initNavigation() {
     const navLinks = document.querySelectorAll('.nav-link');
     const sections = document.querySelectorAll('.section');
 
+    // Функция переключения секций
+    const switchSection = (targetId) => {
+        // Обновляем активные классы
+        navLinks.forEach(l => l.classList.remove('active'));
+        sections.forEach(s => s.classList.remove('active'));
+        
+        // Находим нужную ссылку и секцию
+        const targetLink = document.querySelector(`.nav-link[href="#${targetId}"]`);
+        const targetSection = document.getElementById(targetId);
+        
+        if (targetLink && targetSection) {
+            targetLink.classList.add('active');
+            targetSection.classList.add('active');
+            playSound('click');
+            return true;
+        }
+        return false;
+    };
+
+    // Обработка кликов по ссылкам
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const targetId = link.getAttribute('href').substring(1);
-            
-            // Обновляем активные классы
-            navLinks.forEach(l => l.classList.remove('active'));
-            sections.forEach(s => s.classList.remove('active'));
-            
-            link.classList.add('active');
-            const targetSection = document.getElementById(targetId);
-            if (targetSection) {
-                targetSection.classList.add('active');
-                playSound('click');
-            }
+            switchSection(targetId);
+            // Обновляем URL без перезагрузки страницы
+            window.history.pushState(null, null, `#${targetId}`);
         });
     });
+
+    // Обработка hash при загрузке страницы
+    const handleHash = () => {
+        const hash = window.location.hash.substring(1);
+        if (hash) {
+            switchSection(hash);
+        } else {
+            // Если нет hash, показываем home
+            switchSection('home');
+        }
+    };
+
+    // Обрабатываем hash при загрузке
+    handleHash();
+
+    // Обрабатываем изменения hash (когда пользователь использует кнопки назад/вперед)
+    window.addEventListener('hashchange', handleHash);
 }
 
 // Аудио плеер

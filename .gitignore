@@ -16,23 +16,10 @@ npm-debug.log*
 *.tmp
 *.temp
 
-# OS
-.DS_Store
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Logs
-*.log
-npm-debug.log*
-
-# Временные файлы
-*.tmp
-*.temp
-
-# Node modules (если будут)
+# Node modules
 node_modules/
+
+# Локальные файлы для работы без портов
+index.html
+styles.css
+script.js

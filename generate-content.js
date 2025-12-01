@@ -15,10 +15,11 @@
 const fs = require('fs');
 const path = require('path');
 
-const MUSIC_DIR = path.join(__dirname, 'music');
-const PHOTO_DIR = path.join(__dirname, 'photo');
-const VIDEO_DIR = path.join(__dirname, 'video');
-const SCRIPT_FILE = path.join(__dirname, 'script.js');
+const DOCS_DIR = path.join(__dirname, 'docs');
+const MUSIC_DIR = path.join(DOCS_DIR, 'music');
+const PHOTO_DIR = path.join(DOCS_DIR, 'photo');
+const VIDEO_DIR = path.join(DOCS_DIR, 'video');
+const SCRIPT_FILE = path.join(DOCS_DIR, 'script.js');
 
 // Поддерживаемые форматы
 const AUDIO_FORMATS = ['.mp3', '.wav', '.ogg', '.flac', '.m4a'];

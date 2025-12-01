@@ -740,72 +740,72 @@ function initVideoTabs() {
 function loadLocalMusic() {
     // Список всех локальных аудио файлов
     const localMusic = [
-        { src: 'music/Abel Korzeniowski - Evgeni's Waltz.mp3', title: 'Abel Korzeniowski Evgeni\'s Waltz', duration: '0:00' },
-        { src: 'music/Adam Ferello - Infinity.mp3', title: 'Adam Ferello Infinity', duration: '0:00' },
-        { src: 'music/Assasin`s Cred - из Асасинс Крид 2.mp3', title: 'Assasin`s Cred из Асасинс Крид 2', duration: '0:00' },
-        { src: 'music/Ben Howard - Oats In The Water.mp3', title: 'Ben Howard Oats In The Water', duration: '0:00' },
-        { src: 'music/Blanck Mass - Ranger Gary.mp3', title: 'Blanck Mass Ranger Gary', duration: '0:00' },
-        { src: 'music/Bobby Vinton - Mr. Lonely.mp3', title: 'Bobby Vinton Mr. Lonely', duration: '0:00' },
-        { src: 'music/Buster Poindexter - Hit the Road Jack.mp3', title: 'Buster Poindexter Hit the Road Jack', duration: '0:00' },
-        { src: 'music/Caesars - Jerk It Out.mp3', title: 'Caesars Jerk It Out', duration: '0:00' },
-        { src: 'music/Calvin Harris - My Way.mp3', title: 'Calvin Harris My Way', duration: '0:00' },
-        { src: 'music/Clair De Lune - The Evil Within - 2014 Soundtrack OST.mp3', title: 'Clair De Lune The Evil Within 2014 Soundtrack OST', duration: '0:00' },
-        { src: 'music/Clint Mansell - Lux Aeterna (OST Requiem for a Dream) - Вечный свет (ОСТ Реквием по мечте) оригинальная.mp3', title: 'Clint Mansell Lux Aeterna (OST Requiem for a Dream) Вечный свет (ОСТ Реквием по мечте) оригинальная', duration: '0:00' },
-        { src: 'music/Clint Mansell - Robbo's Theme.mp3', title: 'Clint Mansell Robbo\'s Theme', duration: '0:00' },
-        { src: 'music/Daft Punk - Instant Crush.mp3', title: 'Daft Punk Instant Crush', duration: '0:00' },
-        { src: 'music/Dvar - ariil iaat.mp3', title: 'Dvar ariil iaat', duration: '0:00' },
-        { src: 'music/Erik Satie - Gymnopedia №1.mp3', title: 'Erik Satie Gymnopedia №1', duration: '0:00' },
-        { src: 'music/Fall Out Boy - I Don't Care (Album Version).mp3', title: 'Fall Out Boy I Don\'t Care (Album Version)', duration: '0:00' },
-        { src: 'music/Film Soundtracks, SoundtrackCast Album, Best Movie Soundtracks, TV Theme Players - Mad World (From Donnie Darko).mp3', title: 'Film Soundtracks, SoundtrackCast Album, Best Movie Soundtracks, TV Theme Players Mad World (From Donnie Darko)', duration: '0:00' },
-        { src: 'music/HIM - Gone With The Sin.mp3', title: 'HIM Gone With The Sin', duration: '0:00' },
-        { src: 'music/Hayley Williams - Simmer.mp3', title: 'Hayley Williams Simmer', duration: '0:00' },
-        { src: 'music/Is Tropical - Dancing Anymore (zaycev.net).mp3', title: 'Is Tropical Dancing Anymore (zaycev.net)', duration: '0:00' },
-        { src: 'music/Jackson C. Frank - My Name Is Carnival (2001 Remaster).mp3', title: 'Jackson C. Frank My Name Is Carnival (2001 Remaster)', duration: '0:00' },
-        { src: 'music/Jake Chudnow - Pressed Pennies.mp3', title: 'Jake Chudnow Pressed Pennies', duration: '0:00' },
-        { src: 'music/Jean-Michel Jarre, Christophe - Walking the Mile.mp3', title: 'Jean Michel Jarre, Christophe Walking the Mile', duration: '0:00' },
-        { src: 'music/Jessica Curry - Mandus.mp3', title: 'Jessica Curry Mandus', duration: '0:00' },
-        { src: 'music/John Murphy & Blue States - Season Song.mp3', title: 'John Murphy & Blue States Season Song', duration: '0:00' },
-        { src: 'music/Jukebox - Jason.mp3', title: 'Jukebox Jason', duration: '0:00' },
-        { src: 'music/Led Zeppelin - Immigrant Song (Remaster).mp3', title: 'Led Zeppelin Immigrant Song (Remaster)', duration: '0:00' },
-        { src: 'music/Ludovico Einaudi - Einaudi Nuvole Bianche.mp3', title: 'Ludovico Einaudi Einaudi Nuvole Bianche', duration: '0:00' },
-        { src: 'music/MGMT - Little Dark Age.mp3', title: 'MGMT Little Dark Age', duration: '0:00' },
-        { src: 'music/Maxence Cyrin - Where Is My Mind.mp3', title: 'Maxence Cyrin Where Is My Mind', duration: '0:00' },
-        { src: 'music/Mike Oldfield - Moonlight Shadow (Remastered).mp3', title: 'Mike Oldfield Moonlight Shadow (Remastered)', duration: '0:00' },
-        { src: 'music/N3verface - Guts Theme (From Berserk).mp3', title: 'N3verface Guts Theme (From Berserk)', duration: '0:00' },
-        { src: 'music/Nothing But Thieves - Graveyard Whistling.mp3', title: 'Nothing But Thieves Graveyard Whistling', duration: '0:00' },
-        { src: 'music/Oliver Tree - Alien Boy.mp3', title: 'Oliver Tree Alien Boy', duration: '0:00' },
-        { src: 'music/Passarella Death Squad - Just Like Sleep.mp3', title: 'Passarella Death Squad Just Like Sleep', duration: '0:00' },
-        { src: 'music/Phantazo - I Scream to You God of Time.mp3', title: 'Phantazo I Scream to You God of Time', duration: '0:00' },
-        { src: 'music/Porter Robinson - Goodbye To A World.mp3', title: 'Porter Robinson Goodbye To A World', duration: '0:00' },
-        { src: 'music/Ramin Djawadi - Light Of The Seven (OST Игра Престолов 6 сезон 10 серия).mp3', title: 'Ramin Djawadi Light Of The Seven (OST Игра Престолов 6 сезон 10 серия)', duration: '0:00' },
-        { src: 'music/Seatbelts - Rain (Demo Ver.).mp3', title: 'Seatbelts Rain (Demo Ver.)', duration: '0:00' },
-        { src: 'music/Silent Partner - Ether.mp3', title: 'Silent Partner Ether', duration: '0:00' },
-        { src: 'music/Skrillex ft. Damian Marley (OST Far Cry 3-Make It Burn Them - Far Cry 3.mp3', title: 'Skrillex ft. Damian Marley (OST Far Cry 3 Make It Burn Them Far Cry 3', duration: '0:00' },
-        { src: 'music/Slowdive - Sugar for the Pill.mp3', title: 'Slowdive Sugar for the Pill', duration: '0:00' },
-        { src: 'music/Styx - Man In The Wilderness.mp3', title: 'Styx Man In The Wilderness', duration: '0:00' },
-        { src: 'music/Sufjan Stevens - Mystery of Love.mp3', title: 'Sufjan Stevens Mystery of Love', duration: '0:00' },
-        { src: 'music/Sune Martin - Land of Mine (End Credits).mp3', title: 'Sune Martin Land of Mine (End Credits)', duration: '0:00' },
-        { src: 'music/Tame Impala - Posthumous Forgiveness.mp3', title: 'Tame Impala Posthumous Forgiveness', duration: '0:00' },
-        { src: 'music/The Handsome Family - Far from Any Road.mp3', title: 'The Handsome Family Far from Any Road', duration: '0:00' },
-        { src: 'music/The Heavy - Short Change Hero.mp3', title: 'The Heavy Short Change Hero', duration: '0:00' },
-        { src: 'music/The Prodigy - Firestarter.mp3', title: 'The Prodigy Firestarter', duration: '0:00' },
-        { src: 'music/Yurima - River Flows in You.mp3', title: 'Yurima River Flows in You', duration: '0:00' },
-        { src: 'music/[MP3DOWNLOAD.TO] Parasyte - Next To You (Anime Version)-320k.mp3', title: 'Parasyte Next To You (Anime Version) 320k', duration: '0:00' },
-        { src: 'music/[MP3DOWNLOAD.TO] Silent Hill Blood Tears _Lisa's Theme Not Tomorrow_ (Extended)-320k.mp3', title: 'Silent Hill Blood Tears Lisa\'s Theme Not Tomorrow (Extended) 320k', duration: '0:00' },
-        { src: 'music/analog mannequin - milk cassette x.mp3 - demo.mp3', title: 'analog mannequin milk cassette x.mp3 demo', duration: '0:00' },
-        { src: 'music/cavetown - demons.mp3', title: 'cavetown demons', duration: '0:00' },
-        { src: 'music/daniel.mp3 - green to blue (slowed + reverbed).mp3', title: 'daniel.mp3 green to blue (slowed + reverbed)', duration: '0:00' },
-        { src: 'music/elevators - tsunami.mp3', title: 'elevators tsunami', duration: '0:00' },
-        { src: 'music/girl in red - we fell in love in october (2).mp3', title: 'girl in red we fell in love in october (2)', duration: '0:00' },
-        { src: 'music/lil death - moment.mp3', title: 'lil death moment', duration: '0:00' },
-        { src: 'music/openai-fm-ash-audio.wav', title: 'openai fm ash audio', duration: '0:00' },
-        { src: 'music/santo & johnny - sleep walk (slowed + reverb).mp3', title: 'santo & johnny sleep walk (slowed + reverb)', duration: '0:00' },
-        { src: 'music/scott - Overcome.mp3', title: 'scott Overcome', duration: '0:00' },
-        { src: 'music/tie-fighter-roar.mp3', title: 'tie fighter roar', duration: '0:00' },
-        { src: 'music/xxxtentacion - revenge.mp3', title: 'xxxtentacion revenge', duration: '0:00' },
-        { src: 'music/Микаэл Таривердиев - Клавесин (из к ф цена).mp3', title: 'Микаэл Таривердиев Клавесин (из к ф цена)', duration: '0:00' },
-        { src: 'music/Музыка из фильма Игра престолов - Ramin Djawadi - Main Title.mp3', title: 'Музыка из фильма Игра престолов Ramin Djawadi Main Title', duration: '0:00' },
-        { src: 'music/Рамин Джавади - Красная свадьба Игра престолов.mp3', title: 'Рамин Джавади Красная свадьба Игра престолов', duration: '0:00' }
+        { src: 'docs/music/Abel Korzeniowski - Evgeni's Waltz.mp3', title: 'Abel Korzeniowski Evgeni\'s Waltz', duration: '0:00' },
+        { src: 'docs/music/Adam Ferello - Infinity.mp3', title: 'Adam Ferello Infinity', duration: '0:00' },
+        { src: 'docs/music/Assasin`s Cred - из Асасинс Крид 2.mp3', title: 'Assasin`s Cred из Асасинс Крид 2', duration: '0:00' },
+        { src: 'docs/music/Ben Howard - Oats In The Water.mp3', title: 'Ben Howard Oats In The Water', duration: '0:00' },
+        { src: 'docs/music/Blanck Mass - Ranger Gary.mp3', title: 'Blanck Mass Ranger Gary', duration: '0:00' },
+        { src: 'docs/music/Bobby Vinton - Mr. Lonely.mp3', title: 'Bobby Vinton Mr. Lonely', duration: '0:00' },
+        { src: 'docs/music/Buster Poindexter - Hit the Road Jack.mp3', title: 'Buster Poindexter Hit the Road Jack', duration: '0:00' },
+        { src: 'docs/music/Caesars - Jerk It Out.mp3', title: 'Caesars Jerk It Out', duration: '0:00' },
+        { src: 'docs/music/Calvin Harris - My Way.mp3', title: 'Calvin Harris My Way', duration: '0:00' },
+        { src: 'docs/music/Clair De Lune - The Evil Within - 2014 Soundtrack OST.mp3', title: 'Clair De Lune The Evil Within 2014 Soundtrack OST', duration: '0:00' },
+        { src: 'docs/music/Clint Mansell - Lux Aeterna (OST Requiem for a Dream) - Вечный свет (ОСТ Реквием по мечте) оригинальная.mp3', title: 'Clint Mansell Lux Aeterna (OST Requiem for a Dream) Вечный свет (ОСТ Реквием по мечте) оригинальная', duration: '0:00' },
+        { src: 'docs/music/Clint Mansell - Robbo's Theme.mp3', title: 'Clint Mansell Robbo\'s Theme', duration: '0:00' },
+        { src: 'docs/music/Daft Punk - Instant Crush.mp3', title: 'Daft Punk Instant Crush', duration: '0:00' },
+        { src: 'docs/music/Dvar - ariil iaat.mp3', title: 'Dvar ariil iaat', duration: '0:00' },
+        { src: 'docs/music/Erik Satie - Gymnopedia №1.mp3', title: 'Erik Satie Gymnopedia №1', duration: '0:00' },
+        { src: 'docs/music/Fall Out Boy - I Don't Care (Album Version).mp3', title: 'Fall Out Boy I Don\'t Care (Album Version)', duration: '0:00' },
+        { src: 'docs/music/Film Soundtracks, SoundtrackCast Album, Best Movie Soundtracks, TV Theme Players - Mad World (From Donnie Darko).mp3', title: 'Film Soundtracks, SoundtrackCast Album, Best Movie Soundtracks, TV Theme Players Mad World (From Donnie Darko)', duration: '0:00' },
+        { src: 'docs/music/HIM - Gone With The Sin.mp3', title: 'HIM Gone With The Sin', duration: '0:00' },
+        { src: 'docs/music/Hayley Williams - Simmer.mp3', title: 'Hayley Williams Simmer', duration: '0:00' },
+        { src: 'docs/music/Is Tropical - Dancing Anymore (zaycev.net).mp3', title: 'Is Tropical Dancing Anymore (zaycev.net)', duration: '0:00' },
+        { src: 'docs/music/Jackson C. Frank - My Name Is Carnival (2001 Remaster).mp3', title: 'Jackson C. Frank My Name Is Carnival (2001 Remaster)', duration: '0:00' },
+        { src: 'docs/music/Jake Chudnow - Pressed Pennies.mp3', title: 'Jake Chudnow Pressed Pennies', duration: '0:00' },
+        { src: 'docs/music/Jean-Michel Jarre, Christophe - Walking the Mile.mp3', title: 'Jean Michel Jarre, Christophe Walking the Mile', duration: '0:00' },
+        { src: 'docs/music/Jessica Curry - Mandus.mp3', title: 'Jessica Curry Mandus', duration: '0:00' },
+        { src: 'docs/music/John Murphy & Blue States - Season Song.mp3', title: 'John Murphy & Blue States Season Song', duration: '0:00' },
+        { src: 'docs/music/Jukebox - Jason.mp3', title: 'Jukebox Jason', duration: '0:00' },
+        { src: 'docs/music/Led Zeppelin - Immigrant Song (Remaster).mp3', title: 'Led Zeppelin Immigrant Song (Remaster)', duration: '0:00' },
+        { src: 'docs/music/Ludovico Einaudi - Einaudi Nuvole Bianche.mp3', title: 'Ludovico Einaudi Einaudi Nuvole Bianche', duration: '0:00' },
+        { src: 'docs/music/MGMT - Little Dark Age.mp3', title: 'MGMT Little Dark Age', duration: '0:00' },
+        { src: 'docs/music/Maxence Cyrin - Where Is My Mind.mp3', title: 'Maxence Cyrin Where Is My Mind', duration: '0:00' },
+        { src: 'docs/music/Mike Oldfield - Moonlight Shadow (Remastered).mp3', title: 'Mike Oldfield Moonlight Shadow (Remastered)', duration: '0:00' },
+        { src: 'docs/music/N3verface - Guts Theme (From Berserk).mp3', title: 'N3verface Guts Theme (From Berserk)', duration: '0:00' },
+        { src: 'docs/music/Nothing But Thieves - Graveyard Whistling.mp3', title: 'Nothing But Thieves Graveyard Whistling', duration: '0:00' },
+        { src: 'docs/music/Oliver Tree - Alien Boy.mp3', title: 'Oliver Tree Alien Boy', duration: '0:00' },
+        { src: 'docs/music/Passarella Death Squad - Just Like Sleep.mp3', title: 'Passarella Death Squad Just Like Sleep', duration: '0:00' },
+        { src: 'docs/music/Phantazo - I Scream to You God of Time.mp3', title: 'Phantazo I Scream to You God of Time', duration: '0:00' },
+        { src: 'docs/music/Porter Robinson - Goodbye To A World.mp3', title: 'Porter Robinson Goodbye To A World', duration: '0:00' },
+        { src: 'docs/music/Ramin Djawadi - Light Of The Seven (OST Игра Престолов 6 сезон 10 серия).mp3', title: 'Ramin Djawadi Light Of The Seven (OST Игра Престолов 6 сезон 10 серия)', duration: '0:00' },
+        { src: 'docs/music/Seatbelts - Rain (Demo Ver.).mp3', title: 'Seatbelts Rain (Demo Ver.)', duration: '0:00' },
+        { src: 'docs/music/Silent Partner - Ether.mp3', title: 'Silent Partner Ether', duration: '0:00' },
+        { src: 'docs/music/Skrillex ft. Damian Marley (OST Far Cry 3-Make It Burn Them - Far Cry 3.mp3', title: 'Skrillex ft. Damian Marley (OST Far Cry 3 Make It Burn Them Far Cry 3', duration: '0:00' },
+        { src: 'docs/music/Slowdive - Sugar for the Pill.mp3', title: 'Slowdive Sugar for the Pill', duration: '0:00' },
+        { src: 'docs/music/Styx - Man In The Wilderness.mp3', title: 'Styx Man In The Wilderness', duration: '0:00' },
+        { src: 'docs/music/Sufjan Stevens - Mystery of Love.mp3', title: 'Sufjan Stevens Mystery of Love', duration: '0:00' },
+        { src: 'docs/music/Sune Martin - Land of Mine (End Credits).mp3', title: 'Sune Martin Land of Mine (End Credits)', duration: '0:00' },
+        { src: 'docs/music/Tame Impala - Posthumous Forgiveness.mp3', title: 'Tame Impala Posthumous Forgiveness', duration: '0:00' },
+        { src: 'docs/music/The Handsome Family - Far from Any Road.mp3', title: 'The Handsome Family Far from Any Road', duration: '0:00' },
+        { src: 'docs/music/The Heavy - Short Change Hero.mp3', title: 'The Heavy Short Change Hero', duration: '0:00' },
+        { src: 'docs/music/The Prodigy - Firestarter.mp3', title: 'The Prodigy Firestarter', duration: '0:00' },
+        { src: 'docs/music/Yurima - River Flows in You.mp3', title: 'Yurima River Flows in You', duration: '0:00' },
+        { src: 'docs/music/[MP3DOWNLOAD.TO] Parasyte - Next To You (Anime Version)-320k.mp3', title: 'Parasyte Next To You (Anime Version) 320k', duration: '0:00' },
+        { src: 'docs/music/[MP3DOWNLOAD.TO] Silent Hill Blood Tears _Lisa's Theme Not Tomorrow_ (Extended)-320k.mp3', title: 'Silent Hill Blood Tears Lisa\'s Theme Not Tomorrow (Extended) 320k', duration: '0:00' },
+        { src: 'docs/music/analog mannequin - milk cassette x.mp3 - demo.mp3', title: 'analog mannequin milk cassette x.mp3 demo', duration: '0:00' },
+        { src: 'docs/music/cavetown - demons.mp3', title: 'cavetown demons', duration: '0:00' },
+        { src: 'docs/music/daniel.mp3 - green to blue (slowed + reverbed).mp3', title: 'daniel.mp3 green to blue (slowed + reverbed)', duration: '0:00' },
+        { src: 'docs/music/elevators - tsunami.mp3', title: 'elevators tsunami', duration: '0:00' },
+        { src: 'docs/music/girl in red - we fell in love in october (2).mp3', title: 'girl in red we fell in love in october (2)', duration: '0:00' },
+        { src: 'docs/music/lil death - moment.mp3', title: 'lil death moment', duration: '0:00' },
+        { src: 'docs/music/openai-fm-ash-audio.wav', title: 'openai fm ash audio', duration: '0:00' },
+        { src: 'docs/music/santo & johnny - sleep walk (slowed + reverb).mp3', title: 'santo & johnny sleep walk (slowed + reverb)', duration: '0:00' },
+        { src: 'docs/music/scott - Overcome.mp3', title: 'scott Overcome', duration: '0:00' },
+        { src: 'docs/music/tie-fighter-roar.mp3', title: 'tie fighter roar', duration: '0:00' },
+        { src: 'docs/music/xxxtentacion - revenge.mp3', title: 'xxxtentacion revenge', duration: '0:00' },
+        { src: 'docs/music/Микаэл Таривердиев - Клавесин (из к ф цена).mp3', title: 'Микаэл Таривердиев Клавесин (из к ф цена)', duration: '0:00' },
+        { src: 'docs/music/Музыка из фильма Игра престолов - Ramin Djawadi - Main Title.mp3', title: 'Музыка из фильма Игра престолов Ramin Djawadi Main Title', duration: '0:00' },
+        { src: 'docs/music/Рамин Джавади - Красная свадьба Игра престолов.mp3', title: 'Рамин Джавади Красная свадьба Игра престолов', duration: '0:00' }
     ];
     
     localMusic.forEach(track => {
@@ -916,7 +916,7 @@ function loadLocalVideos() {
 async function loadYouTubeLinks() {
     try {
         // Пытаемся загрузить JSON файл со ссылками
-        const response = await fetch('video/youtube.json');
+        const response = await fetch('docs/video/youtube.json');
         if (response.ok) {
             const videos = await response.json();
             videos.forEach(video => {
@@ -934,7 +934,7 @@ async function loadYouTubeLinks() {
     
     // Если JSON не найден, пытаемся загрузить текстовый файл со ссылками
     try {
-        const response = await fetch('video/links.txt');
+        const response = await fetch('docs/video/links.txt');
         if (response.ok) {
             const text = await response.text();
             const links = text.split('\n').filter(line => line.trim() && line.includes('youtube'));
@@ -953,7 +953,7 @@ async function loadYouTubeLinks() {
 // Загрузка фотографий из папки photo
 function loadLocalPhotos() {
     // Сначала пытаемся загрузить из JSON файла
-    fetch('photo/list.json')
+    fetch('docs/photo/list.json')
         .then(response => response.json())
         .then(photos => {
             // Фильтруем только объекты (игнорируем комментарии)
@@ -969,9 +969,9 @@ function loadLocalPhotos() {
             // Если JSON не найден или ошибка, используем встроенный список
             const localPhotos = [
                 // Добавьте ваши фото здесь:
-                // { src: 'photo/my-photo.webp', alt: 'Описание' },
-                // { src: 'photo/my-photo.jpg', alt: 'Описание' },
-                // { src: 'photo/my-photo.png', alt: 'Описание' }
+                // { src: 'docs/photo/my-photo.webp', alt: 'Описание' },
+                // { src: 'docs/photo/my-photo.jpg', alt: 'Описание' },
+                // { src: 'docs/photo/my-photo.png', alt: 'Описание' }
             ];
             
             localPhotos.forEach(photo => {

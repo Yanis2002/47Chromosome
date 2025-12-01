@@ -1489,11 +1489,23 @@ function loadLocalMusic() {
         { src: 'music/Микаэл Таривердиев - Клавесин (из к ф цена).mp3', title: 'Микаэл Таривердиев Клавесин (из к ф цена)', duration: '0:00' },
         { src: 'music/Музыка из фильма Игра престолов - Ramin Djawadi - Main Title.mp3', title: 'Музыка из фильма Игра престолов Ramin Djawadi Main Title', duration: '0:00' },
         { src: 'music/Рамин Джавади - Красная свадьба Игра престолов.mp3', title: 'Рамин Джавади Красная свадьба Игра престолов', duration: '0:00' }
-    ];
-    
-    localMusic.forEach(track => {
-        addAudioTrack(track.src, track.title, track.duration);
-    });
+        ];
+        
+        console.log('Всего треков для загрузки:', localMusic.length);
+        localMusic.forEach((track, index) => {
+            try {
+                addAudioTrack(track.src, track.title, track.duration);
+                if (index % 10 === 0) {
+                    console.log(`Загружено треков: ${index + 1}/${localMusic.length}`);
+                }
+            } catch (e) {
+                console.error('Ошибка добавления трека:', e, track);
+            }
+        });
+        console.log('Все треки загружены, всего:', localMusic.length);
+    } catch (error) {
+        console.error('Критическая ошибка в loadLocalMusic:', error);
+    }
 }
 
 // Добавление YouTube видео с обходом блокировок

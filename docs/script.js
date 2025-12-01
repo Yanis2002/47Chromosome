@@ -1907,7 +1907,7 @@ async function loadYouTubeLinks() {
             if (response.ok) {
                 const text = await response.text();
                 const lines = text.split('\n').filter(line => line.trim() && !line.startsWith('#'));
-                lines.forEach(link => {
+                for (const link of lines) {
                     const trimmedLink = link.trim();
                     if (trimmedLink && trimmedLink.includes('youtube')) {
                         // Обработка обычных ссылок на видео
@@ -1948,7 +1948,7 @@ async function loadYouTubeLinks() {
                             });
                         }
                     }
-                });
+                }
             }
         } catch (e) {
             console.log('Ошибка загрузки links.txt:', e);

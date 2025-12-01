@@ -212,6 +212,10 @@ function initNavigation() {
 // Аудио плеер
 let currentAudio = null;
 let isPlaying = false;
+let audioTracks = []; // Массив всех треков
+let currentTrackIndex = -1; // Индекс текущего трека
+let isShuffleActive = false; // Флаг перетасовки
+let originalTrackOrder = []; // Оригинальный порядок треков для восстановления
 
 function initAudioPlayer() {
     const playPauseBtn = document.getElementById('playPauseBtn');
@@ -381,14 +385,14 @@ function initWinampPlayer() {
     
     if (winampPrev) {
         winampPrev.addEventListener('click', () => {
-            // Переключение на предыдущий трек
+            playPrevTrack();
             playSound('click');
         });
     }
     
     if (winampNext) {
         winampNext.addEventListener('click', () => {
-            // Переключение на следующий трек
+            playNextTrack();
             playSound('click');
         });
     }
@@ -408,6 +412,7 @@ function initWinampPlayer() {
     
     if (winampShuffle) {
         winampShuffle.addEventListener('click', () => {
+            toggleShuffle();
             winampShuffle.classList.toggle('active');
             playSound('click');
         });
@@ -859,8 +864,16 @@ function addAudioTrack(src, title, duration) {
         audioList.innerHTML = '';
     }
     
+    // Добавляем трек в массив
+    const trackIndex = audioTracks.length;
+    audioTracks.push({ src, title, duration });
+    if (originalTrackOrder.length === 0) {
+        originalTrackOrder = [...audioTracks];
+    }
+    
     const item = document.createElement('div');
     item.className = 'audio-item';
+    item.dataset.trackIndex = trackIndex;
     item.innerHTML = `
         <div>
             <div class="audio-item-title">${title}</div>
@@ -868,12 +881,89 @@ function addAudioTrack(src, title, duration) {
         </div>
     `;
     item.addEventListener('click', () => {
-        loadAudio(src, title);
-        document.querySelectorAll('.audio-item').forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
+        playTrack(trackIndex);
         playSound('click');
     });
     audioList.appendChild(item);
+}
+
+// Функция для воспроизведения трека по индексу
+function playTrack(index) {
+    if (index < 0 || index >= audioTracks.length) return;
+    
+    currentTrackIndex = index;
+    const track = audioTracks[index];
+    loadAudio(track.src, track.title);
+    
+    // Обновляем активный класс
+    document.querySelectorAll('.audio-item').forEach((item, i) => {
+        if (i === index) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+    });
+}
+
+// Функция для переключения на следующий трек
+function playNextTrack() {
+    if (audioTracks.length === 0) return;
+    
+    if (isShuffleActive) {
+        // Случайный трек
+        let nextIndex;
+        do {
+            nextIndex = Math.floor(Math.random() * audioTracks.length);
+        } while (nextIndex === currentTrackIndex && audioTracks.length > 1);
+        playTrack(nextIndex);
+    } else {
+        // Следующий трек по порядку
+        const nextIndex = (currentTrackIndex + 1) % audioTracks.length;
+        playTrack(nextIndex);
+    }
+}
+
+// Функция для переключения на предыдущий трек
+function playPrevTrack() {
+    if (audioTracks.length === 0) return;
+    
+    if (isShuffleActive) {
+        // Случайный трек
+        let prevIndex;
+        do {
+            prevIndex = Math.floor(Math.random() * audioTracks.length);
+        } while (prevIndex === currentTrackIndex && audioTracks.length > 1);
+        playTrack(prevIndex);
+    } else {
+        // Предыдущий трек по порядку
+        const prevIndex = currentTrackIndex <= 0 ? audioTracks.length - 1 : currentTrackIndex - 1;
+        playTrack(prevIndex);
+    }
+}
+
+// Функция для перетасовки треков
+function toggleShuffle() {
+    isShuffleActive = !isShuffleActive;
+    
+    if (isShuffleActive) {
+        // Перетасовываем массив
+        const shuffled = [...audioTracks];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        audioTracks = shuffled;
+    } else {
+        // Восстанавливаем оригинальный порядок
+        audioTracks = [...originalTrackOrder];
+        // Обновляем индекс текущего трека
+        if (currentTrackIndex >= 0) {
+            const currentTrack = audioTracks.find(t => t.src === currentAudio?.src);
+            if (currentTrack) {
+                currentTrackIndex = audioTracks.indexOf(currentTrack);
+            }
+        }
+    }
 }
 
 function addVideo(src, title) {
@@ -1898,9 +1988,38 @@ function switchToVideo(index) {
         }
         
         currentVideoIndex = index;
+        const video = tvVideos[index];
         const tvPlayer = document.getElementById('tvPlayer');
         const tvStatic = document.getElementById('tvStatic');
         const channelItems = document.querySelectorAll('.tv-channel-item');
+        
+        // Если это плейлист, используем специальный URL
+        if (video.isPlaylist) {
+            // Для плейлистов используем embed URL плейлиста
+            const embedUrls = [
+                `https://invidious.io/embed?list=${video.id}`,
+                `https://yewtu.be/embed?list=${video.id}`,
+                `https://piped.video/embed?list=${video.id}`,
+                `https://www.youtube.com/embed/videoseries?list=${video.id}`
+            ];
+            
+            let currentEmbedIndex = 0;
+            const loadPlaylist = () => {
+                if (currentEmbedIndex < embedUrls.length) {
+                    tvPlayer.src = embedUrls[currentEmbedIndex];
+                    currentEmbedIndex++;
+                }
+            };
+            
+            tvPlayer.onerror = () => {
+                if (currentEmbedIndex < embedUrls.length) {
+                    setTimeout(loadPlaylist, 1000);
+                }
+            };
+            
+            loadPlaylist();
+        } else {
+            // Обычное видео
         
         if (!tvPlayer) {
             console.warn('Элемент tvPlayer не найден');

@@ -155,13 +155,19 @@ function initAudioPlayer() {
 }
 
 // Winamp-стиль плеер
-let winampVisualizer = null;
 let winampVisualizerContext = null;
 let winampAnalyser = null;
 let winampDataArray = null;
+let winampAudioContext = null;
+let winampSource = null;
 
 function initWinampPlayer() {
     const audioElement = document.getElementById('audioElement');
+    if (!audioElement) {
+        console.warn('Аудио элемент не найден, Winamp плеер не инициализирован');
+        return;
+    }
+    
     const winampPlay = document.getElementById('winampPlay');
     const winampPause = document.getElementById('winampPause');
     const winampStop = document.getElementById('winampStop');
@@ -215,142 +221,164 @@ function initWinampPlayer() {
         animateVisualizer();
     }
     
-    // Кнопки управления
-    winampPlay.addEventListener('click', () => {
-        if (currentAudio) {
-            audioElement.play();
-            winampPlayIndicator.classList.add('active');
-            isPlaying = true;
+    // Кнопки управления (с проверками)
+    if (winampPlay) {
+        winampPlay.addEventListener('click', () => {
+            if (currentAudio) {
+                audioElement.play();
+                if (winampPlayIndicator) winampPlayIndicator.classList.add('active');
+                isPlaying = true;
+                playSound('click');
+            }
+        });
+    }
+    
+    if (winampPause) {
+        winampPause.addEventListener('click', () => {
+            audioElement.pause();
+            if (winampPlayIndicator) winampPlayIndicator.classList.remove('active');
+            isPlaying = false;
             playSound('click');
-        }
-    });
+        });
+    }
     
-    winampPause.addEventListener('click', () => {
-        audioElement.pause();
-        winampPlayIndicator.classList.remove('active');
-        isPlaying = false;
-        playSound('click');
-    });
+    if (winampStop) {
+        winampStop.addEventListener('click', () => {
+            audioElement.pause();
+            audioElement.currentTime = 0;
+            if (winampPlayIndicator) winampPlayIndicator.classList.remove('active');
+            isPlaying = false;
+            playSound('click');
+        });
+    }
     
-    winampStop.addEventListener('click', () => {
-        audioElement.pause();
-        audioElement.currentTime = 0;
-        winampPlayIndicator.classList.remove('active');
-        isPlaying = false;
-        playSound('click');
-    });
+    if (winampPrev) {
+        winampPrev.addEventListener('click', () => {
+            // Переключение на предыдущий трек
+            playSound('click');
+        });
+    }
     
-    winampPrev.addEventListener('click', () => {
-        // Переключение на предыдущий трек
-        playSound('click');
-    });
+    if (winampNext) {
+        winampNext.addEventListener('click', () => {
+            // Переключение на следующий трек
+            playSound('click');
+        });
+    }
     
-    winampNext.addEventListener('click', () => {
-        // Переключение на следующий трек
-        playSound('click');
-    });
+    if (winampEject) {
+        winampEject.addEventListener('click', () => {
+            audioElement.pause();
+            audioElement.src = '';
+            if (winampTrackInfo) winampTrackInfo.textContent = 'Выберите трек';
+            if (winampTime) winampTime.textContent = '-00:00';
+            if (winampTrackDuration) winampTrackDuration.textContent = '<0:00>';
+            if (winampPlayIndicator) winampPlayIndicator.classList.remove('active');
+            isPlaying = false;
+            playSound('click');
+        });
+    }
     
-    winampEject.addEventListener('click', () => {
-        audioElement.pause();
-        audioElement.src = '';
-        winampTrackInfo.textContent = 'Выберите трек';
-        winampTime.textContent = '-00:00';
-        winampTrackDuration.textContent = '<0:00>';
-        winampPlayIndicator.classList.remove('active');
-        isPlaying = false;
-        playSound('click');
-    });
+    if (winampShuffle) {
+        winampShuffle.addEventListener('click', () => {
+            winampShuffle.classList.toggle('active');
+            playSound('click');
+        });
+    }
     
-    winampShuffle.addEventListener('click', () => {
-        winampShuffle.classList.toggle('active');
-        playSound('click');
-    });
-    
-    winampRepeat.addEventListener('click', () => {
-        winampRepeat.classList.toggle('active');
-        audioElement.loop = winampRepeat.classList.contains('active');
-        playSound('click');
-    });
+    if (winampRepeat) {
+        winampRepeat.addEventListener('click', () => {
+            winampRepeat.classList.toggle('active');
+            audioElement.loop = winampRepeat.classList.contains('active');
+            playSound('click');
+        });
+    }
     
     // Слайдер громкости
     let isDraggingVolume = false;
-    winampVolumeSlider.addEventListener('mousedown', (e) => {
-        isDraggingVolume = true;
-        updateVolumeSlider(e);
-    });
-    
-    document.addEventListener('mousemove', (e) => {
-        if (isDraggingVolume) {
+    if (winampVolumeSlider && winampVolumeFill && winampVolumeHandle) {
+        winampVolumeSlider.addEventListener('mousedown', (e) => {
+            isDraggingVolume = true;
             updateVolumeSlider(e);
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (isDraggingVolume) {
+                updateVolumeSlider(e);
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDraggingVolume = false;
+        });
+        
+        function updateVolumeSlider(e) {
+            const rect = winampVolumeSlider.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const percent = Math.max(0, Math.min(100, (x / rect.width) * 100));
+            audioElement.volume = percent / 100;
+            winampVolumeFill.style.width = percent + '%';
+            winampVolumeHandle.style.right = (100 - percent) + '%';
         }
-    });
-    
-    document.addEventListener('mouseup', () => {
-        isDraggingVolume = false;
-    });
-    
-    function updateVolumeSlider(e) {
-        const rect = winampVolumeSlider.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const percent = Math.max(0, Math.min(100, (x / rect.width) * 100));
-        audioElement.volume = percent / 100;
-        winampVolumeFill.style.width = percent + '%';
-        winampVolumeHandle.style.right = (100 - percent) + '%';
     }
     
     // Слайдер баланса
     let isDraggingBalance = false;
-    winampBalanceSlider.addEventListener('mousedown', (e) => {
-        isDraggingBalance = true;
-        updateBalanceSlider(e);
-    });
-    
-    document.addEventListener('mousemove', (e) => {
-        if (isDraggingBalance) {
+    if (winampBalanceSlider && winampBalanceFill && winampBalanceHandle) {
+        winampBalanceSlider.addEventListener('mousedown', (e) => {
+            isDraggingBalance = true;
             updateBalanceSlider(e);
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (isDraggingBalance) {
+                updateBalanceSlider(e);
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDraggingBalance = false;
+        });
+        
+        function updateBalanceSlider(e) {
+            const rect = winampBalanceSlider.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const percent = Math.max(0, Math.min(100, (x / rect.width) * 100));
+            // Баланс (pan) - от -1 (лево) до 1 (право)
+            const panValue = (percent - 50) / 50;
+            if (audioElement.setStereoPan) {
+                audioElement.setStereoPan(panValue);
+            }
+            winampBalanceFill.style.width = percent + '%';
+            winampBalanceHandle.style.right = (100 - percent) + '%';
         }
-    });
-    
-    document.addEventListener('mouseup', () => {
-        isDraggingBalance = false;
-    });
-    
-    function updateBalanceSlider(e) {
-        const rect = winampBalanceSlider.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const percent = Math.max(0, Math.min(100, (x / rect.width) * 100));
-        // Баланс (pan) - от -1 (лево) до 1 (право)
-        const panValue = (percent - 50) / 50;
-        if (audioElement.setStereoPan) {
-            audioElement.setStereoPan(panValue);
-        }
-        winampBalanceFill.style.width = percent + '%';
-        winampBalanceHandle.style.right = (100 - percent) + '%';
     }
     
     // Прогресс-бар
     let isDraggingProgress = false;
-    winampProgressTrack.addEventListener('mousedown', (e) => {
-        isDraggingProgress = true;
-        updateProgress(e);
-    });
-    
-    document.addEventListener('mousemove', (e) => {
-        if (isDraggingProgress) {
+    if (winampProgressTrack && winampProgressFill && winampProgressHandle) {
+        winampProgressTrack.addEventListener('mousedown', (e) => {
+            isDraggingProgress = true;
             updateProgress(e);
-        }
-    });
-    
-    document.addEventListener('mouseup', () => {
-        isDraggingProgress = false;
-    });
-    
-    function updateProgress(e) {
-        const rect = winampProgressTrack.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const percent = Math.max(0, Math.min(100, (x / rect.width) * 100));
-        if (audioElement.duration) {
-            audioElement.currentTime = (percent / 100) * audioElement.duration;
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (isDraggingProgress) {
+                updateProgress(e);
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDraggingProgress = false;
+        });
+        
+        function updateProgress(e) {
+            const rect = winampProgressTrack.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const percent = Math.max(0, Math.min(100, (x / rect.width) * 100));
+            if (audioElement.duration) {
+                audioElement.currentTime = (percent / 100) * audioElement.duration;
+            }
         }
     }
     
@@ -367,22 +395,24 @@ function initWinampPlayer() {
                 return `-${mins}:${secs.toString().padStart(2, '0')}`;
             };
             
-            winampTime.textContent = formatTime(remaining);
+            if (winampTime) winampTime.textContent = formatTime(remaining);
             
-            const progress = (current / duration) * 100;
-            winampProgressFill.style.width = progress + '%';
-            winampProgressHandle.style.left = progress + '%';
+            if (winampProgressFill && winampProgressHandle) {
+                const progress = (current / duration) * 100;
+                winampProgressFill.style.width = progress + '%';
+                winampProgressHandle.style.left = progress + '%';
+            }
         }
     });
     
     // Обновление индикатора воспроизведения
     audioElement.addEventListener('play', () => {
-        winampPlayIndicator.classList.add('active');
+        if (winampPlayIndicator) winampPlayIndicator.classList.add('active');
         isPlaying = true;
     });
     
     audioElement.addEventListener('pause', () => {
-        winampPlayIndicator.classList.remove('active');
+        if (winampPlayIndicator) winampPlayIndicator.classList.remove('active');
         isPlaying = false;
     });
 }

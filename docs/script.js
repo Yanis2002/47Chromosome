@@ -642,6 +642,47 @@ function initSmoothScroll() {
     });
 }
 
+// Загрузка GIF баннеров
+function loadGifBanners() {
+    const bannersGrid = document.getElementById('bannersGrid');
+    if (!bannersGrid) return;
+    
+    // Список всех GIF баннеров 88x31
+    const banners = [
+        { src: 'z3r0s.gif', alt: 'z3r0s' },
+        { src: 'hoho.gif', alt: 'hoho' },
+        { src: 'hash_now.gif', alt: 'hash_now' },
+        { src: 'webpassion.gif', alt: 'webpassion' },
+        { src: 'winamp3.gif', alt: 'winamp3' },
+        { src: 'anythingbut.gif', alt: 'anythingbut' },
+        { src: 'php_powered.gif', alt: 'php_powered' }
+    ];
+    
+    banners.forEach(banner => {
+        const item = document.createElement('div');
+        item.className = 'banner-item';
+        const img = document.createElement('img');
+        img.src = banner.src;
+        img.alt = banner.alt;
+        img.loading = 'lazy';
+        
+        // Обработка ошибок - просто скрываем
+        img.onerror = function() {
+            item.style.display = 'none';
+        };
+        
+        // При клике открываем в модальном окне
+        item.addEventListener('click', () => {
+            if (window.showImageModal) {
+                window.showImageModal(banner.src, banner.alt);
+            }
+        });
+        
+        item.appendChild(img);
+        bannersGrid.appendChild(item);
+    });
+}
+
 // Инициализация матричного эффекта для hero секции (Midjourney style с 3D искажениями)
 function initHeroMatrix() {
     const matrixContainer = document.getElementById('heroMatrix');

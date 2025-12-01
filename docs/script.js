@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         try {
             console.log('Загрузка музыки...');
-            loadLocalMusic();
+    loadLocalMusic();
             console.log('Музыка загружена');
         } catch (e) {
             console.error('Ошибка загрузки музыки:', e);
@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         try {
             console.log('Добавление демо контента...');
-            addDemoContent();
+    addDemoContent();
             console.log('Демо контент добавлен');
         } catch (e) {
             console.error('Ошибка добавления демо контента:', e);
@@ -163,18 +163,18 @@ function initNavigation() {
 
     // Функция переключения секций
     const switchSection = (targetId) => {
-        // Обновляем активные классы
-        navLinks.forEach(l => l.classList.remove('active'));
-        sections.forEach(s => s.classList.remove('active'));
-        
+            // Обновляем активные классы
+            navLinks.forEach(l => l.classList.remove('active'));
+            sections.forEach(s => s.classList.remove('active'));
+            
         // Находим нужную ссылку и секцию
         const targetLink = document.querySelector(`.nav-link[href="#${targetId}"]`);
-        const targetSection = document.getElementById(targetId);
+            const targetSection = document.getElementById(targetId);
         
         if (targetLink && targetSection) {
             targetLink.classList.add('active');
-            targetSection.classList.add('active');
-            playSound('click');
+                targetSection.classList.add('active');
+                playSound('click');
             return true;
         }
         return false;
@@ -1858,7 +1858,7 @@ function switchToVideo(index) {
         const onLoad = () => {
             try {
                 if (tvStatic) {
-                    setTimeout(() => {
+    setTimeout(() => {
                         tvStatic.classList.remove('active');
                         tvPlayer.classList.add('loaded');
                     }, 500);
@@ -1893,40 +1893,70 @@ function switchToVideo(index) {
 
 // Загрузка фотографий из папки photo
 function loadLocalPhotos() {
-    // Список фотографий (добавьте ваши файлы)
-    // В реальном проекте это можно сделать через серверный скрипт
-    // или использовать список файлов
-    const localPhotos = [
-        // Пример:
-        // { src: 'photo/my-photo.jpg', alt: 'Описание фото' }
-    ];
-    
-    localPhotos.forEach(photo => {
-        addPhoto(photo.src, photo.alt);
-    });
-    
-    // Альтернативный способ: загрузка через список файлов
-    // Если у вас есть файл photo/list.json, можно загрузить оттуда
-    fetch('photo/list.json')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Файл не найден');
+    try {
+        const photoGallery = document.getElementById('photoGallery');
+        if (!photoGallery) {
+            console.warn('Элемент photoGallery не найден, пробуем еще раз...');
+            setTimeout(loadLocalPhotos, 500);
+            return;
+        }
+        
+        console.log('Загрузка фото, найден элемент:', photoGallery);
+        
+        // Список фотографий (добавьте ваши файлы)
+        // В реальном проекте это можно сделать через серверный скрипт
+        // или использовать список файлов
+        const localPhotos = [
+            // Пример:
+            // { src: 'photo/my-photo.jpg', alt: 'Описание фото' }
+        ];
+        
+        localPhotos.forEach(photo => {
+            try {
+                addPhoto(photo.src, photo.alt);
+            } catch (e) {
+                console.error('Ошибка добавления фото:', e);
             }
-            return response.json();
-        })
-        .then(photos => {
-            if (photos && Array.isArray(photos)) {
-                photos.forEach(photo => {
-                    if (photo.src) {
-                        addPhoto(photo.src, photo.alt || '');
-                    }
-                });
-            }
-        })
-        .catch((error) => {
-            console.log('Ошибка загрузки фото:', error);
-            // Файл не найден, это нормально
         });
+        
+        // Альтернативный способ: загрузка через список файлов
+        // Если у вас есть файл photo/list.json, можно загрузить оттуда
+        console.log('Загрузка фото из photo/list.json...');
+        fetch('photo/list.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Файл не найден');
+                }
+                return response.json();
+            })
+            .then(photos => {
+                console.log('Получены фото из JSON:', photos);
+                if (photos && Array.isArray(photos)) {
+                    console.log('Всего фото для загрузки:', photos.length);
+                    photos.forEach((photo, index) => {
+                        try {
+                            if (photo.src) {
+                                addPhoto(photo.src, photo.alt || '');
+                                if (index % 5 === 0) {
+                                    console.log(`Загружено фото: ${index + 1}/${photos.length}`);
+                                }
+                            }
+                        } catch (e) {
+                            console.error('Ошибка добавления фото из JSON:', e, photo);
+                        }
+                    });
+                    console.log('Все фото загружены, всего:', photos.length);
+                } else {
+                    console.warn('Фото не являются массивом:', photos);
+                }
+            })
+            .catch((error) => {
+                console.error('Ошибка загрузки фото из JSON:', error);
+                // Файл не найден, это нормально
+            });
+    } catch (error) {
+        console.error('Критическая ошибка в loadLocalPhotos:', error);
+    }
 }
 
 // Добавление демо-контента для тестирования

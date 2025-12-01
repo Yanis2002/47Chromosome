@@ -1993,34 +1993,6 @@ function switchToVideo(index) {
         const tvStatic = document.getElementById('tvStatic');
         const channelItems = document.querySelectorAll('.tv-channel-item');
         
-        // Если это плейлист, используем специальный URL
-        if (video.isPlaylist) {
-            // Для плейлистов используем embed URL плейлиста
-            const embedUrls = [
-                `https://invidious.io/embed?list=${video.id}`,
-                `https://yewtu.be/embed?list=${video.id}`,
-                `https://piped.video/embed?list=${video.id}`,
-                `https://www.youtube.com/embed/videoseries?list=${video.id}`
-            ];
-            
-            let currentEmbedIndex = 0;
-            const loadPlaylist = () => {
-                if (currentEmbedIndex < embedUrls.length) {
-                    tvPlayer.src = embedUrls[currentEmbedIndex];
-                    currentEmbedIndex++;
-                }
-            };
-            
-            tvPlayer.onerror = () => {
-                if (currentEmbedIndex < embedUrls.length) {
-                    setTimeout(loadPlaylist, 1000);
-                }
-            };
-            
-            loadPlaylist();
-        } else {
-            // Обычное видео
-        
         if (!tvPlayer) {
             console.warn('Элемент tvPlayer не найден');
             return;
@@ -2045,67 +2017,110 @@ function switchToVideo(index) {
             tvPlayer.classList.remove('loaded');
         }
         
-        const video = tvVideos[index];
         if (!video || !video.id) {
             console.error('Неверные данные видео:', video);
             return;
         }
         
-        // Используем альтернативные сервисы для обхода блокировок
-        const embedUrls = [
-            `https://invidious.io/embed/${video.id}`,
-            `https://yewtu.be/embed/${video.id}`,
-            `https://invidious.flokinet.to/embed/${video.id}`,
-            `https://piped.video/embed/${video.id}`,
-            `https://piped.kavin.rocks/embed/${video.id}`,
-            `https://www.youtube-nocookie.com/embed/${video.id}?rel=0&modestbranding=1`
-        ];
-        
-        let currentEmbedIndex = 0;
-        
-        const loadVideo = () => {
-            try {
+        // Если это плейлист, используем специальный URL
+        if (video.isPlaylist) {
+            // Для плейлистов используем embed URL плейлиста
+            const embedUrls = [
+                `https://invidious.io/embed?list=${video.id}`,
+                `https://yewtu.be/embed?list=${video.id}`,
+                `https://piped.video/embed?list=${video.id}`,
+                `https://www.youtube.com/embed/videoseries?list=${video.id}`
+            ];
+            
+            let currentEmbedIndex = 0;
+            const loadPlaylist = () => {
                 if (currentEmbedIndex < embedUrls.length) {
                     tvPlayer.src = embedUrls[currentEmbedIndex];
                     currentEmbedIndex++;
                 }
-            } catch (e) {
-                console.error('Ошибка загрузки видео:', e);
-            }
-        };
-        
-        // Обработка успешной загрузки
-        const onLoad = () => {
-            try {
-                if (tvStatic) {
-    setTimeout(() => {
-                        tvStatic.classList.remove('active');
-                        tvPlayer.classList.add('loaded');
-                    }, 500);
+            };
+            
+            const onLoad = () => {
+                try {
+                    if (tvStatic) {
+                        setTimeout(() => {
+                            tvStatic.classList.remove('active');
+                            tvPlayer.classList.add('loaded');
+                        }, 500);
+                    }
+                    tvPlayer.removeEventListener('load', onLoad);
+                } catch (e) {
+                    console.error('Ошибка обработки загрузки:', e);
                 }
-                tvPlayer.removeEventListener('load', onLoad);
-            } catch (e) {
-                console.error('Ошибка обработки загрузки:', e);
-            }
-        };
-        
-        tvPlayer.addEventListener('load', onLoad);
-        
-        // Обработка ошибки - пробуем следующий сервис
-        const onError = () => {
-            try {
+            };
+            
+            tvPlayer.addEventListener('load', onLoad);
+            
+            tvPlayer.onerror = () => {
                 if (currentEmbedIndex < embedUrls.length) {
-                    setTimeout(loadVideo, 1000);
+                    setTimeout(loadPlaylist, 1000);
                 }
-            } catch (e) {
-                console.error('Ошибка обработки ошибки загрузки:', e);
-            }
-        };
-        
-        tvPlayer.onerror = onError;
-        
-        // Начинаем загрузку
-        loadVideo();
+            };
+            
+            loadPlaylist();
+        } else {
+            // Обычное видео
+            // Используем альтернативные сервисы для обхода блокировок
+            const embedUrls = [
+                `https://invidious.io/embed/${video.id}`,
+                `https://yewtu.be/embed/${video.id}`,
+                `https://invidious.flokinet.to/embed/${video.id}`,
+                `https://piped.video/embed/${video.id}`,
+                `https://piped.kavin.rocks/embed/${video.id}`,
+                `https://www.youtube-nocookie.com/embed/${video.id}?rel=0&modestbranding=1`
+            ];
+            
+            let currentEmbedIndex = 0;
+            
+            const loadVideo = () => {
+                try {
+                    if (currentEmbedIndex < embedUrls.length) {
+                        tvPlayer.src = embedUrls[currentEmbedIndex];
+                        currentEmbedIndex++;
+                    }
+                } catch (e) {
+                    console.error('Ошибка загрузки видео:', e);
+                }
+            };
+            
+            // Обработка успешной загрузки
+            const onLoad = () => {
+                try {
+                    if (tvStatic) {
+                        setTimeout(() => {
+                            tvStatic.classList.remove('active');
+                            tvPlayer.classList.add('loaded');
+                        }, 500);
+                    }
+                    tvPlayer.removeEventListener('load', onLoad);
+                } catch (e) {
+                    console.error('Ошибка обработки загрузки:', e);
+                }
+            };
+            
+            tvPlayer.addEventListener('load', onLoad);
+            
+            // Обработка ошибки - пробуем следующий сервис
+            const onError = () => {
+                try {
+                    if (currentEmbedIndex < embedUrls.length) {
+                        setTimeout(loadVideo, 1000);
+                    }
+                } catch (e) {
+                    console.error('Ошибка обработки ошибки загрузки:', e);
+                }
+            };
+            
+            tvPlayer.onerror = onError;
+            
+            // Начинаем загрузку
+            loadVideo();
+        }
     } catch (error) {
         console.error('Критическая ошибка в switchToVideo:', error);
     }

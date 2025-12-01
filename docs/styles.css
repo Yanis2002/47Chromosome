@@ -257,7 +257,7 @@ body {
 .nav-logo {
     font-size: 1.4rem; /* Уменьшено на 30% (было 2rem) */
     font-weight: 700;
-    letter-spacing: 2px;
+    letter-spacing: -0.5px; /* Сближены буквы для более плотного вида */
 }
 
 /* Cyberpunk glitch стиль для nav-logo */
@@ -267,7 +267,7 @@ body {
     color: #fff;
     line-height: 1;
     z-index: 2;
-    letter-spacing: 10px;
+    letter-spacing: -0.5px; /* Сближены буквы для более плотного вида */
     filter: drop-shadow(0 1px 3px);
 }
 

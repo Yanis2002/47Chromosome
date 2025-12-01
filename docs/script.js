@@ -1555,18 +1555,30 @@ async function loadYouTubeLinks() {
                 lines.forEach(link => {
                     const trimmedLink = link.trim();
                     if (trimmedLink && trimmedLink.includes('youtube')) {
-                        const patterns = [
-                            /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/playlist\?list=)([^&\n?#]+)/,
+                        // Обработка обычных ссылок на видео
+                        let videoId = '';
+                        const videoPatterns = [
+                            /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
                             /youtube\.com\/.*[?&]v=([^&\n?#]+)/
                         ];
-                        let videoId = '';
-                        for (const pattern of patterns) {
+                        for (const pattern of videoPatterns) {
                             const match = trimmedLink.match(pattern);
                             if (match && match[1]) {
                                 videoId = match[1];
                                 break;
                             }
                         }
+                        
+                        // Обработка плейлистов
+                        if (!videoId) {
+                            const playlistMatch = trimmedLink.match(/youtube\.com\/playlist\?list=([^&\n?#]+)/);
+                            if (playlistMatch && playlistMatch[1]) {
+                                // Для плейлистов используем первый видео ID или специальную обработку
+                                // Пока просто добавляем как отдельное видео
+                                videoId = playlistMatch[1];
+                            }
+                        }
+                        
                         if (videoId) {
                             tvVideos.push({
                                 id: videoId,
@@ -1577,7 +1589,7 @@ async function loadYouTubeLinks() {
                 });
             }
         } catch (e) {
-            // Игнорируем ошибку
+            console.log('Ошибка загрузки links.txt:', e);
         }
     }
     
@@ -1657,7 +1669,7 @@ function switchToVideo(index) {
     // Обработка успешной загрузки
     const onLoad = () => {
         if (tvStatic) {
-            setTimeout(() => {
+    setTimeout(() => {
                 tvStatic.classList.remove('active');
                 tvPlayer.classList.add('loaded');
             }, 500);

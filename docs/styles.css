@@ -504,8 +504,8 @@ body {
 .video-grid,
 .photo-gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
     margin-top: 30px;
 }
 
@@ -1204,6 +1204,8 @@ body {
     max-width: 1200px;
     margin: 30px auto;
     padding: 20px;
+    position: relative;
+    overflow: visible;
 }
 
 .tv-frame {
@@ -1311,6 +1313,28 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    z-index: 10;
+}
+
+@media (max-width: 768px) {
+    .tv-controls-left {
+        left: 10px;
+        top: auto;
+        bottom: 10px;
+        transform: none;
+        flex-direction: row;
+        gap: 10px;
+    }
+    
+    .tv-knob {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .knob-label {
+        font-size: 9px;
+        top: -20px;
+    }
 }
 
 .tv-knob {
@@ -1368,6 +1392,33 @@ body {
         inset 0 0 20px rgba(0, 0, 0, 0.8),
         0 0 20px rgba(0, 0, 0, 0.6);
     overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .tv-controls-right {
+        position: relative;
+        right: auto;
+        top: auto;
+        width: 100%;
+        height: 200px;
+        margin-top: 15px;
+        max-height: 200px;
+    }
+    
+    .tv-container {
+        padding: 10px;
+    }
+    
+    .tv-frame {
+        border-width: 15px;
+        padding: 10px;
+    }
+    
+    .tv-handle {
+        width: 60px;
+        height: 20px;
+        top: -25px;
+    }
 }
 
 .tv-channel-list {
@@ -1766,6 +1817,84 @@ body {
     
     .video-tabs {
         flex-direction: column;
+    }
+    
+    /* Адаптация телевизора для мобильных */
+    .tv-container {
+        padding: 10px;
+        margin: 15px auto;
+    }
+    
+    .tv-frame {
+        border-width: 15px;
+        padding: 10px;
+    }
+    
+    .tv-screen {
+        aspect-ratio: 16 / 9;
+    }
+    
+    .tv-controls-left {
+        position: relative;
+        left: auto;
+        right: auto;
+        top: auto;
+        bottom: auto;
+        transform: none;
+        flex-direction: row;
+        justify-content: center;
+        margin-top: 10px;
+        gap: 15px;
+    }
+    
+    .tv-controls-right {
+        position: relative;
+        right: auto;
+        top: auto;
+        width: 100%;
+        height: auto;
+        max-height: 250px;
+        margin-top: 15px;
+    }
+    
+    .tv-channel-item {
+        font-size: 11px;
+        padding: 10px;
+    }
+    
+    /* Уменьшение размеров картинок */
+    .gallery-grid,
+    .video-grid,
+    .photo-gallery {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px;
+    }
+    
+    .gallery-item,
+    .video-item,
+    .photo-item {
+        aspect-ratio: 1;
+    }
+    
+    .content-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
+    }
+    
+    .content-card {
+        padding: 15px;
+    }
+    
+    .content-card .card-icon {
+        font-size: 2rem;
+    }
+    
+    .content-card h3 {
+        font-size: 0.9rem;
+    }
+    
+    .content-card p {
+        font-size: 0.75rem;
     }
 }
 

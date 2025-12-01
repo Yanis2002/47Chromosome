@@ -2057,24 +2057,16 @@ function addYouTubeVideoByURL(url, title) {
     }
 }
 
-// Загрузка локальных видео из папки video
+// Загрузка локальных видео из папки video (автоматизировано)
 function loadLocalVideos() {
-    try {
-        // Список локальных видео файлов (добавьте ваши файлы)
-        const localVideos = [
-
-    ];
-        
-        localVideos.forEach(video => {
-            try {
-                addVideo(video.src, video.title);
-            } catch (e) {
-                console.error('Ошибка добавления видео:', e, video);
-            }
-        });
-    } catch (error) {
-        console.error('Критическая ошибка в loadLocalVideos:', error);
-    }
+    // Список локальных видео файлов (добавьте ваши файлы)
+    const localVideos = [];
+    
+    localVideos.forEach(video => {
+        safeExecute(() => {
+            addVideo(video.src, video.title);
+        }, `Ошибка добавления видео: ${video.title || video.src}`);
+    });
 }
 
 // Загрузка YouTube ссылок из файла

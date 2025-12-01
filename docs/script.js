@@ -1662,9 +1662,12 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
     }
     
     const textBlocks = [];
-    const blockCount = 2; // Количество текстовых блоков
+    const blockCount = 10; // Увеличено количество блоков для постоянного заполнения экрана
     
-    // Создаем текстовые блоки, которые появляются справа и сползают влево
+    // Вычисляем максимальный радиус орбиты (чтобы блоки не выходили за пределы экрана)
+    const maxRadius = Math.min(containerWidth, containerHeight) * 0.4;
+    
+    // Создаем текстовые блоки, которые вращаются вокруг WELCOME
     for (let blockIndex = 0; blockIndex < blockCount; blockIndex++) {
         const textBlock = document.createElement('div');
         textBlock.className = 'matrix-text-block';
@@ -1685,15 +1688,20 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
         
         textBlock.textContent = fullText.trim();
         
-        // Начальная позиция справа
-        const startX = containerWidth + 50;
-        const startY = (blockIndex * containerHeight / blockCount) + 20;
+        // Параметры для орбитального движения
+        const orbitRadius = 150 + Math.random() * (maxRadius - 150); // Радиус орбиты
+        const orbitAngle = (blockIndex / blockCount) * Math.PI * 2; // Начальный угол (равномерно распределены)
+        const orbitSpeed = 0.01 + Math.random() * 0.02; // Скорость вращения по орбите
+        const orbitDirection = Math.random() > 0.5 ? 1 : -1; // Направление вращения
+        
+        // Начальная позиция на орбите
+        const startX = welcomeCenterX + Math.cos(orbitAngle) * orbitRadius;
+        const startY = welcomeCenterY + Math.sin(orbitAngle) * orbitRadius;
         
         // Параметры для искажения
-        const speed = 0.05 + Math.random() * 0.1; // Медленная скорость сползания
         const distortionPhase = Math.random() * Math.PI * 2;
         const distortionAmplitude = 15 + Math.random() * 20;
-        const rotationSpeed = (Math.random() - 0.5) * 0.2; // Медленное вращение
+        const rotationSpeed = (Math.random() - 0.5) * 0.3; // Вращение самого блока
         
         textBlock.style.left = startX + 'px';
         textBlock.style.top = startY + 'px';
@@ -1708,18 +1716,16 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
         
         textBlocks.push({
             element: textBlock,
-            x: startX,
-            y: startY,
-            speed: speed,
+            orbitRadius: orbitRadius,
+            orbitAngle: orbitAngle,
+            orbitSpeed: orbitSpeed * orbitDirection,
             distortionPhase: distortionPhase,
             distortionAmplitude: distortionAmplitude,
             rotationSpeed: rotationSpeed,
             time: 0,
             rotation: 0,
             welcomeCenterX: welcomeCenterX,
-            welcomeCenterY: welcomeCenterY,
-            transformOriginX: transformOriginX,
-            transformOriginY: transformOriginY
+            welcomeCenterY: welcomeCenterY
         });
         
         matrixContainer.appendChild(textBlock);
@@ -1735,37 +1741,26 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
         
         textBlocks.forEach((block, index) => {
             block.time += 0.016;
-            block.x -= block.speed; // Медленное сползание влево
-            block.rotation += block.rotationSpeed; // Медленное вращение
+            
+            // Орбитальное движение вокруг центра WELCOME
+            block.orbitAngle += block.orbitSpeed;
+            
+            // Вычисляем новую позицию на орбите
+            const x = block.welcomeCenterX + Math.cos(block.orbitAngle) * block.orbitRadius;
+            const y = block.welcomeCenterY + Math.sin(block.orbitAngle) * block.orbitRadius;
+            
+            // Вращение самого блока
+            block.rotation += block.rotationSpeed;
             
             // Обновляем transform-origin при изменении позиции блока
             // чтобы он всегда вращался вокруг центра WELCOME
-            const currentTransformOriginX = block.welcomeCenterX - block.x;
-            const currentTransformOriginY = block.welcomeCenterY - block.y;
+            const currentTransformOriginX = block.welcomeCenterX - x;
+            const currentTransformOriginY = block.welcomeCenterY - y;
             block.element.style.transformOrigin = `${currentTransformOriginX}px ${currentTransformOriginY}px`;
             
-            // Если блок ушел влево, возвращаем его справа
-            if (block.x < -containerWidth - 100) {
-                block.x = containerWidth + 50;
-                block.y = (index * containerHeight / blockCount) + 20;
-                // Обновляем transform-origin для новой позиции
-                const newTransformOriginX = block.welcomeCenterX - block.x;
-                const newTransformOriginY = block.welcomeCenterY - block.y;
-                block.element.style.transformOrigin = `${newTransformOriginX}px ${newTransformOriginY}px`;
-                // Генерируем новый текст
-                let newText = '';
-                const lineCount = 15 + Math.floor(Math.random() * 10);
-                const wordsPerLine = 8 + Math.floor(Math.random() * 6);
-                for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
-                    let lineText = '';
-                    for (let wordIndex = 0; wordIndex < wordsPerLine; wordIndex++) {
-                        const word = codeWords[Math.floor(Math.random() * codeWords.length)];
-                        lineText += word + ' ';
-                    }
-                    newText += lineText.trim() + '\n';
-                }
-                block.element.textContent = newText.trim();
-            }
+            // Обновляем позицию элемента
+            block.element.style.left = x + 'px';
+            block.element.style.top = y + 'px';
             
             // Математические искажения формы текста
             // Волновое искажение по Y (расплывание)
@@ -1784,8 +1779,9 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
             const leftEdgeWave = Math.cos(block.time * 0.08 + block.distortionPhase) * 5;
             
             // Применяем трансформации с искажениями
+            // translate не нужен, так как позиция уже установлена через left/top
             block.element.style.transform = `
-                translate(${block.x}px, ${block.y + waveY}px)
+                translate(${waveY * 0.5}px, ${waveY}px)
                 rotate(${block.rotation}deg)
                 skew(${skewX}deg, ${skewY}deg)
                 scale(${scaleX}, ${scaleY})

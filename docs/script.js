@@ -2364,9 +2364,9 @@ function loadLocalPhotos() {
         });
         
         // Альтернативный способ: загрузка через список файлов
-        // Если у вас есть файл data/data/photo/list.json, можно загрузить оттуда
-        console.log('Загрузка фото из data/data/photo/list.json...');
-        fetch('data/data/photo/list.json')
+        // Если у вас есть файл data/photo/list.json, можно загрузить оттуда
+        console.log('Загрузка фото из data/photo/list.json...');
+        fetch('data/photo/list.json')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Файл не найден');

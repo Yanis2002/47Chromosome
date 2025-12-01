@@ -31,19 +31,19 @@ if (typeof window === 'undefined' || typeof document === 'undefined') {
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
     try {
-        initModals(); // Сначала создаем модальное окно
+    initModals(); // Сначала создаем модальное окно
     } catch (e) {
         console.error('Ошибка инициализации модальных окон:', e);
     }
     
     try {
-        initNavigation();
+    initNavigation();
     } catch (e) {
         console.error('Ошибка инициализации навигации:', e);
     }
     
     try {
-        initAudioPlayer();
+    initAudioPlayer();
     } catch (e) {
         console.error('Ошибка инициализации аудио плеера:', e);
     }
@@ -55,37 +55,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     try {
-        initContentCards();
+    initContentCards();
     } catch (e) {
         console.error('Ошибка инициализации карточек контента:', e);
     }
     
     try {
-        initPlaceholders();
+    initPlaceholders();
     } catch (e) {
         console.error('Ошибка инициализации плейсхолдеров:', e);
     }
     
     try {
-        initSoundEffects();
+    initSoundEffects();
     } catch (e) {
         console.error('Ошибка инициализации звуковых эффектов:', e);
     }
     
     try {
-        initShopButton();
+    initShopButton();
     } catch (e) {
         console.error('Ошибка инициализации кнопки магазина:', e);
     }
     
     try {
-        initSmoothScroll();
+    initSmoothScroll();
     } catch (e) {
         console.error('Ошибка инициализации плавной прокрутки:', e);
     }
     
     try {
-        initVideoTabs();
+    initVideoTabs();
     } catch (e) {
         console.error('Ошибка инициализации вкладок видео:', e);
     }
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Загружаем данные с обработкой ошибок
     setTimeout(() => {
         try {
-            loadLocalMusic();
+    loadLocalMusic();
         } catch (e) {
             console.error('Ошибка загрузки музыки:', e);
         }
@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         try {
-            addDemoContent();
+    addDemoContent();
         } catch (e) {
             console.error('Ошибка добавления демо контента:', e);
         }
@@ -1107,36 +1107,47 @@ function initSmoothScroll() {
 
 // Загрузка GIF баннеров в футер
 function loadFooterBanners() {
-    const footerBanners = document.getElementById('footerBanners');
-    if (!footerBanners) return;
-    
-    // Список всех GIF баннеров 88x31 из папки banners/
-    const banners = [
-        { src: 'banners/z3r0s.gif', alt: 'z3r0s' },
-        { src: 'banners/hoho.gif', alt: 'hoho' },
-        { src: 'banners/hash_now.gif', alt: 'hash_now' },
-        { src: 'banners/webpassion.gif', alt: 'webpassion' },
-        { src: 'banners/winamp3.gif', alt: 'winamp3' },
-        { src: 'banners/anythingbut.gif', alt: 'anythingbut' },
-        { src: 'banners/php_powered.gif', alt: 'php_powered' }
-    ];
-    
-    banners.forEach(banner => {
-        const item = document.createElement('div');
-        item.className = 'footer-banner-item';
-        const img = document.createElement('img');
-        img.src = banner.src;
-        img.alt = banner.alt;
-        img.loading = 'lazy';
+    try {
+        const footerBanners = document.getElementById('footerBanners');
+        if (!footerBanners) {
+            console.warn('Элемент footerBanners не найден');
+            return;
+        }
         
-        // Обработка ошибок - просто скрываем
-        img.onerror = function() {
-            item.style.display = 'none';
-        };
+        // Список всех GIF баннеров 88x31 из папки banners/
+        const banners = [
+            { src: 'banners/z3r0s.gif', alt: 'z3r0s' },
+            { src: 'banners/hoho.gif', alt: 'hoho' },
+            { src: 'banners/hash_now.gif', alt: 'hash_now' },
+            { src: 'banners/webpassion.gif', alt: 'webpassion' },
+            { src: 'banners/winamp3.gif', alt: 'winamp3' },
+            { src: 'banners/anythingbut.gif', alt: 'anythingbut' },
+            { src: 'banners/php_powered.gif', alt: 'php_powered' }
+        ];
         
-        item.appendChild(img);
-        footerBanners.appendChild(item);
-    });
+        banners.forEach(banner => {
+            try {
+                const item = document.createElement('div');
+                item.className = 'footer-banner-item';
+                const img = document.createElement('img');
+                img.src = banner.src;
+                img.alt = banner.alt;
+                img.loading = 'lazy';
+                
+                // Обработка ошибок - просто скрываем
+                img.onerror = function() {
+                    item.style.display = 'none';
+                };
+                
+                item.appendChild(img);
+                footerBanners.appendChild(item);
+            } catch (e) {
+                console.error('Ошибка добавления баннера:', e, banner);
+            }
+        });
+    } catch (error) {
+        console.error('Критическая ошибка в loadFooterBanners:', error);
+    }
 }
 
 // Инициализация матричного эффекта для hero секции (Midjourney style с 3D искажениями)
@@ -1565,14 +1576,22 @@ function addYouTubeVideoByURL(url, title) {
 
 // Загрузка локальных видео из папки video
 function loadLocalVideos() {
-    // Список локальных видео файлов (добавьте ваши файлы)
-    const localVideos = [
+    try {
+        // Список локальных видео файлов (добавьте ваши файлы)
+        const localVideos = [
 
-    ];
-    
-    localVideos.forEach(video => {
-        addVideo(video.src, video.title);
-    });
+        ];
+        
+        localVideos.forEach(video => {
+            try {
+                addVideo(video.src, video.title);
+            } catch (e) {
+                console.error('Ошибка добавления видео:', e, video);
+            }
+        });
+    } catch (error) {
+        console.error('Критическая ошибка в loadLocalVideos:', error);
+    }
 }
 
 // Загрузка YouTube ссылок из файла

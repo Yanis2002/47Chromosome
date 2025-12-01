@@ -878,18 +878,10 @@ function addAudioTrack(src, title, duration) {
         audioList.innerHTML = '';
     }
     
-    // Нормализуем путь для GitHub Pages (убираем лишние слеши, добавляем ./ если нужно)
-    let normalizedSrc = src;
-    if (!normalizedSrc.startsWith('http') && !normalizedSrc.startsWith('/')) {
-        // Если путь не начинается с http или /, добавляем ./ для относительного пути
-        if (!normalizedSrc.startsWith('./')) {
-            normalizedSrc = './' + normalizedSrc;
-        }
-    }
-    
-    // Добавляем трек в массив
+    // Используем путь как есть - на GitHub Pages пути должны быть относительными от корня (docs/)
+    // Пути вида music/file.mp3 работают и на localhost, и на GitHub Pages когда docs/ - корень сайта
     const trackIndex = audioTracks.length;
-    audioTracks.push({ src: normalizedSrc, title, duration });
+    audioTracks.push({ src, title, duration });
     if (originalTrackOrder.length === 0) {
         originalTrackOrder = [...audioTracks];
     }
@@ -1007,15 +999,6 @@ function addVideo(src, title) {
         videoGrid.innerHTML = '';
     }
     
-    // Нормализуем путь для GitHub Pages (убираем лишние слеши, добавляем ./ если нужно)
-    let normalizedSrc = src;
-    if (!normalizedSrc.startsWith('http') && !normalizedSrc.startsWith('/')) {
-        // Если путь не начинается с http или /, добавляем ./ для относительного пути
-        if (!normalizedSrc.startsWith('./')) {
-            normalizedSrc = './' + normalizedSrc;
-        }
-    }
-    
     const item = document.createElement('div');
     item.className = 'video-item';
     item.style.cursor = 'pointer';
@@ -1023,7 +1006,8 @@ function addVideo(src, title) {
     // Создаем превью видео
     const video = document.createElement('video');
     // Безопасная установка src (автоматически экранирует специальные символы)
-    video.setAttribute('src', normalizedSrc);
+    // Пути вида video/file.mp4 работают и на localhost, и на GitHub Pages когда docs/ - корень сайта
+    video.setAttribute('src', src);
     video.preload = 'metadata';
     video.style.width = '100%';
     video.style.height = '100%';
@@ -1078,20 +1062,12 @@ function addPhoto(src, alt) {
         photoGallery.innerHTML = '';
     }
     
-    // Нормализуем путь для GitHub Pages (убираем лишние слеши, добавляем ./ если нужно)
-    let normalizedSrc = src;
-    if (!normalizedSrc.startsWith('http') && !normalizedSrc.startsWith('/')) {
-        // Если путь не начинается с http или /, добавляем ./ для относительного пути
-        if (!normalizedSrc.startsWith('./')) {
-            normalizedSrc = './' + normalizedSrc;
-        }
-    }
-    
     const item = document.createElement('div');
     item.className = 'photo-item';
     const img = document.createElement('img');
     // Безопасная установка src и alt (автоматически экранирует специальные символы)
-    img.setAttribute('src', normalizedSrc);
+    // Пути вида photo/file.jpg работают и на localhost, и на GitHub Pages когда docs/ - корень сайта
+    img.setAttribute('src', src);
     img.setAttribute('alt', alt || '');
     img.loading = 'lazy';
     

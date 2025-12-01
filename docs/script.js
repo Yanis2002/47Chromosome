@@ -852,22 +852,11 @@ function addLink(url, title, description) {
     
     const item = document.createElement('div');
     item.className = 'library-item';
-    
-    // Используем безопасные методы вместо innerHTML
-    const titleEl = document.createElement('h3');
-    titleEl.textContent = title || 'Ссылка';
-    const descEl = document.createElement('p');
-    descEl.textContent = description || '';
-    const linkEl = document.createElement('a');
-    linkEl.href = url;
-    linkEl.target = '_blank';
-    linkEl.rel = 'noopener noreferrer';
-    linkEl.className = 'library-link';
-    linkEl.textContent = 'Открыть →';
-    
-    item.appendChild(titleEl);
-    item.appendChild(descEl);
-    item.appendChild(linkEl);
+    item.innerHTML = `
+        <h3>${title || 'Ссылка'}</h3>
+        <p>${description || ''}</p>
+        <a href="${url}" target="_blank" class="library-link">Открыть →</a>
+    `;
     
     // Добавляем обработчик клика
     item.addEventListener('click', (e) => {

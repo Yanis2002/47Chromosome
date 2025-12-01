@@ -1873,7 +1873,7 @@ function loadLocalMusic() {
         console.log('Всего треков для загрузки:', localMusic.length);
         localMusic.forEach((track, index) => {
             try {
-                addAudioTrack(track.src, track.title, track.duration, index);
+                addAudioTrack(track.src, track.title, track.duration);
                 if (index % 10 === 0) {
                     console.log(`Загружено треков: ${index + 1}/${localMusic.length}`);
                 }
@@ -1881,6 +1881,10 @@ function loadLocalMusic() {
                 console.error('Ошибка добавления трека:', e, track);
             }
         });
+        
+        totalAudios = localMusic.length;
+        // Инициализируем пагинацию для аудио
+        initAudioPagination(totalAudios);
         console.log('Все треки загружены, всего:', localMusic.length);
     } catch (error) {
         console.error('Критическая ошибка в loadLocalMusic:', error);

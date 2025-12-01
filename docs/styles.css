@@ -2453,3 +2453,73 @@ button:active {
     user-select: none;
 }
 
+/* Пагинация */
+.pagination {
+    --size: 36px;
+    --inset: 2px;
+    --pagination-radius: 4;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.pagination__list {
+    display: flex;
+    list-style: none;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    gap: 5px;
+}
+
+.pagination__list li {
+    width: var(--size);
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+}
+
+.pagination__list a {
+    display: grid;
+    place-items: center;
+    color: var(--text-secondary);
+    text-decoration: none;
+    width: 100%;
+    height: 100%;
+    user-select: none;
+    position: relative;
+    border-radius: calc(var(--pagination-radius) * 1px);
+    transition: color 0.2s ease-out, opacity 0.2s ease-out, background 0.2s ease-out;
+}
+
+.pagination__list a:hover {
+    color: var(--accent-neon);
+    background: rgba(255, 0, 255, 0.1);
+}
+
+.pagination__list a[aria-current="page"] {
+    color: var(--accent-neon);
+    background: rgba(255, 0, 255, 0.2);
+}
+
+.pagination__list a.pagination__link--disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.pagination__list a.pagination__link--arrow {
+    font-size: 0.8rem;
+}
+
+.photo-item[data-page],
+.audio-item[data-page] {
+    display: none;
+}
+
+.photo-item[data-page].visible,
+.audio-item[data-page].visible {
+    display: block;
+}
+

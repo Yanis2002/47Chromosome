@@ -142,6 +142,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         try {
+            console.log('Загрузка ссылок...');
+            loadLinks();
+            console.log('Ссылки загружены');
+        } catch (e) {
+            console.error('Ошибка загрузки ссылок:', e);
+        }
+        
+        try {
             console.log('Добавление демо контента...');
     addDemoContent();
             console.log('Демо контент добавлен');

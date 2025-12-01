@@ -16,24 +16,23 @@ npm-debug.log*
 *.tmp
 *.temp
 
-# Локальные файлы (не добавлять в репозиторий)
-index-local.html
-styles-local.css
-script-local.js
+# OS
+.DS_Store
+Thumbs.db
 
-# Большие медиа файлы (если нужно исключить)
-# *.mp3
-# *.mp4
-# *.mov
-# *.avi
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Временные файлы
+*.tmp
+*.temp
 
 # Node modules (если будут)
 node_modules/
-index-local.html
-styles-local.css
-script-local.js
-
-# Локальные файлы для работы без портов
-index.html
-styles.css
-script.js

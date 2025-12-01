@@ -4,7 +4,7 @@
 
 1. Зайдите на [GitHub.com](https://github.com)
 2. Нажмите "New repository" (зеленая кнопка)
-3. Назовите репозиторий (например: `maidcore-site` или `47-site`)
+3. Назовите репозиторий (например: `47Chromosome` или `47-site`)
 4. Выберите Public или Private
 5. **НЕ** создавайте README, .gitignore или лицензию (они уже есть)
 6. Нажмите "Create repository"
@@ -20,7 +20,7 @@ cd "/Users/yanis/47 сайт"
 git add .
 
 # Сделайте первый коммит
-git commit -m "Initial commit: Maidcore site"
+git commit -m "Initial commit: 47Chromosome site"
 
 # Подключите к удаленному репозиторию (замените URL)
 git remote add origin https://github.com/ВАШ-USERNAME/НАЗВАНИЕ-РЕПОЗИТОРИЯ.git

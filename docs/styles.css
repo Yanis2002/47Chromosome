@@ -255,7 +255,7 @@ body {
 }
 
 .nav-logo {
-    font-size: 2rem;
+    font-size: 1.4rem; /* Уменьшено на 30% (было 2rem) */
     font-weight: 700;
     letter-spacing: 2px;
 }

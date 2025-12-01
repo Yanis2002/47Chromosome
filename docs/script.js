@@ -982,55 +982,16 @@ function addLink(url, title, description) {
     linksContent.appendChild(item);
 }
 
-// Загрузка ссылок
+// Загрузка ссылок (автоматизировано)
 function loadLinks() {
-    try {
-        const linksContent = document.getElementById('linksContent');
-        if (!linksContent) {
-            console.warn('Элемент linksContent не найден, пробуем еще раз...');
-            setTimeout(loadLinks, 500);
-            return;
-        }
-        
+    waitForElement('linksContent', (linksContent) => {
         console.log('Загрузка ссылок, найден элемент:', linksContent);
-        
-        // Загрузка ссылок из JSON файла
-        console.log('Загрузка ссылок из data/links.json...');
-        fetch('data/links.json')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Файл не найден');
-                }
-                return response.json();
-            })
-            .then(links => {
-                console.log('Получены ссылки из JSON:', links);
-                if (links && Array.isArray(links)) {
-                    console.log('Всего ссылок для загрузки:', links.length);
-                    links.forEach((link, index) => {
-                        try {
-                            if (link.url) {
-                                addLink(link.url, link.title || '', link.description || '');
-                                if (index % 5 === 0) {
-                                    console.log(`Загружена ссылка: ${index + 1}/${links.length}`);
-                                }
-                            }
-                        } catch (e) {
-                            console.error('Ошибка добавления ссылки из JSON:', e, link);
-                        }
-                    });
-                    console.log('Все ссылки загружены, всего:', links.length);
-                } else {
-                    console.warn('Ссылки не являются массивом:', links);
-                }
-            })
-            .catch((error) => {
-                console.error('Ошибка загрузки ссылок из JSON:', error);
-                // Файл не найден, это нормально
-            });
-    } catch (error) {
-        console.error('Критическая ошибка в loadLinks:', error);
-    }
+        loadDataFromJSON('data/links.json', (link) => {
+            if (link.url) {
+                addLink(link.url, link.title || '', link.description || '');
+            }
+        }, 'Ссылки', 5);
+    });
 }
 
 // Вспомогательная функция для безопасной вставки текста (предотвращает ошибки с кавычками)
@@ -1039,6 +1000,90 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// ============================================
+// УНИВЕРСАЛЬНЫЕ ФУНКЦИИ ДЛЯ АВТОМАТИЗАЦИИ
+// ============================================
+
+/**
+ * Ожидание появления элемента DOM с повторными попытками
+ * @param {string} elementId - ID элемента
+ * @param {Function} callback - Функция, которая будет вызвана когда элемент найден
+ * @param {number} retryDelay - Задержка между попытками в мс (по умолчанию 500)
+ * @param {number} maxRetries - Максимальное количество попыток (по умолчанию 10)
+ */
+function waitForElement(elementId, callback, retryDelay = 500, maxRetries = 10) {
+    let retries = 0;
+    const tryFind = () => {
+        const element = document.getElementById(elementId);
+        if (element) {
+            callback(element);
+        } else if (retries < maxRetries) {
+            retries++;
+            console.warn(`Элемент ${elementId} не найден, попытка ${retries}/${maxRetries}...`);
+            setTimeout(tryFind, retryDelay);
+        } else {
+            console.error(`Элемент ${elementId} не найден после ${maxRetries} попыток`);
+        }
+    };
+    tryFind();
+}
+
+/**
+ * Загрузка данных из JSON файла с универсальной обработкой
+ * @param {string} url - URL JSON файла
+ * @param {Function} processor - Функция обработки каждого элемента массива
+ * @param {string} logPrefix - Префикс для логов
+ * @param {number} logInterval - Интервал логирования прогресса (каждый N-й элемент)
+ */
+function loadDataFromJSON(url, processor, logPrefix = 'Данные', logInterval = 5) {
+    return fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Файл не найден: ${url}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(`Получены ${logPrefix} из JSON:`, data);
+            if (data && Array.isArray(data)) {
+                console.log(`Всего ${logPrefix.toLowerCase()} для загрузки:`, data.length);
+                data.forEach((item, index) => {
+                    try {
+                        processor(item, index);
+                        if (index % logInterval === 0 && index > 0) {
+                            console.log(`Загружено ${logPrefix.toLowerCase()}: ${index + 1}/${data.length}`);
+                        }
+                    } catch (e) {
+                        console.error(`Ошибка обработки ${logPrefix.toLowerCase()}:`, e, item);
+                    }
+                });
+                console.log(`Все ${logPrefix.toLowerCase()} загружены, всего:`, data.length);
+                return data;
+            } else {
+                console.warn(`${logPrefix} не являются массивом:`, data);
+                return [];
+            }
+        })
+        .catch((error) => {
+            console.error(`Ошибка загрузки ${logPrefix.toLowerCase()} из JSON:`, error);
+            return [];
+        });
+}
+
+/**
+ * Безопасное выполнение функции с обработкой ошибок
+ * @param {Function} fn - Функция для выполнения
+ * @param {string} errorMessage - Сообщение об ошибке
+ */
+function safeExecute(fn, errorMessage = 'Ошибка выполнения') {
+    try {
+        return fn();
+    } catch (error) {
+        console.error(errorMessage, error);
+        return null;
+    }
 }
 
 function addAudioTrack(src, title, duration) {
@@ -1788,22 +1833,15 @@ function initVideoTabs() {
     });
 }
 
-// Загрузка локальной музыки
+// Загрузка локальной музыки (автоматизировано)
 function loadLocalMusic() {
-    try {
-        const audioList = document.getElementById('audioList');
-        if (!audioList) {
-            console.warn('Элемент audioList не найден, пробуем еще раз...');
-            setTimeout(loadLocalMusic, 500);
-            return;
-        }
-        
+    waitForElement('audioList', (audioList) => {
         console.log('Загрузка музыки, найден элемент:', audioList);
         
         // Список всех локальных аудио файлов
         // Используем двойные кавычки для путей с апострофами, чтобы избежать ошибок
         // Пути обновлены для новой структуры: data/music/
-        const localMusic = [
+    const localMusic = [
             { src: "data/music/Abel Korzeniowski - Evgeni's Waltz.mp3", title: "Abel Korzeniowski Evgeni's Waltz", duration: '0:00' },
         { src: 'data/music/Adam Ferello - Infinity.mp3', title: 'Adam Ferello Infinity', duration: '0:00' },
         { src: 'data/music/Assasin`s Cred - из Асасинс Крид 2.mp3', title: 'Assasin`s Cred из Асасинс Крид 2', duration: '0:00' },
@@ -2335,72 +2373,18 @@ function switchToVideo(index) {
     }
 }
 
-// Загрузка фотографий из папки photo
+// Загрузка фотографий из папки photo (автоматизировано)
 function loadLocalPhotos() {
-    try {
-        const photoGallery = document.getElementById('photoGallery');
-        if (!photoGallery) {
-            console.warn('Элемент photoGallery не найден, пробуем еще раз...');
-            setTimeout(loadLocalPhotos, 500);
-            return;
-        }
-        
+    waitForElement('photoGallery', (photoGallery) => {
         console.log('Загрузка фото, найден элемент:', photoGallery);
         
-        // Список фотографий (добавьте ваши файлы)
-        // В реальном проекте это можно сделать через серверный скрипт
-        // или использовать список файлов
-        const localPhotos = [
-            // Пример:
-            // { src: 'data/photo/my-photo.jpg', alt: 'Описание фото' }
-        ];
-        
-        localPhotos.forEach(photo => {
-            try {
-                addPhoto(photo.src, photo.alt);
-            } catch (e) {
-                console.error('Ошибка добавления фото:', e);
+        // Загрузка фото из JSON файла
+        loadDataFromJSON('data/photo/list.json', (photo) => {
+            if (photo.src) {
+                addPhoto(photo.src, photo.alt || '');
             }
-        });
-        
-        // Альтернативный способ: загрузка через список файлов
-        // Если у вас есть файл data/photo/list.json, можно загрузить оттуда
-        console.log('Загрузка фото из data/photo/list.json...');
-        fetch('data/photo/list.json')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Файл не найден');
-                }
-                return response.json();
-            })
-            .then(photos => {
-                console.log('Получены фото из JSON:', photos);
-                if (photos && Array.isArray(photos)) {
-                    console.log('Всего фото для загрузки:', photos.length);
-                    photos.forEach((photo, index) => {
-                        try {
-                            if (photo.src) {
-                                addPhoto(photo.src, photo.alt || '');
-                                if (index % 5 === 0) {
-                                    console.log(`Загружено фото: ${index + 1}/${photos.length}`);
-                                }
-                            }
-                        } catch (e) {
-                            console.error('Ошибка добавления фото из JSON:', e, photo);
-                        }
-                    });
-                    console.log('Все фото загружены, всего:', photos.length);
-                } else {
-                    console.warn('Фото не являются массивом:', photos);
-                }
-            })
-            .catch((error) => {
-                console.error('Ошибка загрузки фото из JSON:', error);
-                // Файл не найден, это нормально
-            });
-    } catch (error) {
-        console.error('Критическая ошибка в loadLocalPhotos:', error);
-    }
+        }, 'Фото', 5);
+    });
 }
 
 // Добавление демо-контента для тестирования

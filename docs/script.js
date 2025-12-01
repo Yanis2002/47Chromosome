@@ -1251,9 +1251,20 @@ function initVideoTabs() {
             
             // Добавляем активные классы
             tab.classList.add('active');
-            const targetContent = document.getElementById(targetTab + 'Tab');
+            
+            // Правильное сопоставление ID вкладок
+            let targetContentId = '';
+            if (targetTab === 'youtube') {
+                targetContentId = 'youtubeTab';
+            } else if (targetTab === 'local') {
+                targetContentId = 'localVideoTab';
+            }
+            
+            const targetContent = document.getElementById(targetContentId);
             if (targetContent) {
                 targetContent.classList.add('active');
+            } else {
+                console.warn('Вкладка не найдена:', targetContentId);
             }
             playSound('click');
         });
@@ -1264,7 +1275,7 @@ function initVideoTabs() {
 function loadLocalMusic() {
     // Список всех локальных аудио файлов
     const localMusic = [
-        { src: 'music/Abel Korzeniowski - Evgeni's Waltz.mp3', title: 'Abel Korzeniowski Evgeni\'s Waltz', duration: '0:00' },
+        { src: 'music/Abel Korzeniowski - Evgeni\'s Waltz.mp3', title: 'Abel Korzeniowski Evgeni\'s Waltz', duration: '0:00' },
         { src: 'music/Adam Ferello - Infinity.mp3', title: 'Adam Ferello Infinity', duration: '0:00' },
         { src: 'music/Assasin`s Cred - из Асасинс Крид 2.mp3', title: 'Assasin`s Cred из Асасинс Крид 2', duration: '0:00' },
         { src: 'music/Ben Howard - Oats In The Water.mp3', title: 'Ben Howard Oats In The Water', duration: '0:00' },

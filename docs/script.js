@@ -41,6 +41,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initVideoTabs();
     // Загружаем локальную музыку
     loadLocalMusic();
+    // Загружаем видео из папки
+    loadLocalVideos();
+    // Загружаем фото из папки
+    loadLocalPhotos();
+    // Загружаем YouTube ссылки из папки
+    loadYouTubeLinks();
     // Добавляем примеры контента для демонстрации
     addDemoContent();
 });
@@ -787,6 +793,85 @@ function addYouTubeVideoByURL(url, title) {
     } else {
         console.error('Не удалось извлечь ID видео из URL:', url);
     }
+}
+
+// Загрузка локальных видео из папки video
+function loadLocalVideos() {
+    // Список локальных видео файлов (добавьте ваши файлы)
+    const localVideos = [
+        // Пример:
+        // { src: 'video/my-video.mp4', title: 'Мое видео' }
+    ];
+    
+    localVideos.forEach(video => {
+        addVideo(video.src, video.title);
+    });
+}
+
+// Загрузка YouTube ссылок из файла
+async function loadYouTubeLinks() {
+    try {
+        // Пытаемся загрузить JSON файл со ссылками
+        const response = await fetch('video/youtube.json');
+        if (response.ok) {
+            const videos = await response.json();
+            videos.forEach(video => {
+                if (video.id) {
+                    addYouTubeVideo(video.id, video.title);
+                } else if (video.url) {
+                    addYouTubeVideoByURL(video.url, video.title);
+                }
+            });
+            return;
+        }
+    } catch (e) {
+        // Игнорируем ошибку, если файл не найден
+    }
+    
+    // Если JSON не найден, пытаемся загрузить текстовый файл со ссылками
+    try {
+        const response = await fetch('video/links.txt');
+        if (response.ok) {
+            const text = await response.text();
+            const links = text.split('\n').filter(line => line.trim() && line.includes('youtube'));
+            links.forEach(link => {
+                const trimmedLink = link.trim();
+                if (trimmedLink) {
+                    addYouTubeVideoByURL(trimmedLink, 'YouTube видео');
+                }
+            });
+        }
+    } catch (e) {
+        // Игнорируем ошибку
+    }
+}
+
+// Загрузка фотографий из папки photo
+function loadLocalPhotos() {
+    // Список фотографий (добавьте ваши файлы)
+    // В реальном проекте это можно сделать через серверный скрипт
+    // или использовать список файлов
+    const localPhotos = [
+        // Пример:
+        // { src: 'photo/my-photo.jpg', alt: 'Описание фото' }
+    ];
+    
+    localPhotos.forEach(photo => {
+        addPhoto(photo.src, photo.alt);
+    });
+    
+    // Альтернативный способ: загрузка через список файлов
+    // Если у вас есть файл photo/list.json, можно загрузить оттуда
+    fetch('photo/list.json')
+        .then(response => response.json())
+        .then(photos => {
+            photos.forEach(photo => {
+                addPhoto(photo.src, photo.alt || '');
+            });
+        })
+        .catch(() => {
+            // Файл не найден, это нормально
+        });
 }
 
 // Добавление демо-контента для тестирования

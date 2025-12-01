@@ -1941,7 +1941,7 @@ body {
 }
 
 .modal-image {
-    max-width: 100%;
+    max-width: 95vw;
     max-height: calc(100vh - 120px);
     width: auto;
     height: auto;
@@ -1954,6 +1954,21 @@ body {
     transition: opacity 0.3s ease;
     background: var(--bg-primary);
     cursor: zoom-out;
+    display: block;
+    margin: 0 auto;
+}
+
+.modal-video {
+    max-width: 95vw;
+    max-height: calc(100vh - 120px);
+    width: auto;
+    height: auto;
+    border: 2px solid var(--accent-neon);
+    box-shadow: 
+        0 0 30px rgba(255, 0, 255, 0.5),
+        0 0 60px rgba(0, 255, 255, 0.3);
+    border-radius: 5px;
+    background: var(--bg-primary);
     display: block;
     margin: 0 auto;
 }

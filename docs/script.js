@@ -888,22 +888,49 @@ function addVideo(src, title) {
     
     const item = document.createElement('div');
     item.className = 'video-item';
+    item.style.cursor = 'pointer';
+    
+    // Создаем превью видео
     const video = document.createElement('video');
     video.src = src;
-    video.controls = true;
+    video.preload = 'metadata';
     video.style.width = '100%';
     video.style.height = '100%';
     video.style.objectFit = 'cover';
+    
+    // Загружаем превью при загрузке метаданных
+    video.addEventListener('loadedmetadata', () => {
+        video.currentTime = 1; // Переходим на 1 секунду для превью
+    });
     
     const titleDiv = document.createElement('div');
     titleDiv.style.cssText = 'position: absolute; bottom: 10px; left: 10px; color: white; background: rgba(0,0,0,0.7); padding: 5px 10px; border-radius: 3px; pointer-events: none;';
     titleDiv.textContent = title;
     
+    // Иконка play поверх видео
+    const playIcon = document.createElement('div');
+    playIcon.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; color: white; text-shadow: 0 0 10px rgba(0,0,0,0.8); pointer-events: none; z-index: 2;';
+    playIcon.textContent = '▶';
+    
     item.appendChild(video);
     item.appendChild(titleDiv);
+    item.appendChild(playIcon);
     
-    // Добавляем звуковой эффект при клике
-    item.addEventListener('click', () => {
+    // Открываем видео в модальном окне при клике
+    item.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (window.showVideoModal) {
+            window.showVideoModal(src, title);
+        } else {
+            // Если модальное окно для видео еще не создано, создаем его
+            initVideoModal();
+            setTimeout(() => {
+                if (window.showVideoModal) {
+                    window.showVideoModal(src, title);
+                }
+            }, 100);
+        }
         playSound('click');
     });
     
@@ -1116,6 +1143,50 @@ function initModals() {
         
         // Загружаем изображение
         modalImage.src = fullImageSrc;
+        playSound('click');
+    };
+}
+
+// Инициализация модального окна для видео
+function initVideoModal(modal) {
+    const modalVideo = modal.querySelector('.modal-video');
+    const modalCaption = modal.querySelector('.modal-caption');
+    const modalClose = modal.querySelector('.modal-close');
+    const modalContent = modal.querySelector('.modal-content');
+
+    // Закрытие модального окна
+    modalClose.addEventListener('click', () => {
+        modalVideo.pause();
+        modalVideo.src = '';
+        modal.classList.remove('active');
+        playSound('click');
+    });
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modalVideo.pause();
+            modalVideo.src = '';
+            modal.classList.remove('active');
+            playSound('click');
+        }
+    });
+
+    // Закрытие по Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            modalVideo.pause();
+            modalVideo.src = '';
+            modal.classList.remove('active');
+        }
+    });
+
+    // Сохраняем функцию для показа видео
+    window.showVideoModal = (src, title) => {
+        console.log('showVideoModal вызвана с src:', src, 'title:', title);
+        
+        modalCaption.textContent = title || '';
+        modalVideo.src = src;
+        modal.classList.add('active');
         playSound('click');
     };
 }

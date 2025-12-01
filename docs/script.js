@@ -377,20 +377,17 @@ function addAestheticImage(src, alt) {
     img.alt = alt || '';
     img.loading = 'lazy';
     
-    // Обработка ошибок загрузки
+    // Обработка ошибок загрузки - просто скрываем элемент
     img.onerror = function() {
-        this.style.display = 'none';
-        const errorDiv = document.createElement('div');
-        errorDiv.style.cssText = 'display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary);';
-        errorDiv.textContent = 'Ошибка загрузки';
-        item.appendChild(errorDiv);
+        item.style.display = 'none';
     };
     
     item.appendChild(img);
     
     // Добавляем обработчик клика для открытия в модальном окне
     item.addEventListener('click', () => {
-        if (window.showImageModal && img.complete && !img.onerror) {
+        if (window.showImageModal) {
+            // Пробуем загрузить изображение, даже если оно еще не загружено
             window.showImageModal(src, alt || '');
         }
     });
@@ -476,20 +473,17 @@ function addPhoto(src, alt) {
     img.alt = alt || '';
     img.loading = 'lazy';
     
-    // Обработка ошибок загрузки
+    // Обработка ошибок загрузки - просто скрываем элемент
     img.onerror = function() {
-        this.style.display = 'none';
-        const errorDiv = document.createElement('div');
-        errorDiv.style.cssText = 'display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary);';
-        errorDiv.textContent = 'Ошибка загрузки';
-        item.appendChild(errorDiv);
+        item.style.display = 'none';
     };
     
     item.appendChild(img);
     
     // Добавляем обработчик клика для открытия в модальном окне
     item.addEventListener('click', () => {
-        if (window.showImageModal && img.complete && !img.onerror) {
+        if (window.showImageModal) {
+            // Пробуем загрузить изображение, даже если оно еще не загружено
             window.showImageModal(src, alt || '');
         }
     });
@@ -609,13 +603,10 @@ function initSmoothScroll() {
     });
 }
 
-// Инициализация матричного эффекта для hero секции (Midjourney style)
+// Инициализация матричного эффекта для hero секции (Midjourney style с 3D искажениями)
 function initHeroMatrix() {
     const matrixContainer = document.getElementById('heroMatrix');
     if (!matrixContainer) return;
-    
-    // Символы для генерации
-    const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?/~`';
     
     // Слова для вставки (тематика сайта)
     const codeWords = [
@@ -629,99 +620,119 @@ function initHeroMatrix() {
     
     // Получаем размеры контейнера
     const container = matrixContainer.parentElement;
-    // Ждем загрузки DOM перед получением размеров
     setTimeout(() => {
         const containerWidth = container.offsetWidth || window.innerWidth;
-        const containerHeight = container.offsetHeight || 400;
-        createMatrixColumns(matrixContainer, containerWidth, containerHeight);
+        const containerHeight = container.offsetHeight || 500;
+        create3DMatrixWords(matrixContainer, containerWidth, containerHeight, codeWords);
     }, 100);
 }
 
-function createMatrixColumns(matrixContainer, containerWidth, containerHeight) {
-    const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?/~`';
-    const codeWords = [
-        'imagine', 'create', 'design', 'art', 'digital', 'code', 'matrix', 
-        'system', 'data', 'pixel', 'glitch', 'cyber', 'void', 'space', 
-        'render', 'generate', 'prompt', 'style', 'aesthetic', 'visual', 
-        '47Chromosome', 'music', 'video', 'photo', 'breakcore', 'post-rock', 
-        'experimental', 'lo-fi', 'dark', 'neon', 'synth', 'wave', 'vapor', 'dream',
-        'эстетика', 'музыка', 'визуал', 'творчество', 'арт', 'дизайн'
-    ];
+function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, codeWords) {
+    const words = [];
+    const wordCount = 30 + Math.floor(Math.random() * 20);
     
-    // Количество колонок (зависит от ширины)
-    const columnCount = Math.floor(containerWidth / 20);
-    const columns = [];
-    
-    // Создаем колонки
-    for (let i = 0; i < columnCount; i++) {
-        const column = document.createElement('div');
-        column.className = 'matrix-column';
-        column.style.left = `${(i * 100) / columnCount}%`;
+    // Создаем слова с 3D позициями
+    for (let i = 0; i < wordCount; i++) {
+        const word = codeWords[Math.floor(Math.random() * codeWords.length)];
+        const wordElement = document.createElement('div');
+        wordElement.className = 'matrix-word-3d';
+        wordElement.textContent = word;
         
-        // Случайная скорость падения
-        const duration = 8 + Math.random() * 12;
-        column.style.animationDuration = `${duration}s`;
-        column.style.animationDelay = `${Math.random() * 3}s`;
+        // Случайная начальная позиция
+        const startX = Math.random() * containerWidth;
+        const startY = Math.random() * containerHeight;
+        const startZ = -500 + Math.random() * 1000; // Глубина от -500 до 500
         
-        // Генерируем символы для колонки
-        const charCount = 20 + Math.floor(Math.random() * 15);
-        for (let j = 0; j < charCount; j++) {
-            const char = document.createElement('span');
-            char.className = 'matrix-char';
-            
-            // Иногда используем слова (15% вероятность)
-            if (Math.random() < 0.15 && j > 2) {
-                const word = codeWords[Math.floor(Math.random() * codeWords.length)];
-                char.textContent = word;
-                char.classList.add('word');
-            } else {
-                char.textContent = charSet[Math.floor(Math.random() * charSet.length)];
-            }
-            
-            // Первые несколько символов ярче (эффект головы)
-            if (j < 3) {
-                char.classList.add('highlight');
-            } else if (j > charCount - 5) {
-                char.classList.add('fade');
-            }
-            
-            column.appendChild(char);
-        }
+        // Случайная скорость движения
+        const speedX = (Math.random() - 0.5) * 0.5;
+        const speedY = (Math.random() - 0.5) * 0.5;
+        const speedZ = 0.5 + Math.random() * 1.5; // Движение к камере
         
-        matrixContainer.appendChild(column);
-        columns.push(column);
+        // Случайное вращение
+        const rotationX = Math.random() * 360;
+        const rotationY = Math.random() * 360;
+        const rotationZ = Math.random() * 360;
+        const rotationSpeedX = (Math.random() - 0.5) * 2;
+        const rotationSpeedY = (Math.random() - 0.5) * 2;
+        const rotationSpeedZ = (Math.random() - 0.5) * 2;
+        
+        wordElement.style.left = startX + 'px';
+        wordElement.style.top = startY + 'px';
+        
+        words.push({
+            element: wordElement,
+            x: startX,
+            y: startY,
+            z: startZ,
+            speedX: speedX,
+            speedY: speedY,
+            speedZ: speedZ,
+            rotationX: rotationX,
+            rotationY: rotationY,
+            rotationZ: rotationZ,
+            rotationSpeedX: rotationSpeedX,
+            rotationSpeedY: rotationSpeedY,
+            rotationSpeedZ: rotationSpeedZ
+        });
+        
+        matrixContainer.appendChild(wordElement);
     }
     
-    // Анимация обновления символов (каждые 150мс)
-    const updateInterval = setInterval(() => {
-        if (!matrixContainer.parentElement) {
-            clearInterval(updateInterval);
-            return;
-        }
-        columns.forEach(column => {
-            const charElements = column.querySelectorAll('.matrix-char');
-            charElements.forEach((char, index) => {
-                // Обновляем только некоторые символы (12% вероятность)
-                if (Math.random() < 0.12) {
-                    // Иногда заменяем на слова (20% от обновлений)
-                    if (Math.random() < 0.2 && index > 2) {
-                        const word = codeWords[Math.floor(Math.random() * codeWords.length)];
-                        char.textContent = word;
-                        char.classList.add('word');
-                        setTimeout(() => {
-                            if (char.parentElement) {
-                                char.textContent = charSet[Math.floor(Math.random() * charSet.length)];
-                                char.classList.remove('word');
-                            }
-                        }, 2000);
-                    } else {
-                        char.textContent = charSet[Math.floor(Math.random() * charSet.length)];
-                        char.classList.remove('word');
-                    }
-                }
-            });
+    // Анимация 3D движения
+    let animationFrame;
+    const animate = () => {
+        words.forEach(word => {
+            // Обновляем позицию
+            word.x += word.speedX;
+            word.y += word.speedY;
+            word.z += word.speedZ;
+            
+            // Обновляем вращение
+            word.rotationX += word.rotationSpeedX;
+            word.rotationY += word.rotationSpeedY;
+            word.rotationZ += word.rotationSpeedZ;
+            
+            // Если слово ушло за камеру, возвращаем его назад
+            if (word.z > 500) {
+                word.z = -500;
+                word.x = Math.random() * containerWidth;
+                word.y = Math.random() * containerHeight;
+            }
+            
+            // Если слово ушло слишком далеко, возвращаем
+            if (word.x < -100) word.x = containerWidth + 100;
+            if (word.x > containerWidth + 100) word.x = -100;
+            if (word.y < -100) word.y = containerHeight + 100;
+            if (word.y > containerHeight + 100) word.y = -100;
+            
+            // Применяем 3D трансформации
+            const scale = 500 / (500 + word.z); // Перспектива
+            const x = word.x;
+            const y = word.y;
+            
+            // Математические искажения (перспектива)
+            const perspective = 1000;
+            const translateX = (x - containerWidth / 2) * scale;
+            const translateY = (y - containerHeight / 2) * scale;
+            const translateZ = word.z * scale;
+            
+            word.element.style.transform = `
+                translate3d(${translateX}px, ${translateY}px, ${translateZ}px)
+                rotateX(${word.rotationX}deg)
+                rotateY(${word.rotationY}deg)
+                rotateZ(${word.rotationZ}deg)
+                scale(${scale})
+            `;
+            
+            // Прозрачность в зависимости от глубины
+            const opacity = Math.max(0.1, Math.min(1, (500 + word.z) / 1000));
+            word.element.style.opacity = opacity;
         });
-    }, 150);
+        
+        animationFrame = requestAnimationFrame(animate);
+    };
+    
+    animate();
     
     // Обновление при изменении размера окна
     let resizeTimeout;
@@ -729,8 +740,8 @@ function createMatrixColumns(matrixContainer, containerWidth, containerHeight) {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
             if (matrixContainer.parentElement) {
+                cancelAnimationFrame(animationFrame);
                 matrixContainer.innerHTML = '';
-                clearInterval(updateInterval);
                 initHeroMatrix();
             }
         }, 300);

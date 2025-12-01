@@ -1979,7 +1979,7 @@ body {
     letter-spacing: 1px;
     text-align: left;
     max-width: 350px;
-    transform-origin: center center;
+    /* transform-origin устанавливается динамически в JavaScript на центр WELCOME */
 }
 
 /* Matrix Rain эффект (общий) */

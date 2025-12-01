@@ -1648,6 +1648,19 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
     // Очищаем контейнер
     matrixContainer.innerHTML = '';
     
+    // Находим центр "WELCOME" для вращения вокруг него
+    const heroTitle = document.querySelector('.hero-title');
+    let welcomeCenterX = containerWidth / 2; // По умолчанию центр контейнера
+    let welcomeCenterY = containerHeight / 2;
+    
+    if (heroTitle) {
+        const titleRect = heroTitle.getBoundingClientRect();
+        const containerRect = matrixContainer.getBoundingClientRect();
+        // Вычисляем центр "WELCOME" относительно контейнера hero-matrix-bg
+        welcomeCenterX = (titleRect.left + titleRect.width / 2) - containerRect.left;
+        welcomeCenterY = (titleRect.top + titleRect.height / 2) - containerRect.top;
+    }
+    
     const textBlocks = [];
     const blockCount = 2; // Количество текстовых блоков
     
@@ -1685,6 +1698,14 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
         textBlock.style.left = startX + 'px';
         textBlock.style.top = startY + 'px';
         
+        // Вычисляем transform-origin относительно позиции блока
+        // transform-origin работает относительно самого элемента, поэтому нужно вычислить разницу
+        const transformOriginX = welcomeCenterX - startX;
+        const transformOriginY = welcomeCenterY - startY;
+        
+        // Устанавливаем transform-origin на центр "WELCOME" относительно блока
+        textBlock.style.transformOrigin = `${transformOriginX}px ${transformOriginY}px`;
+        
         textBlocks.push({
             element: textBlock,
             x: startX,
@@ -1694,7 +1715,11 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
             distortionAmplitude: distortionAmplitude,
             rotationSpeed: rotationSpeed,
             time: 0,
-            rotation: 0
+            rotation: 0,
+            welcomeCenterX: welcomeCenterX,
+            welcomeCenterY: welcomeCenterY,
+            transformOriginX: transformOriginX,
+            transformOriginY: transformOriginY
         });
         
         matrixContainer.appendChild(textBlock);
@@ -1713,10 +1738,20 @@ function create3DMatrixWords(matrixContainer, containerWidth, containerHeight, c
             block.x -= block.speed; // Медленное сползание влево
             block.rotation += block.rotationSpeed; // Медленное вращение
             
+            // Обновляем transform-origin при изменении позиции блока
+            // чтобы он всегда вращался вокруг центра WELCOME
+            const currentTransformOriginX = block.welcomeCenterX - block.x;
+            const currentTransformOriginY = block.welcomeCenterY - block.y;
+            block.element.style.transformOrigin = `${currentTransformOriginX}px ${currentTransformOriginY}px`;
+            
             // Если блок ушел влево, возвращаем его справа
             if (block.x < -containerWidth - 100) {
                 block.x = containerWidth + 50;
                 block.y = (index * containerHeight / blockCount) + 20;
+                // Обновляем transform-origin для новой позиции
+                const newTransformOriginX = block.welcomeCenterX - block.x;
+                const newTransformOriginY = block.welcomeCenterY - block.y;
+                block.element.style.transformOrigin = `${newTransformOriginX}px ${newTransformOriginY}px`;
                 // Генерируем новый текст
                 let newText = '';
                 const lineCount = 15 + Math.floor(Math.random() * 10);

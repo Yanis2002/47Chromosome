@@ -190,8 +190,42 @@
                 </div>
                 <div class="video-content">
                     <div class="video-tab-content active" id="youtubeTab">
-                        <div class="youtube-list" id="youtubeList">
-                            <!-- YouTube видео будет заполнено через JS -->
+                        <!-- Старый телевизор с переключением видео -->
+                        <div class="tv-container">
+                            <div class="tv-frame">
+                                <!-- Верхняя ручка/антенна -->
+                                <div class="tv-handle"></div>
+                                <!-- Экран телевизора -->
+                                <div class="tv-screen">
+                                    <div class="tv-screen-inner" id="tvScreenInner">
+                                        <div class="tv-static" id="tvStatic">
+                                            <div class="static-pattern"></div>
+                                        </div>
+                                        <iframe id="tvPlayer" class="tv-iframe" frameborder="0" allowfullscreen></iframe>
+                                    </div>
+                                </div>
+                                <!-- Панель управления (слева) -->
+                                <div class="tv-controls-left">
+                                    <div class="tv-knob tv-knob-channel">
+                                        <div class="knob-label">VHF</div>
+                                        <div class="knob-indicator"></div>
+                                    </div>
+                                    <div class="tv-knob tv-knob-tune">
+                                        <div class="knob-label">UHF</div>
+                                        <div class="knob-indicator"></div>
+                                    </div>
+                                </div>
+                                <!-- Панель выбора видео (справа) -->
+                                <div class="tv-controls-right">
+                                    <div class="tv-channel-list" id="tvChannelList">
+                                        <!-- Список видео будет заполнен через JS -->
+                                    </div>
+                                </div>
+                                <!-- Нижняя панель -->
+                                <div class="tv-bottom-panel">
+                                    <div class="tv-speaker-grill"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="video-tab-content" id="localVideoTab">

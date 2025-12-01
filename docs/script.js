@@ -1411,8 +1411,18 @@ function initVideoTabs() {
 
 // Загрузка локальной музыки
 function loadLocalMusic() {
-    // Список всех локальных аудио файлов
-    const localMusic = [
+    try {
+        const audioList = document.getElementById('audioList');
+        if (!audioList) {
+            console.warn('Элемент audioList не найден, пробуем еще раз...');
+            setTimeout(loadLocalMusic, 500);
+            return;
+        }
+        
+        console.log('Загрузка музыки, найден элемент:', audioList);
+        
+        // Список всех локальных аудио файлов
+        const localMusic = [
         { src: 'music/Abel Korzeniowski - Evgeni's Waltz.mp3', title: 'Abel Korzeniowski Evgeni\'s Waltz', duration: '0:00' },
         { src: 'music/Adam Ferello - Infinity.mp3', title: 'Adam Ferello Infinity', duration: '0:00' },
         { src: 'music/Assasin`s Cred - из Асасинс Крид 2.mp3', title: 'Assasin`s Cred из Асасинс Крид 2', duration: '0:00' },

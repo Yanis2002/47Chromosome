@@ -32,3 +32,8 @@ node_modules/
 index-local.html
 styles-local.css
 script-local.js
+
+# Локальные файлы для работы без портов
+index.html
+styles.css
+script.js

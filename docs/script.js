@@ -1272,12 +1272,17 @@ function addVideo(src, title) {
 
 function addPhoto(src, alt) {
     const photoGallery = document.getElementById('photoGallery');
-    if (!photoGallery) return;
+    if (!photoGallery) {
+        console.warn('photoGallery не найден при попытке добавить фото:', src);
+        return;
+    }
     
-    // Удаляем placeholder если он есть
-    const placeholder = photoGallery.querySelector('.placeholder');
-    if (placeholder) {
-        photoGallery.innerHTML = '';
+    // Удаляем placeholder если он есть (только при добавлении первого фото)
+    if (photoGallery.children.length === 1) {
+        const placeholder = photoGallery.querySelector('.placeholder');
+        if (placeholder) {
+            photoGallery.innerHTML = '';
+        }
     }
     
     const item = document.createElement('div');
@@ -1289,9 +1294,15 @@ function addPhoto(src, alt) {
     img.setAttribute('alt', alt || '');
     img.loading = 'lazy';
     
-    // Обработка ошибок загрузки - просто скрываем элемент
+    // Обработка ошибок загрузки - логируем и скрываем элемент
     img.onerror = function() {
+        console.error('Ошибка загрузки изображения:', src);
         item.style.display = 'none';
+    };
+    
+    // Логируем успешную загрузку
+    img.onload = function() {
+        console.log('Изображение загружено:', src);
     };
     
     item.appendChild(img);
@@ -2431,15 +2442,71 @@ function switchToVideo(index) {
 
 // Загрузка фотографий из папки photo (автоматизировано)
 function loadLocalPhotos() {
-    waitForElement('photoGallery', (photoGallery) => {
-        console.log('Загрузка фото, найден элемент:', photoGallery);
-        
-        // Загрузка фото из JSON файла
-        loadDataFromJSON('data/photo/list.json', (photo) => {
-            if (photo.src) {
-                addPhoto(photo.src, photo.alt || '');
-            }
-        }, 'Фото', 5);
+    const photoGallery = document.getElementById('photoGallery');
+    
+    if (!photoGallery) {
+        console.warn('Элемент photoGallery не найден, пробуем через waitForElement...');
+        waitForElement('photoGallery', (photoGallery) => {
+            console.log('Загрузка фото, найден элемент:', photoGallery);
+            loadPhotosData(photoGallery);
+        }, 500, 20); // Увеличиваем количество попыток
+        return;
+    }
+    
+    console.log('Загрузка фото, элемент найден сразу:', photoGallery);
+    loadPhotosData(photoGallery);
+}
+
+function loadPhotosData(photoGallery) {
+    if (!photoGallery) {
+        console.error('loadPhotosData: photoGallery не передан');
+        return;
+    }
+    
+    console.log('loadPhotosData: начинаем загрузку фотографий');
+    
+    // Удаляем placeholder если он есть
+    const placeholder = photoGallery.querySelector('.placeholder');
+    if (placeholder) {
+        console.log('loadPhotosData: удаляем placeholder');
+        photoGallery.innerHTML = '';
+    }
+    
+    // Загрузка фото из JSON файла
+    loadDataFromJSON('data/photo/list.json', (photo) => {
+        if (photo && photo.src) {
+            // Убеждаемся, что путь правильный
+            let photoSrc = photo.src;
+            // Если путь уже начинается с data/photo/, оставляем как есть
+            // Это работает и на localhost, и на GitHub Pages
+            console.log('loadPhotosData: добавляем фото:', photoSrc);
+            addPhoto(photoSrc, photo.alt || '');
+        } else {
+            console.warn('loadPhotosData: пропущено фото без src:', photo);
+        }
+    }, 'Фото', 5).then((data) => {
+        console.log('loadPhotosData: загрузка завершена, загружено фото:', data ? data.length : 0);
+        // Проверяем, что хотя бы одно фото загрузилось
+        if (photoGallery && photoGallery.children.length === 0) {
+            console.warn('loadPhotosData: ни одно фото не загружено');
+            photoGallery.innerHTML = `
+                <div class="placeholder">
+                    <p>Фотогалерея</p>
+                    <p>Фотографии не найдены. Проверьте файл data/photo/list.json</p>
+                </div>
+            `;
+        }
+    }).catch((error) => {
+        console.error('Ошибка загрузки фотографий:', error);
+        // Показываем сообщение об ошибке
+        if (photoGallery) {
+            photoGallery.innerHTML = `
+                <div class="placeholder">
+                    <p>Ошибка загрузки фотографий</p>
+                    <p>${error.message || 'Проверьте консоль браузера для деталей'}</p>
+                </div>
+            `;
+        }
     });
 }
 

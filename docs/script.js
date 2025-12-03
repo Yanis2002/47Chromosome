@@ -1175,17 +1175,30 @@ function loadDataFromJSON(url, processor, logPrefix = 'Данные', logInterva
             console.log(`${logPrefix}: ответ сервера, статус:`, response.status, response.statusText, 'URL:', finalUrl);
             if (!response.ok) {
                 console.error(`${logPrefix}: ошибка загрузки, статус:`, response.status, 'URL:', finalUrl);
-                // Пробуем альтернативный путь для GitHub Pages
+                // Пробуем альтернативные пути для GitHub Pages
                 if (isGitHubPages && response.status === 404) {
-                    const altUrl = `/47Chromosome/docs/${url}`;
-                    console.log(`${logPrefix}: пробуем альтернативный путь:`, altUrl);
-                    return fetch(altUrl).then(altResponse => {
-                        if (altResponse.ok) {
-                            console.log(`${logPrefix}: альтернативный путь сработал!`);
-                            return altResponse.json();
-                        }
-                        throw new Error(`Файл не найден: ${url} (статус: ${response.status})`);
-                    });
+                    const altUrls = [
+                        `/47Chromosome/docs/${url}`,
+                        `./docs/${url}`,
+                        `./${url}`
+                    ];
+                    console.log(`${logPrefix}: пробуем альтернативные пути:`, altUrls);
+                    
+                    // Пробуем каждый альтернативный путь последовательно
+                    let altPromise = Promise.reject(new Error('Все альтернативные пути не сработали'));
+                    for (const altUrl of altUrls) {
+                        altPromise = altPromise.catch(() => {
+                            console.log(`${logPrefix}: пробуем:`, altUrl);
+                            return fetch(altUrl).then(altResponse => {
+                                if (altResponse.ok) {
+                                    console.log(`${logPrefix}: альтернативный путь сработал!`, altUrl);
+                                    return altResponse.json();
+                                }
+                                throw new Error(`Не найден: ${altUrl}`);
+                            });
+                        });
+                    }
+                    return altPromise;
                 }
                 throw new Error(`Файл не найден: ${url} (статус: ${response.status})`);
             }

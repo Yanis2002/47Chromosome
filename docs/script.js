@@ -2581,10 +2581,34 @@ async function loadYouTubeLinks() {
     
     try {
         // Пытаемся загрузить JSON файл со ссылками
-        const response = await fetch('data/video/youtube.json');
+        // Исправляем путь для GitHub Pages
+        const pathname = window.location.pathname;
+        const hostname = window.location.hostname;
+        const isGitHubPages = hostname.includes('github.io') || pathname.includes('/47Chromosome/');
+        
+        let jsonUrl = 'data/video/youtube.json';
+        if (isGitHubPages) {
+            if (pathname.includes('/docs/')) {
+                const docsIndex = pathname.indexOf('/docs/');
+                jsonUrl = pathname.substring(0, docsIndex + 5) + '/data/video/youtube.json';
+            } else if (pathname.includes('/47Chromosome/')) {
+                const repoIndex = pathname.indexOf('/47Chromosome/');
+                jsonUrl = pathname.substring(0, repoIndex) + '/47Chromosome/docs/data/video/youtube.json';
+            } else {
+                jsonUrl = '/47Chromosome/docs/data/video/youtube.json';
+            }
+        } else {
+            if (!jsonUrl.startsWith('./')) {
+                jsonUrl = './' + jsonUrl;
+            }
+        }
+        
+        console.log('Загрузка YouTube видео из:', jsonUrl);
+        const response = await fetch(jsonUrl);
         if (response.ok) {
             const videos = await response.json();
-            videos.forEach(video => {
+            console.log('Загружено YouTube видео:', videos.length);
+            videos.forEach((video, index) => {
                 // Проверяем, является ли это плейлистом
                 if (video.isPlaylist && video.id) {
                     tvVideos.push({
@@ -2592,13 +2616,18 @@ async function loadYouTubeLinks() {
                         title: video.title || 'YouTube плейлист',
                         isPlaylist: true
                     });
+                    console.log(`Добавлен плейлист ${index + 1}:`, video.title);
                 } else {
                 let videoId = '';
                 if (video.id) {
                     videoId = video.id;
                 } else if (video.url) {
                     const patterns = [
+                        // Обычные видео: watch?v=, youtu.be/, embed/
                         /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+                        // YouTube Shorts: /shorts/
+                        /youtube\.com\/shorts\/([^&\n?#]+)/,
+                        // Альтернативные форматы
                         /youtube\.com\/.*[?&]v=([^&\n?#]+)/
                     ];
                     for (const pattern of patterns) {
@@ -2614,11 +2643,18 @@ async function loadYouTubeLinks() {
                         id: videoId,
                         title: video.title || 'YouTube видео'
                     });
+                    console.log(`Добавлено видео ${index + 1}:`, video.title || videoId);
+                    } else {
+                        console.warn('Не удалось извлечь ID видео из:', video.url || video);
                     }
                 }
             });
+            console.log('Всего YouTube видео загружено:', tvVideos.length);
+        } else {
+            console.warn('Не удалось загрузить youtube.json, статус:', response.status);
         }
     } catch (e) {
+        console.error('Ошибка загрузки YouTube видео:', e);
         // Игнорируем ошибку, если файл не найден
     }
     

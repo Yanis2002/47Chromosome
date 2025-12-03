@@ -1172,9 +1172,21 @@ function loadDataFromJSON(url, processor, logPrefix = 'Данные', logInterva
     console.log(`Загрузка ${logPrefix}: ${finalUrl} (исходный URL: ${url}, pathname: ${pathname}, hostname: ${hostname})`);
     return fetch(finalUrl)
         .then(response => {
-            console.log(`${logPrefix}: ответ сервера, статус:`, response.status, response.statusText);
+            console.log(`${logPrefix}: ответ сервера, статус:`, response.status, response.statusText, 'URL:', finalUrl);
             if (!response.ok) {
                 console.error(`${logPrefix}: ошибка загрузки, статус:`, response.status, 'URL:', finalUrl);
+                // Пробуем альтернативный путь для GitHub Pages
+                if (isGitHubPages && response.status === 404) {
+                    const altUrl = `/47Chromosome/docs/${url}`;
+                    console.log(`${logPrefix}: пробуем альтернативный путь:`, altUrl);
+                    return fetch(altUrl).then(altResponse => {
+                        if (altResponse.ok) {
+                            console.log(`${logPrefix}: альтернативный путь сработал!`);
+                            return altResponse.json();
+                        }
+                        throw new Error(`Файл не найден: ${url} (статус: ${response.status})`);
+                    });
+                }
                 throw new Error(`Файл не найден: ${url} (статус: ${response.status})`);
             }
             return response.json();
@@ -1182,6 +1194,7 @@ function loadDataFromJSON(url, processor, logPrefix = 'Данные', logInterva
         .then(data => {
             console.log(`✓ Получены ${logPrefix} из JSON:`, data);
             console.log(`Тип данных:`, typeof data, 'Является массивом:', Array.isArray(data));
+            console.log(`Длина данных:`, data ? (Array.isArray(data) ? data.length : 'не массив') : 'null/undefined');
             if (data && Array.isArray(data)) {
                 console.log(`Всего ${logPrefix.toLowerCase()} для загрузки:`, data.length);
                 if (data.length === 0) {

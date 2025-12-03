@@ -34,3 +34,4 @@ index-local.html
 script-local.js
 photo/
 !docs/photo/
+!docs/data/photo/

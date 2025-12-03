@@ -1053,42 +1053,47 @@ function loadDataFromJSON(url, processor, logPrefix = 'Данные', logInterva
     // Исправляем путь для GitHub Pages
     // Если URL не начинается с http/https, делаем его относительным от текущей директории
     let finalUrl = url;
-    if (!url.startsWith('http') && !url.startsWith('/') && !url.startsWith('./')) {
-        // Определяем базовый путь
-        const pathname = window.location.pathname;
-        let basePath = '';
-        
-        // Если мы на GitHub Pages и путь содержит /docs/
-        if (pathname.includes('/docs/')) {
-            // Находим позицию /docs/ и берем все до него включительно
-            const docsIndex = pathname.indexOf('/docs/');
-            basePath = pathname.substring(0, docsIndex + 5); // +5 для включения '/docs'
-        } else if (pathname.endsWith('.html')) {
-            // Если мы на HTML странице, берем директорию файла
-            basePath = pathname.substring(0, pathname.lastIndexOf('/') + 1);
-        } else if (pathname.endsWith('/')) {
-            // Если мы в директории
-            basePath = pathname;
+    const pathname = window.location.pathname;
+    const isGitHubPages = pathname.includes('/docs/') || pathname.includes('/47Chromosome/');
+    
+    if (!url.startsWith('http') && !url.startsWith('/')) {
+        // Если путь не начинается с ./ и мы на GitHub Pages, добавляем ./
+        if (!url.startsWith('./')) {
+            // Определяем базовый путь
+            let basePath = '';
+            
+            if (isGitHubPages) {
+                // На GitHub Pages: если путь содержит /docs/, используем его
+                if (pathname.includes('/docs/')) {
+                    const docsIndex = pathname.indexOf('/docs/');
+                    basePath = pathname.substring(0, docsIndex + 5); // +5 для включения '/docs'
+                } else if (pathname.includes('/47Chromosome/')) {
+                    // Если путь содержит /47Chromosome/, добавляем /docs/
+                    const repoIndex = pathname.indexOf('/47Chromosome/');
+                    basePath = pathname.substring(0, repoIndex) + '/47Chromosome/docs';
+                } else {
+                    // Fallback: используем текущую директорию
+                    basePath = pathname.endsWith('/') ? pathname : pathname.substring(0, pathname.lastIndexOf('/') + 1);
+                }
+            } else {
+                // Локально: используем текущую директорию
+                if (pathname.endsWith('.html')) {
+                    basePath = pathname.substring(0, pathname.lastIndexOf('/') + 1);
+                } else if (pathname.endsWith('/')) {
+                    basePath = pathname;
+                } else {
+                    basePath = pathname + '/';
+                }
+            }
+            
+            // Формируем финальный URL
+            if (basePath && !basePath.endsWith('/')) {
+                basePath += '/';
+            }
+            finalUrl = basePath ? `${basePath}${url}` : `./${url}`;
         } else {
-            // Если путь не заканчивается на /, добавляем /
-            basePath = pathname + '/';
-        }
-        
-        // Формируем финальный URL
-        if (basePath && !basePath.endsWith('/')) {
-            basePath += '/';
-        }
-        finalUrl = basePath ? `${basePath}${url}` : `./${url}`;
-        
-        // Дополнительная проверка: если путь все еще неправильный, пробуем с ./docs/
-        if (pathname.includes('/docs/') && !finalUrl.includes('/docs/')) {
-            finalUrl = `./docs/${url}`;
-        }
-    } else if (url.startsWith('./')) {
-        // Если путь начинается с ./, проверяем, нужно ли добавить /docs/
-        const pathname = window.location.pathname;
-        if (pathname.includes('/docs/')) {
-            finalUrl = url.replace('./', './docs/');
+            // Если путь уже начинается с ./, оставляем как есть (работает и локально, и на GitHub Pages)
+            finalUrl = url;
         }
     }
     
@@ -2200,6 +2205,9 @@ async function preCheckYouTubeInstances() {
     
     // Проверяем инстансы параллельно, но с ограничением (не более 5 одновременно)
     const batchSize = 5;
+    let availableCount = 0;
+    let unavailableCount = 0;
+    
     for (let i = 0; i < baseInstances.length; i += batchSize) {
         const batch = baseInstances.slice(i, i + batchSize);
         await Promise.all(
@@ -2223,12 +2231,12 @@ async function preCheckYouTubeInstances() {
                                 mode: 'cors',
                                 signal: controller.signal,
                                 cache: 'no-cache'
-                            });
+                            }).catch(() => null); // Игнорируем ошибки CORS
                             
                             clearTimeout(timeoutId);
                             
                             // Если получили ответ (даже с ошибкой CORS), инстанс доступен
-                            if (response.status !== 0) {
+                            if (response && response.status !== 0) {
                                 isAvailable = true;
                                 break;
                             }
@@ -2242,7 +2250,7 @@ async function preCheckYouTubeInstances() {
                                     method: 'HEAD',
                                     mode: 'no-cors',
                                     signal: controller2.signal
-                                });
+                                }).catch(() => null); // Игнорируем ошибки сети
                                 
                                 clearTimeout(timeoutId2);
                                 // Если запрос прошел без ошибки abort, считаем доступным
@@ -2262,9 +2270,11 @@ async function preCheckYouTubeInstances() {
                     });
                     
                     if (isAvailable) {
+                        availableCount++;
                         console.log(`✓ ${baseUrl} - доступен`);
                     } else {
-                        console.log(`✗ ${baseUrl} - недоступен (не удалось проверить)`);
+                        unavailableCount++;
+                        // Не логируем недоступные инстансы, чтобы не засорять консоль
                     }
                 } catch (error) {
                     // Сохраняем в кэш как недоступный
@@ -2272,7 +2282,8 @@ async function preCheckYouTubeInstances() {
                         available: false,
                         timestamp: Date.now()
                     });
-                    console.log(`✗ ${baseUrl} - недоступен: ${error.message}`);
+                    unavailableCount++;
+                    // Не логируем ошибки, чтобы не засорять консоль
                 }
             })
         );
@@ -2283,7 +2294,7 @@ async function preCheckYouTubeInstances() {
         }
     }
     
-    console.log('Проверка инстансов завершена');
+    console.log(`Проверка инстансов завершена: ${availableCount} доступны, ${unavailableCount} недоступны`);
 }
 
 // Добавление YouTube видео с обходом блокировок

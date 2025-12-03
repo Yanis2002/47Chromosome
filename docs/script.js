@@ -2060,7 +2060,6 @@ function addYouTubeVideo(videoId, title, thumbnail) {
     // Используем расширенный список зеркал YouTube для обхода блокировки в России
     const embedUrls = [
         // Официальные публичные инстансы Invidious (рабочие)
-        `https://invidious.f5.si/embed/${videoId}`,
         `https://invidious.nerdvpn.de/embed/${videoId}`,
         `https://inv.perditum.com/embed/${videoId}`,
         // Дополнительные Invidious инстансы
@@ -2069,6 +2068,7 @@ function addYouTubeVideo(videoId, title, thumbnail) {
         `https://invidious.privacyredirect.com/embed/${videoId}`,
         `https://invidious.osi.kr/embed/${videoId}`,
         `https://invidious.slipfox.xyz/embed/${videoId}`,
+        `https://invidious.f5.si/embed/${videoId}`, // Может быть недоступен (ERR_QUIC_PROTOCOL_ERROR)
         `https://inv.nadeko.net/embed/${videoId}`, // Может быть недоступен
         `https://yewtu.be/embed/${videoId}`, // Может быть недоступен
         // Piped инстансы (альтернатива Invidious)
@@ -2395,7 +2395,6 @@ function switchToVideo(index) {
             // Для плейлистов используем расширенный список зеркал YouTube (Invidious и альтернативы)
             const embedUrls = [
                 // Официальные публичные инстансы Invidious (рабочие)
-                `https://invidious.f5.si/embed/videoseries?list=${video.id}`,
                 `https://invidious.nerdvpn.de/embed/videoseries?list=${video.id}`,
                 `https://inv.perditum.com/embed/videoseries?list=${video.id}`,
                 // Дополнительные Invidious инстансы
@@ -2404,6 +2403,7 @@ function switchToVideo(index) {
                 `https://invidious.privacyredirect.com/embed/videoseries?list=${video.id}`,
                 `https://invidious.osi.kr/embed/videoseries?list=${video.id}`,
                 `https://invidious.slipfox.xyz/embed/videoseries?list=${video.id}`,
+                `https://invidious.f5.si/embed/videoseries?list=${video.id}`, // Может быть недоступен (ERR_QUIC_PROTOCOL_ERROR)
                 `https://inv.nadeko.net/embed/videoseries?list=${video.id}`, // Может быть недоступен
                 `https://yewtu.be/embed/videoseries?list=${video.id}`, // Может быть недоступен
                 // Piped инстансы (альтернатива Invidious)
@@ -2481,7 +2481,6 @@ function switchToVideo(index) {
             // Используем расширенный список зеркал YouTube для обхода блокировки в России
             const embedUrls = [
                 // Официальные публичные инстансы Invidious (рабочие)
-                `https://invidious.f5.si/embed/${video.id}`,
                 `https://invidious.nerdvpn.de/embed/${video.id}`,
                 `https://inv.perditum.com/embed/${video.id}`,
                 // Дополнительные Invidious инстансы
@@ -2490,6 +2489,7 @@ function switchToVideo(index) {
                 `https://invidious.privacyredirect.com/embed/${video.id}`,
                 `https://invidious.osi.kr/embed/${video.id}`,
                 `https://invidious.slipfox.xyz/embed/${video.id}`,
+                `https://invidious.f5.si/embed/${video.id}`, // Может быть недоступен (ERR_QUIC_PROTOCOL_ERROR)
                 `https://inv.nadeko.net/embed/${video.id}`, // Может быть недоступен
                 `https://yewtu.be/embed/${video.id}`, // Может быть недоступен
                 // Piped инстансы (альтернатива Invidious)

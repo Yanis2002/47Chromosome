@@ -298,154 +298,12 @@ function initNavigation() {
         const targetSection = document.getElementById(targetId);
         
         if (targetLink && targetSection) {
-            // Добавляем уникальный эффект в зависимости от секции
-            setTimeout(() => {
-                targetSection.style.animation = '';
-                targetLink.classList.add('active');
-                targetSection.classList.add('active');
-                
-                // Дополнительные эффекты для конкретных секций
-                applySectionEffect(targetId, targetSection);
-            }, 10);
-            
+            targetLink.classList.add('active');
+            targetSection.classList.add('active');
             playSound('click');
             return true;
         }
         return false;
-    };
-    
-    // Применение уникальных эффектов для каждой секции
-    const applySectionEffect = (sectionId, section) => {
-        // Удаляем предыдущие эффекты
-        section.querySelectorAll('.section-effect').forEach(el => el.remove());
-        
-        switch(sectionId) {
-            case 'audio':
-                // Аудио: волновой эффект
-                const audioWave = document.createElement('div');
-                audioWave.className = 'section-effect audio-wave-effect';
-                audioWave.style.cssText = `
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: linear-gradient(90deg, 
-                        transparent 0%, 
-                        rgba(255, 0, 255, 0.1) 50%, 
-                        transparent 100%);
-                    pointer-events: none;
-                    animation: audioWaveMove 3s ease-in-out infinite;
-                    z-index: 0;
-                `;
-                section.appendChild(audioWave);
-                break;
-                
-            case 'photo':
-                // Фото: эффект вспышки
-                const photoFlash = document.createElement('div');
-                photoFlash.className = 'section-effect photo-flash-effect';
-                photoFlash.style.cssText = `
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: radial-gradient(circle, 
-                        rgba(255, 0, 255, 0.3) 0%, 
-                        transparent 70%);
-                    pointer-events: none;
-                    animation: photoFlash 0.5s ease-out;
-                    z-index: 0;
-                `;
-                section.appendChild(photoFlash);
-                setTimeout(() => photoFlash.remove(), 500);
-                break;
-                
-            case 'video':
-                // Видео: эффект сканирования
-                const videoScan = document.createElement('div');
-                videoScan.className = 'section-effect video-scan-effect';
-                videoScan.style.cssText = `
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 2px;
-                    background: linear-gradient(90deg, 
-                        transparent, 
-                        rgba(0, 255, 255, 0.8), 
-                        transparent);
-                    pointer-events: none;
-                    animation: videoScanMove 2s linear infinite;
-                    z-index: 10;
-                `;
-                section.appendChild(videoScan);
-                break;
-                
-            case 'library':
-                // Библиотека: эффект появления книг
-                const libraryGlow = document.createElement('div');
-                libraryGlow.className = 'section-effect library-glow-effect';
-                libraryGlow.style.cssText = `
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: radial-gradient(ellipse at center, 
-                        rgba(157, 78, 221, 0.1) 0%, 
-                        transparent 70%);
-                    pointer-events: none;
-                    animation: libraryGlowPulse 2s ease-in-out infinite;
-                    z-index: 0;
-                `;
-                section.appendChild(libraryGlow);
-                break;
-                
-            case 'links':
-                // Ссылки: эффект соединения
-                const linksConnect = document.createElement('div');
-                linksConnect.className = 'section-effect links-connect-effect';
-                linksConnect.style.cssText = `
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: repeating-linear-gradient(45deg, 
-                        transparent, 
-                        transparent 10px, 
-                        rgba(0, 255, 255, 0.05) 10px, 
-                        rgba(0, 255, 255, 0.05) 20px);
-                    pointer-events: none;
-                    animation: linksConnectMove 4s linear infinite;
-                    z-index: 0;
-                `;
-                section.appendChild(linksConnect);
-                break;
-                
-            case 'shop':
-                // Магазин: эффект свечения
-                const shopPulse = document.createElement('div');
-                shopPulse.className = 'section-effect shop-pulse-effect';
-                shopPulse.style.cssText = `
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    width: 200px;
-                    height: 200px;
-                    background: radial-gradient(circle, 
-                        rgba(255, 0, 255, 0.2) 0%, 
-                        transparent 70%);
-                    pointer-events: none;
-                    transform: translate(-50%, -50%);
-                    animation: shopPulseGlow 2s ease-in-out infinite;
-                    z-index: 0;
-                `;
-                section.appendChild(shopPulse);
-                break;
-        }
     };
 
     // Обработка кликов по ссылкам
@@ -1184,7 +1042,18 @@ function waitForElement(elementId, callback, retryDelay = 500, maxRetries = 10) 
  * @param {number} logInterval - Интервал логирования прогресса (каждый N-й элемент)
  */
 function loadDataFromJSON(url, processor, logPrefix = 'Данные', logInterval = 5) {
-    return fetch(url)
+    // Исправляем путь для GitHub Pages
+    // Если URL не начинается с http/https, делаем его относительным от текущей директории
+    let finalUrl = url;
+    if (!url.startsWith('http') && !url.startsWith('/')) {
+        // Для GitHub Pages используем относительный путь от текущей страницы
+        const basePath = window.location.pathname.includes('/docs/') 
+            ? window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))
+            : '';
+        finalUrl = basePath ? `${basePath}/${url}` : `./${url}`;
+    }
+    
+    return fetch(finalUrl)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Файл не найден: ${url}`);

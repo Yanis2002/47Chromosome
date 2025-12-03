@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Страница не найдена | 47Chromosome</title>
+    <link rel="icon" type="image/x-icon" href="6pY32l70gumV6oM6HaV1BhAM1mvt2on3JigDrDQkPyZvDM9QTCdvftICVRe8utyRuJRlYjbg9MxdO4745Fe88_kB.ico">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .error-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .error-code {
+            font-size: 12rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-neon), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            animation: glitch 3s infinite;
+            text-shadow: 
+                0 0 10px rgba(255, 0, 255, 0.5),
+                0 0 20px rgba(255, 0, 255, 0.3),
+                0 0 30px rgba(255, 0, 255, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+
+        .error-message {
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease;
+        }
+
+        .error-description {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            max-width: 600px;
+            line-height: 1.8;
+        }
+
+        .error-actions {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .error-button {
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent-neon);
+            color: var(--accent-neon);
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .error-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--accent-neon);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .error-button:hover::before {
+            left: 0;
+        }
+
+        .error-button:hover {
+            color: var(--bg-primary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(255, 0, 255, 0.5);
+        }
+
+        .matrix-rain-404 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            opacity: 0.3;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-5px, 5px); }
+            40% { transform: translate(-5px, -5px); }
+            60% { transform: translate(5px, 5px); }
+            80% { transform: translate(5px, -5px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .error-code {
+                font-size: 8rem;
+            }
+            .error-message {
+                font-size: 1.5rem;
+            }
+            .error-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-effects">
+        <div class="glitch-overlay"></div>
+        <div class="scanlines"></div>
+        <div class="noise"></div>
+        <div class="crt-effect"></div>
+        <div class="matrix-rain-404" id="matrixRain404"></div>
+    </div>
+
+    <div class="error-container">
+        <div class="error-code">404</div>
+        <h1 class="error-message">Страница не найдена</h1>
+        <p class="error-description">
+            Запрашиваемая страница не существует или была перемещена.<br>
+            Возможно, вы ввели неправильный адрес или страница была удалена.
+        </p>
+        <div class="error-actions">
+            <a href="index-old.html#home" class="error-button">На главную</a>
+            <a href="javascript:history.back()" class="error-button">Назад</a>
+        </div>
+    </div>
+
+    <script>
+        // Matrix rain эффект для 404 страницы
+        function initMatrixRain404() {
+            const canvas = document.createElement('canvas');
+            const container = document.getElementById('matrixRain404');
+            if (!container) return;
+            
+            container.appendChild(canvas);
+            canvas.style.position = 'absolute';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const ctx = canvas.getContext('2d');
+            const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+            const fontSize = 14;
+            const columns = canvas.width / fontSize;
+            const drops = [];
+            
+            for (let i = 0; i < columns; i++) {
+                drops[i] = Math.random() * -100;
+            }
+            
+            function draw() {
+                ctx.fillStyle = 'rgba(10, 10, 10, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#00ff00';
+                ctx.font = fontSize + 'px monospace';
+                
+                for (let i = 0; i < drops.length; i++) {
+                    const text = chars[Math.floor(Math.random() * chars.length)];
+                    const x = i * fontSize;
+                    const y = drops[i] * fontSize;
+                    
+                    ctx.fillText(text, x, y);
+                    
+                    if (y > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+            
+            setInterval(draw, 33);
+            
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', initMatrixRain404);
+    </script>
+</body>
+</html>
+

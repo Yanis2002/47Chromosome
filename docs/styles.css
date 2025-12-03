@@ -383,7 +383,224 @@ body {
     font-weight: 500;
     transition: all 0.3s ease;
     position: relative;
-    padding: 5px 0;
+    padding: 5px 10px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+/* Уникальные эффекты для каждой кнопки навигации */
+.nav-link[href="#home"] {
+    position: relative;
+}
+
+.nav-link[href="#home"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 0, 255, 0.3) 0%, transparent 70%);
+    transition: left 0.5s ease;
+    z-index: -1;
+}
+
+.nav-link[href="#home"]:hover::before,
+.nav-link[href="#home"].active::before {
+    left: 0;
+}
+
+.nav-link[href="#audio"] {
+    position: relative;
+}
+
+.nav-link[href="#audio"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(255, 0, 255, 0.2), rgba(0, 255, 255, 0.2));
+    transition: width 0.4s ease;
+    z-index: -1;
+}
+
+.nav-link[href="#audio"]:hover::before,
+.nav-link[href="#audio"].active::before {
+    width: 100%;
+    animation: audioWaveNav 2s ease-in-out infinite;
+}
+
+@keyframes audioWaveNav {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+.nav-link[href="#video"] {
+    position: relative;
+}
+
+.nav-link[href="#video"]::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(0, 255, 255, 0.4) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+    z-index: -1;
+    border-radius: 50%;
+}
+
+.nav-link[href="#video"]:hover::before,
+.nav-link[href="#video"].active::before {
+    width: 150%;
+    height: 150%;
+    animation: videoPulseNav 1.5s ease-in-out infinite;
+}
+
+@keyframes videoPulseNav {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.1); }
+}
+
+.nav-link[href="#photo"] {
+    position: relative;
+}
+
+.nav-link[href="#photo"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, 
+        rgba(255, 0, 255, 0.2) 0%, 
+        rgba(0, 255, 255, 0.2) 50%, 
+        rgba(255, 0, 255, 0.2) 100%);
+    background-size: 200% 200%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+}
+
+.nav-link[href="#photo"]:hover::before,
+.nav-link[href="#photo"].active::before {
+    opacity: 1;
+    animation: photoGlitchNav 0.3s ease, photoGradientMove 3s linear infinite;
+}
+
+@keyframes photoGlitchNav {
+    0%, 100% { transform: translate(0); }
+    25% { transform: translate(-2px, 2px); }
+    50% { transform: translate(2px, -2px); }
+    75% { transform: translate(-1px, -1px); }
+}
+
+@keyframes photoGradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.nav-link[href="#library"] {
+    position: relative;
+}
+
+.nav-link[href="#library"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, 
+        rgba(157, 78, 221, 0.2) 0%, 
+        rgba(255, 0, 255, 0.2) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+}
+
+.nav-link[href="#library"]:hover::before,
+.nav-link[href="#library"].active::before {
+    opacity: 1;
+    animation: libraryGlowNav 2s ease-in-out infinite;
+}
+
+@keyframes libraryGlowNav {
+    0%, 100% { box-shadow: 0 0 5px rgba(157, 78, 221, 0.3); }
+    50% { box-shadow: 0 0 15px rgba(157, 78, 221, 0.6); }
+}
+
+.nav-link[href="#links"] {
+    position: relative;
+}
+
+.nav-link[href="#links"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(0, 255, 255, 0.3), 
+        transparent);
+    transition: left 0.5s ease;
+    z-index: -1;
+}
+
+.nav-link[href="#links"]:hover::before,
+.nav-link[href="#links"].active::before {
+    left: 100%;
+    animation: linksShineNav 2s ease-in-out infinite;
+}
+
+@keyframes linksShineNav {
+    0% { left: -100%; }
+    50% { left: 100%; }
+    100% { left: -100%; }
+}
+
+.nav-link[href="#shop"] {
+    position: relative;
+}
+
+.nav-link[href="#shop"]::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: conic-gradient(
+        from 0deg,
+        rgba(255, 0, 255, 0.3),
+        rgba(0, 255, 255, 0.3),
+        rgba(255, 0, 255, 0.3)
+    );
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+    z-index: -1;
+    border-radius: 50%;
+}
+
+.nav-link[href="#shop"]:hover::before,
+.nav-link[href="#shop"].active::before {
+    width: 200%;
+    height: 200%;
+    animation: shopRotateNav 3s linear infinite;
+}
+
+@keyframes shopRotateNav {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
 .nav-link::after {
@@ -400,6 +617,7 @@ body {
 .nav-link:hover,
 .nav-link.active {
     color: var(--accent-neon);
+    transform: translateY(-2px);
 }
 
 .nav-link:hover::after,
@@ -483,200 +701,15 @@ body {
 .section {
     display: none;
     animation: fadeIn 0.5s ease;
-    position: relative;
-    overflow: hidden;
 }
 
 .section.active {
     display: block;
 }
 
-/* Уникальные эффекты для каждой секции */
-#home.active {
-    animation: homeFadeIn 0.6s ease;
-}
-
-#audio.active {
-    animation: audioSlideIn 0.7s ease;
-}
-
-#video.active {
-    animation: videoZoomIn 0.6s ease;
-}
-
-#photo.active {
-    animation: photoGlitchIn 0.8s ease;
-}
-
-#library.active {
-    animation: libraryFadeIn 0.6s ease;
-}
-
-#links.active {
-    animation: linksSlideIn 0.7s ease;
-}
-
-#shop.active {
-    animation: shopPulseIn 0.6s ease;
-}
-
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes homeFadeIn {
-    from { 
-        opacity: 0; 
-        transform: scale(0.95);
-        filter: blur(5px);
-    }
-    to { 
-        opacity: 1; 
-        transform: scale(1);
-        filter: blur(0);
-    }
-}
-
-@keyframes audioSlideIn {
-    from { 
-        opacity: 0; 
-        transform: translateX(-50px) rotateY(-15deg);
-    }
-    to { 
-        opacity: 1; 
-        transform: translateX(0) rotateY(0);
-    }
-}
-
-@keyframes videoZoomIn {
-    from { 
-        opacity: 0; 
-        transform: scale(0.8) perspective(1000px) rotateX(10deg);
-    }
-    to { 
-        opacity: 1; 
-        transform: scale(1) perspective(1000px) rotateX(0);
-    }
-}
-
-@keyframes photoGlitchIn {
-    0% { 
-        opacity: 0; 
-        transform: translate(0);
-        filter: hue-rotate(0deg);
-    }
-    20% { 
-        transform: translate(-3px, 3px);
-        filter: hue-rotate(90deg);
-    }
-    40% { 
-        transform: translate(3px, -3px);
-        filter: hue-rotate(180deg);
-    }
-    60% { 
-        transform: translate(-2px, -2px);
-        filter: hue-rotate(270deg);
-    }
-    80% { 
-        transform: translate(2px, 2px);
-        filter: hue-rotate(360deg);
-    }
-    100% { 
-        opacity: 1; 
-        transform: translate(0);
-        filter: hue-rotate(0deg);
-    }
-}
-
-@keyframes libraryFadeIn {
-    from { 
-        opacity: 0; 
-        transform: translateY(30px) scale(0.9);
-    }
-    to { 
-        opacity: 1; 
-        transform: translateY(0) scale(1);
-    }
-}
-
-@keyframes linksSlideIn {
-    from { 
-        opacity: 0; 
-        transform: translateX(50px) skewX(-5deg);
-    }
-    to { 
-        opacity: 1; 
-        transform: translateX(0) skewX(0);
-    }
-}
-
-@keyframes shopPulseIn {
-    0% { 
-        opacity: 0; 
-        transform: scale(0.7);
-    }
-    50% { 
-        transform: scale(1.05);
-    }
-    100% { 
-        opacity: 1; 
-        transform: scale(1);
-    }
-}
-
-/* Дополнительные эффекты для секций */
-#audio.active::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(45deg, 
-        rgba(255, 0, 255, 0.05) 0%, 
-        transparent 50%, 
-        rgba(0, 255, 255, 0.05) 100%);
-    pointer-events: none;
-    animation: audioWave 3s ease-in-out infinite;
-}
-
-@keyframes audioWave {
-    0%, 100% { transform: translateX(-100%); }
-    50% { transform: translateX(100%); }
-}
-
-#photo.active::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(255, 0, 255, 0.03) 2px,
-        rgba(255, 0, 255, 0.03) 4px
-    );
-    pointer-events: none;
-    animation: photoScan 2s linear infinite;
-}
-
-@keyframes photoScan {
-    0% { transform: translateY(-100%); }
-    100% { transform: translateY(100%); }
-}
-
-#video.active {
-    box-shadow: 0 0 50px rgba(0, 255, 255, 0.2);
-    animation: videoGlow 2s ease-in-out infinite alternate;
-}
-
-@keyframes videoGlow {
-    from { box-shadow: 0 0 50px rgba(0, 255, 255, 0.2); }
-    to { box-shadow: 0 0 80px rgba(0, 255, 255, 0.4); }
 }
 
 /* Hero секция */

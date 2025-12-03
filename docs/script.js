@@ -470,8 +470,7 @@ function initWinampPlayer() {
                     winampAnalyser.connect(winampAudioContext.destination);
                 }
             } catch (e) {
-                // AudioContext не поддерживается - это нормально для некоторых браузеров
-                // Не выводим сообщение, так как это не критичная ошибка
+                console.log('AudioContext не поддерживается:', e);
             }
         }
         
@@ -885,15 +884,9 @@ let audioContext = null;
 
 function initAudioContext() {
     try {
-        if (window.AudioContext || window.webkitAudioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        } else {
-            // AudioContext не поддерживается в этом браузере - это нормально
-            audioContext = null;
-        }
     } catch (e) {
-        // AudioContext не может быть создан - это нормально для некоторых браузеров
-        audioContext = null;
+        console.warn('AudioContext не поддерживается');
     }
 }
 
@@ -2424,37 +2417,25 @@ function switchToVideo(index) {
             ];
             
             let currentEmbedIndex = 0;
-            let loadTimeout = null;
-            let isLoading = false;
+            let loadAttempts = 0;
             const maxAttempts = embedUrls.length;
             
-            const cleanup = () => {
-                if (loadTimeout) {
-                    clearTimeout(loadTimeout);
-                    loadTimeout = null;
-                }
-                isLoading = false;
-            };
-            
             const loadPlaylist = () => {
-                if (isLoading) return; // Предотвращаем параллельные загрузки
-                
-                if (currentEmbedIndex >= embedUrls.length) {
+                if (currentEmbedIndex < embedUrls.length) {
+                    console.log(`Загрузка плейлиста (попытка ${currentEmbedIndex + 1}/${maxAttempts}):`, embedUrls[currentEmbedIndex]);
+                    tvPlayer.src = embedUrls[currentEmbedIndex];
+                    currentEmbedIndex++;
+                    loadAttempts++;
+                } else {
                     console.error('Не удалось загрузить плейлист, все варианты исчерпаны');
                     if (tvStatic) {
                         tvStatic.classList.add('active');
                     }
-                    return;
                 }
-                
-                isLoading = true;
-                cleanup(); // Очищаем предыдущий таймаут
-                
-                const currentUrl = embedUrls[currentEmbedIndex];
-                console.log(`Загрузка плейлиста (попытка ${currentEmbedIndex + 1}/${maxAttempts}):`, currentUrl);
+            };
             
             const onLoad = () => {
-                    cleanup();
+                try {
                     console.log('Плейлист успешно загружен');
                     if (tvStatic) {
     setTimeout(() => {
@@ -2463,39 +2444,36 @@ function switchToVideo(index) {
                         }, 500);
                     }
                     tvPlayer.removeEventListener('load', onLoad);
-                    tvPlayer.removeEventListener('error', onError);
-                };
-                
-                const onError = () => {
-                    cleanup();
-                    // Тихо переключаемся на следующий инстанс без предупреждений
-                    // Предупреждение выведем только если все инстансы исчерпаны
-                    tvPlayer.removeEventListener('load', onLoad);
-                    tvPlayer.removeEventListener('error', onError);
-                    
-                    currentEmbedIndex++;
+                } catch (e) {
+                    console.error('Ошибка обработки загрузки:', e);
+                }
+            };
+            
+            const onError = () => {
+                console.warn(`Ошибка загрузки плейлиста (попытка ${loadAttempts})`);
                 if (currentEmbedIndex < embedUrls.length) {
                     setTimeout(loadPlaylist, 1000);
-                    } else {
-                        console.error('Не удалось загрузить плейлист: все инстансы недоступны');
-                        if (tvStatic) {
-                            tvStatic.classList.add('active');
-                        }
+                } else {
+                    console.error('Не удалось загрузить плейлист');
+                    if (tvStatic) {
+                        tvStatic.classList.add('active');
                     }
-                };
-                
-                tvPlayer.addEventListener('load', onLoad, { once: true });
-                tvPlayer.addEventListener('error', onError, { once: true });
-                
-                // Таймаут для проверки загрузки (5 секунд)
-                loadTimeout = setTimeout(() => {
-                    if (isLoading) {
-                        onError();
-                    }
-                }, 5000);
-                
-                tvPlayer.src = currentUrl;
+                }
             };
+            
+            tvPlayer.addEventListener('load', onLoad, { once: true });
+            tvPlayer.addEventListener('error', onError);
+            
+            // Таймаут для проверки загрузки
+            const loadTimeout = setTimeout(() => {
+                if (loadAttempts < maxAttempts && currentEmbedIndex < embedUrls.length) {
+                    onError();
+                }
+            }, 5000);
+            
+            tvPlayer.addEventListener('load', () => {
+                clearTimeout(loadTimeout);
+            }, { once: true });
             
             loadPlaylist();
         } else {
@@ -2524,36 +2502,21 @@ function switchToVideo(index) {
             ];
             
             let currentEmbedIndex = 0;
-            let loadTimeout = null;
-            let isLoading = false;
-            
-            const cleanup = () => {
-                if (loadTimeout) {
-                    clearTimeout(loadTimeout);
-                    loadTimeout = null;
-                }
-                isLoading = false;
-            };
             
             const loadVideo = () => {
-                if (isLoading) return; // Предотвращаем параллельные загрузки
-                
-                if (currentEmbedIndex >= embedUrls.length) {
-                    console.error('Не удалось загрузить видео, все варианты исчерпаны');
-                    if (tvStatic) {
-                        tvStatic.classList.add('active');
+                try {
+                    if (currentEmbedIndex < embedUrls.length) {
+                        tvPlayer.src = embedUrls[currentEmbedIndex];
+                        currentEmbedIndex++;
                     }
-                    return;
+                } catch (e) {
+                    console.error('Ошибка загрузки видео:', e);
                 }
-                
-                isLoading = true;
-                cleanup(); // Очищаем предыдущий таймаут
-                
-                const currentUrl = embedUrls[currentEmbedIndex];
-                console.log(`Загрузка видео (попытка ${currentEmbedIndex + 1}/${embedUrls.length}):`, currentUrl);
-                
-                const onLoad = () => {
-                    cleanup();
+            };
+            
+            // Обработка успешной загрузки
+            const onLoad = () => {
+                try {
                     if (tvStatic) {
                         setTimeout(() => {
                             tvStatic.classList.remove('active');
@@ -2561,40 +2524,27 @@ function switchToVideo(index) {
                         }, 500);
                     }
                     tvPlayer.removeEventListener('load', onLoad);
-                    tvPlayer.removeEventListener('error', onError);
-                };
-                
-                const onError = () => {
-                    cleanup();
-                    // Тихо переключаемся на следующий инстанс без предупреждений
-                    // Предупреждение выведем только если все инстансы исчерпаны
-                    tvPlayer.removeEventListener('load', onLoad);
-                    tvPlayer.removeEventListener('error', onError);
-                    
-                    currentEmbedIndex++;
-                    if (currentEmbedIndex < embedUrls.length) {
-                        setTimeout(loadVideo, 1000);
-                    } else {
-                        console.error('Не удалось загрузить видео: все инстансы недоступны');
-                        if (tvStatic) {
-                            tvStatic.classList.add('active');
-                        }
-                    }
-                };
-                
-                tvPlayer.addEventListener('load', onLoad, { once: true });
-                tvPlayer.addEventListener('error', onError, { once: true });
-                
-                // Таймаут для проверки загрузки (5 секунд)
-                loadTimeout = setTimeout(() => {
-                    if (isLoading) {
-                        onError();
-                    }
-                }, 5000);
-                
-                tvPlayer.src = currentUrl;
+                } catch (e) {
+                    console.error('Ошибка обработки загрузки:', e);
+                }
             };
             
+            tvPlayer.addEventListener('load', onLoad);
+            
+            // Обработка ошибки - пробуем следующий сервис
+            const onError = () => {
+                try {
+                    if (currentEmbedIndex < embedUrls.length) {
+                        setTimeout(loadVideo, 1000);
+                    }
+                } catch (e) {
+                    console.error('Ошибка обработки ошибки загрузки:', e);
+                }
+            };
+            
+            tvPlayer.onerror = onError;
+            
+            // Начинаем загрузку
             loadVideo();
         }
     } catch (error) {

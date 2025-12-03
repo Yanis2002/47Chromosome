@@ -2388,11 +2388,14 @@ function switchToVideo(index) {
         
         // Если это плейлист, используем специальный URL
         if (video.isPlaylist) {
-            // Для плейлистов используем wrapped и другие сервисы для обхода блокировки в России
+            // Для плейлистов используем публичные инстансы Invidious (официальный список)
             const embedUrls = [
-                `https://invidious.io/embed/videoseries?list=${video.id}`,
                 `https://yewtu.be/embed/videoseries?list=${video.id}`,
-                `https://invidious.flokinet.to/embed/videoseries?list=${video.id}`,
+                `https://inv.nadeko.net/embed/videoseries?list=${video.id}`,
+                `https://invidious.f5.si/embed/videoseries?list=${video.id}`,
+                `https://invidious.nerdvpn.de/embed/videoseries?list=${video.id}`,
+                `https://inv.perditum.com/embed/videoseries?list=${video.id}`,
+                `https://invidious.io/embed/videoseries?list=${video.id}`,
                 `https://piped.data/video/embed/videoseries?list=${video.id}`,
                 `https://piped.kavin.rocks/embed/videoseries?list=${video.id}`,
                 `https://www.youtube.com/embed/videoseries?list=${video.id}&rel=0&modestbranding=1`,

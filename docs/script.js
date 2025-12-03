@@ -1054,45 +1054,65 @@ function loadDataFromJSON(url, processor, logPrefix = 'Данные', logInterva
     // Если URL не начинается с http/https, делаем его относительным от текущей директории
     let finalUrl = url;
     const pathname = window.location.pathname;
-    const isGitHubPages = pathname.includes('/docs/') || pathname.includes('/47Chromosome/');
+    const hostname = window.location.hostname;
+    
+    // Определяем, находимся ли мы на GitHub Pages
+    const isGitHubPages = hostname.includes('github.io') || pathname.includes('/47Chromosome/');
     
     if (!url.startsWith('http') && !url.startsWith('/')) {
-        // Если путь не начинается с ./ и мы на GitHub Pages, добавляем ./
-        if (!url.startsWith('./')) {
-            // Определяем базовый путь
-            let basePath = '';
-            
-            if (isGitHubPages) {
-                // На GitHub Pages: если путь содержит /docs/, используем его
-                if (pathname.includes('/docs/')) {
-                    const docsIndex = pathname.indexOf('/docs/');
-                    basePath = pathname.substring(0, docsIndex + 5); // +5 для включения '/docs'
-                } else if (pathname.includes('/47Chromosome/')) {
-                    // Если путь содержит /47Chromosome/, добавляем /docs/
-                    const repoIndex = pathname.indexOf('/47Chromosome/');
-                    basePath = pathname.substring(0, repoIndex) + '/47Chromosome/docs';
-                } else {
-                    // Fallback: используем текущую директорию
-                    basePath = pathname.endsWith('/') ? pathname : pathname.substring(0, pathname.lastIndexOf('/') + 1);
-                }
+        // Определяем базовый путь
+        let basePath = '';
+        
+        if (isGitHubPages) {
+            // На GitHub Pages: путь всегда должен начинаться с /47Chromosome/docs/
+            if (pathname.includes('/docs/')) {
+                // Если путь содержит /docs/, берем все до /docs/ включительно
+                const docsIndex = pathname.indexOf('/docs/');
+                basePath = pathname.substring(0, docsIndex + 5); // +5 для включения '/docs'
+            } else if (pathname.includes('/47Chromosome/')) {
+                // Если путь содержит /47Chromosome/, добавляем /docs/
+                const repoIndex = pathname.indexOf('/47Chromosome/');
+                basePath = pathname.substring(0, repoIndex) + '/47Chromosome/docs';
             } else {
-                // Локально: используем текущую директорию
-                if (pathname.endsWith('.html')) {
-                    basePath = pathname.substring(0, pathname.lastIndexOf('/') + 1);
-                } else if (pathname.endsWith('/')) {
-                    basePath = pathname;
-                } else {
-                    basePath = pathname + '/';
-                }
+                // Если нет /docs/ и нет /47Chromosome/, добавляем /47Chromosome/docs
+                basePath = '/47Chromosome/docs';
             }
-            
-            // Формируем финальный URL
-            if (basePath && !basePath.endsWith('/')) {
-                basePath += '/';
-            }
-            finalUrl = basePath ? `${basePath}${url}` : `./${url}`;
         } else {
-            // Если путь уже начинается с ./, оставляем как есть (работает и локально, и на GitHub Pages)
+            // Локально: используем текущую директорию
+            if (pathname.endsWith('.html')) {
+                basePath = pathname.substring(0, pathname.lastIndexOf('/') + 1);
+            } else if (pathname.endsWith('/')) {
+                basePath = pathname;
+            } else {
+                basePath = pathname + '/';
+            }
+        }
+        
+        // Формируем финальный URL
+        if (basePath && !basePath.endsWith('/')) {
+            basePath += '/';
+        }
+        
+        // Если URL начинается с ./, убираем его
+        if (url.startsWith('./')) {
+            url = url.substring(2);
+        }
+        
+        finalUrl = basePath ? `${basePath}${url}` : url;
+    } else if (url.startsWith('./')) {
+        // Если путь начинается с ./, обрабатываем его
+        const cleanUrl = url.substring(2);
+        if (isGitHubPages) {
+            // На GitHub Pages добавляем базовый путь
+            let basePath = '';
+            if (pathname.includes('/docs/')) {
+                const docsIndex = pathname.indexOf('/docs/');
+                basePath = pathname.substring(0, docsIndex + 5);
+            } else {
+                basePath = '/47Chromosome/docs';
+            }
+            finalUrl = `${basePath}/${cleanUrl}`;
+        } else {
             finalUrl = url;
         }
     }
@@ -2935,10 +2955,34 @@ function loadPhotosData(photoGallery) {
         // Загрузка фото из JSON файла
         loadDataFromJSON('data/photo/list.json', (photo) => {
         if (photo && photo.src) {
-            // Убеждаемся, что путь правильный
+            // Исправляем путь для GitHub Pages
             let photoSrc = photo.src;
-            // Если путь уже начинается с data/photo/, оставляем как есть
-            // Это работает и на localhost, и на GitHub Pages
+            const pathname = window.location.pathname;
+            const hostname = window.location.hostname;
+            const isGitHubPages = hostname.includes('github.io') || pathname.includes('/47Chromosome/');
+            
+            // Если путь не абсолютный и не начинается с /, исправляем его
+            if (!photoSrc.startsWith('http') && !photoSrc.startsWith('/')) {
+                if (isGitHubPages) {
+                    // На GitHub Pages: добавляем базовый путь
+                    if (pathname.includes('/docs/')) {
+                        const docsIndex = pathname.indexOf('/docs/');
+                        const basePath = pathname.substring(0, docsIndex + 5); // +5 для '/docs'
+                        photoSrc = `${basePath}/${photoSrc}`;
+                    } else if (pathname.includes('/47Chromosome/')) {
+                        const repoIndex = pathname.indexOf('/47Chromosome/');
+                        photoSrc = `${pathname.substring(0, repoIndex)}/47Chromosome/docs/${photoSrc}`;
+                    } else {
+                        photoSrc = `/47Chromosome/docs/${photoSrc}`;
+                    }
+                } else {
+                    // Локально: добавляем ./ если нужно
+                    if (!photoSrc.startsWith('./')) {
+                        photoSrc = `./${photoSrc}`;
+                    }
+                }
+            }
+            
             console.log('loadPhotosData: добавляем фото:', photoSrc);
             addPhoto(photoSrc, photo.alt || '');
         } else {

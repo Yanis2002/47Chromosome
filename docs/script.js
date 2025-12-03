@@ -283,23 +283,169 @@ function initNavigation() {
     const navLinks = document.querySelectorAll('.nav-link');
     const sections = document.querySelectorAll('.section');
 
-    // Функция переключения секций
+    // Функция переключения секций с уникальными эффектами
     const switchSection = (targetId) => {
-            // Обновляем активные классы
-            navLinks.forEach(l => l.classList.remove('active'));
-            sections.forEach(s => s.classList.remove('active'));
-            
+        // Обновляем активные классы
+        navLinks.forEach(l => l.classList.remove('active'));
+        sections.forEach(s => {
+            s.classList.remove('active');
+            // Удаляем классы анимации для плавного переключения
+            s.style.animation = 'none';
+        });
+        
         // Находим нужную ссылку и секцию
         const targetLink = document.querySelector(`.nav-link[href="#${targetId}"]`);
-            const targetSection = document.getElementById(targetId);
+        const targetSection = document.getElementById(targetId);
         
         if (targetLink && targetSection) {
-            targetLink.classList.add('active');
+            // Добавляем уникальный эффект в зависимости от секции
+            setTimeout(() => {
+                targetSection.style.animation = '';
+                targetLink.classList.add('active');
                 targetSection.classList.add('active');
-                playSound('click');
+                
+                // Дополнительные эффекты для конкретных секций
+                applySectionEffect(targetId, targetSection);
+            }, 10);
+            
+            playSound('click');
             return true;
         }
         return false;
+    };
+    
+    // Применение уникальных эффектов для каждой секции
+    const applySectionEffect = (sectionId, section) => {
+        // Удаляем предыдущие эффекты
+        section.querySelectorAll('.section-effect').forEach(el => el.remove());
+        
+        switch(sectionId) {
+            case 'audio':
+                // Аудио: волновой эффект
+                const audioWave = document.createElement('div');
+                audioWave.className = 'section-effect audio-wave-effect';
+                audioWave.style.cssText = `
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, 
+                        transparent 0%, 
+                        rgba(255, 0, 255, 0.1) 50%, 
+                        transparent 100%);
+                    pointer-events: none;
+                    animation: audioWaveMove 3s ease-in-out infinite;
+                    z-index: 0;
+                `;
+                section.appendChild(audioWave);
+                break;
+                
+            case 'photo':
+                // Фото: эффект вспышки
+                const photoFlash = document.createElement('div');
+                photoFlash.className = 'section-effect photo-flash-effect';
+                photoFlash.style.cssText = `
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: radial-gradient(circle, 
+                        rgba(255, 0, 255, 0.3) 0%, 
+                        transparent 70%);
+                    pointer-events: none;
+                    animation: photoFlash 0.5s ease-out;
+                    z-index: 0;
+                `;
+                section.appendChild(photoFlash);
+                setTimeout(() => photoFlash.remove(), 500);
+                break;
+                
+            case 'video':
+                // Видео: эффект сканирования
+                const videoScan = document.createElement('div');
+                videoScan.className = 'section-effect video-scan-effect';
+                videoScan.style.cssText = `
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 2px;
+                    background: linear-gradient(90deg, 
+                        transparent, 
+                        rgba(0, 255, 255, 0.8), 
+                        transparent);
+                    pointer-events: none;
+                    animation: videoScanMove 2s linear infinite;
+                    z-index: 10;
+                `;
+                section.appendChild(videoScan);
+                break;
+                
+            case 'library':
+                // Библиотека: эффект появления книг
+                const libraryGlow = document.createElement('div');
+                libraryGlow.className = 'section-effect library-glow-effect';
+                libraryGlow.style.cssText = `
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: radial-gradient(ellipse at center, 
+                        rgba(157, 78, 221, 0.1) 0%, 
+                        transparent 70%);
+                    pointer-events: none;
+                    animation: libraryGlowPulse 2s ease-in-out infinite;
+                    z-index: 0;
+                `;
+                section.appendChild(libraryGlow);
+                break;
+                
+            case 'links':
+                // Ссылки: эффект соединения
+                const linksConnect = document.createElement('div');
+                linksConnect.className = 'section-effect links-connect-effect';
+                linksConnect.style.cssText = `
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: repeating-linear-gradient(45deg, 
+                        transparent, 
+                        transparent 10px, 
+                        rgba(0, 255, 255, 0.05) 10px, 
+                        rgba(0, 255, 255, 0.05) 20px);
+                    pointer-events: none;
+                    animation: linksConnectMove 4s linear infinite;
+                    z-index: 0;
+                `;
+                section.appendChild(linksConnect);
+                break;
+                
+            case 'shop':
+                // Магазин: эффект свечения
+                const shopPulse = document.createElement('div');
+                shopPulse.className = 'section-effect shop-pulse-effect';
+                shopPulse.style.cssText = `
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    width: 200px;
+                    height: 200px;
+                    background: radial-gradient(circle, 
+                        rgba(255, 0, 255, 0.2) 0%, 
+                        transparent 70%);
+                    pointer-events: none;
+                    transform: translate(-50%, -50%);
+                    animation: shopPulseGlow 2s ease-in-out infinite;
+                    z-index: 0;
+                `;
+                section.appendChild(shopPulse);
+                break;
+        }
     };
 
     // Обработка кликов по ссылкам
@@ -1279,9 +1425,9 @@ function addPhoto(src, alt) {
     
     // Удаляем placeholder если он есть (только при добавлении первого фото)
     if (photoGallery.children.length === 1) {
-        const placeholder = photoGallery.querySelector('.placeholder');
-        if (placeholder) {
-            photoGallery.innerHTML = '';
+    const placeholder = photoGallery.querySelector('.placeholder');
+    if (placeholder) {
+        photoGallery.innerHTML = '';
         }
     }
     
@@ -1598,7 +1744,16 @@ function loadFooterBanners() {
             { src: 'banners/webpassion.gif', alt: 'webpassion' },
             { src: 'banners/winamp3.gif', alt: 'winamp3' },
             { src: 'banners/anythingbut.gif', alt: 'anythingbut' },
-            { src: 'banners/php_powered.gif', alt: 'php_powered' }
+            { src: 'banners/php_powered.gif', alt: 'php_powered' },
+            { src: 'banners/anonymize.webp', alt: 'anonymize' },
+            { src: 'banners/arizona.gif', alt: 'arizona' },
+            { src: 'banners/bestviewed2.gif', alt: 'bestviewed2' },
+            { src: 'banners/internetarchive.gif', alt: 'internetarchive' },
+            { src: 'banners/modarchive.gif', alt: 'modarchive' },
+            { src: 'banners/mysqla.webp', alt: 'mysqla' },
+            { src: 'banners/notepadpp.webp', alt: 'notepadpp' },
+            { src: 'banners/piracy.gif', alt: 'piracy' },
+            { src: 'banners/thoughtcrimes.webp', alt: 'thoughtcrimes' }
         ];
         
         banners.forEach(banner => {
@@ -2446,8 +2601,8 @@ function loadLocalPhotos() {
     
     if (!photoGallery) {
         console.warn('Элемент photoGallery не найден, пробуем через waitForElement...');
-        waitForElement('photoGallery', (photoGallery) => {
-            console.log('Загрузка фото, найден элемент:', photoGallery);
+    waitForElement('photoGallery', (photoGallery) => {
+        console.log('Загрузка фото, найден элемент:', photoGallery);
             loadPhotosData(photoGallery);
         }, 500, 20); // Увеличиваем количество попыток
         return;
@@ -2471,9 +2626,9 @@ function loadPhotosData(photoGallery) {
         console.log('loadPhotosData: удаляем placeholder');
         photoGallery.innerHTML = '';
     }
-    
-    // Загрузка фото из JSON файла
-    loadDataFromJSON('data/photo/list.json', (photo) => {
+        
+        // Загрузка фото из JSON файла
+        loadDataFromJSON('data/photo/list.json', (photo) => {
         if (photo && photo.src) {
             // Убеждаемся, что путь правильный
             let photoSrc = photo.src;
@@ -2483,7 +2638,7 @@ function loadPhotosData(photoGallery) {
             addPhoto(photoSrc, photo.alt || '');
         } else {
             console.warn('loadPhotosData: пропущено фото без src:', photo);
-        }
+            }
     }, 'Фото', 5).then((data) => {
         console.log('loadPhotosData: загрузка завершена, загружено фото:', data ? data.length : 0);
         // Проверяем, что хотя бы одно фото загрузилось

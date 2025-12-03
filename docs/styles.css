@@ -172,9 +172,11 @@ body {
     justify-content: flex-start;
     gap: 10px;
     margin-top: 20px;
-    flex: 1;
+    flex: 0 0 auto;
     order: 3;
     margin-left: auto;
+    max-width: 300px; /* Ограничиваем ширину, чтобы не перекрывать центр */
+    width: auto;
 }
 
 .footer-advisory {
@@ -2159,9 +2161,11 @@ body {
     justify-content: flex-start;
     gap: 10px;
     margin-top: 20px;
-    flex: 1;
+    flex: 0 0 auto;
     order: 3;
     margin-left: auto;
+    max-width: 300px; /* Ограничиваем ширину, чтобы не перекрывать центр */
+    width: auto;
 }
 
 .footer-advisory {

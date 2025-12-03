@@ -247,6 +247,14 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Ошибка загрузки YouTube ссылок:', e);
         }
         
+        // Проверяем доступность инстансов в фоне (не блокируя загрузку)
+        try {
+            console.log('Начинаем проверку доступности инстансов YouTube...');
+            preCheckYouTubeInstances();
+        } catch (e) {
+            console.error('Ошибка проверки инстансов:', e);
+        }
+        
         try {
             console.log('Загрузка баннеров...');
             loadFooterBanners();
@@ -2130,6 +2138,74 @@ async function getAvailableInstances(baseInstances, videoId, isPlaylist = false)
     return [...availableInstances, ...unavailableInstances];
 }
 
+// Предварительная проверка доступности инстансов YouTube в фоне
+// Проверяет только первые несколько инстансов, чтобы не блокировать загрузку
+async function preCheckYouTubeInstances() {
+    // Базовые URL инстансов для проверки (без /embed/)
+    const baseInstances = [
+        'https://invidious.nerdvpn.de',
+        'https://inv.perditum.com',
+        'https://invidious.io',
+        'https://invidious.flokinet.to',
+        'https://invidious.privacyredirect.com',
+        'https://invidious.osi.kr',
+        'https://invidious.slipfox.xyz',
+        'https://nyc1.iv.ggtyler.dev',
+        'https://cal1.iv.ggtyler.dev',
+        'https://pol1.iv.ggtyler.dev',
+        'https://piped.data',
+        'https://piped.kavin.rocks',
+        'https://piped.mha.fi'
+    ];
+    
+    console.log(`Проверяем ${baseInstances.length} инстансов...`);
+    
+    // Проверяем инстансы параллельно, но с ограничением (не более 5 одновременно)
+    const batchSize = 5;
+    for (let i = 0; i < baseInstances.length; i += batchSize) {
+        const batch = baseInstances.slice(i, i + batchSize);
+        await Promise.all(
+            batch.map(async (baseUrl) => {
+                try {
+                    const testUrl = `${baseUrl}/api/v1/stats`;
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 3000);
+                    
+                    const response = await fetch(testUrl, {
+                        method: 'HEAD',
+                        mode: 'no-cors',
+                        signal: controller.signal
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    
+                    // Сохраняем в кэш как доступный
+                    instanceAvailabilityCache.set(baseUrl, {
+                        available: true,
+                        timestamp: Date.now()
+                    });
+                    
+                    console.log(`✓ ${baseUrl} - доступен`);
+                } catch (error) {
+                    // Сохраняем в кэш как недоступный
+                    instanceAvailabilityCache.set(baseUrl, {
+                        available: false,
+                        timestamp: Date.now()
+                    });
+                    console.log(`✗ ${baseUrl} - недоступен`);
+                }
+            })
+        );
+        
+        // Небольшая задержка между батчами
+        if (i + batchSize < baseInstances.length) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+    }
+    
+    console.log('Проверка инстансов завершена');
+}
+
 // Добавление YouTube видео с обходом блокировок
 function addYouTubeVideo(videoId, title, thumbnail) {
     const youtubeList = document.getElementById('youtubeList');
@@ -2148,7 +2224,7 @@ function addYouTubeVideo(videoId, title, thumbnail) {
     
     // Используем расширенный список зеркал YouTube для обхода блокировки в России
     // Список регулярно обновляется на основе доступности инстансов
-    const embedUrls = [
+    let embedUrls = [
         // Официальные публичные инстансы Invidious (проверенные рабочие)
         `https://invidious.nerdvpn.de/embed/${videoId}`,
         `https://inv.perditum.com/embed/${videoId}`,
@@ -2175,6 +2251,33 @@ function addYouTubeVideo(videoId, title, thumbnail) {
         `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1`,
         `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`
     ];
+    
+    // Сортируем инстансы на основе кэша проверки (если есть)
+    const now = Date.now();
+    embedUrls.sort((a, b) => {
+        const baseUrlA = a.split('/embed/')[0];
+        const baseUrlB = b.split('/embed/')[0];
+        
+        const cachedA = instanceAvailabilityCache.get(baseUrlA);
+        const cachedB = instanceAvailabilityCache.get(baseUrlB);
+        
+        // Если кэш устарел (старше 5 минут), не учитываем его
+        const validA = cachedA && (now - cachedA.timestamp) < CACHE_DURATION;
+        const validB = cachedB && (now - cachedB.timestamp) < CACHE_DURATION;
+        
+        if (validA && validB) {
+            // Оба проверены: доступные идут первыми
+            if (cachedA.available && !cachedB.available) return -1;
+            if (!cachedA.available && cachedB.available) return 1;
+            return 0;
+        }
+        if (validA && cachedA.available) return -1; // Проверенный доступный идет первым
+        if (validB && cachedB.available) return 1;  // Проверенный доступный идет первым
+        if (validA && !cachedA.available) return 1; // Проверенный недоступный идет последним
+        if (validB && !cachedB.available) return -1; // Проверенный недоступный идет последним
+        
+        return 0; // Если оба не проверены, сохраняем порядок
+    });
     
     let currentEmbedIndex = 0;
     let loadAttempts = 0;
@@ -2488,7 +2591,7 @@ function switchToVideo(index) {
         // Если это плейлист, используем специальный URL
         if (video.isPlaylist) {
             // Для плейлистов используем расширенный список зеркал YouTube (Invidious и альтернативы)
-            const embedUrls = [
+            let embedUrls = [
                 // Официальные публичные инстансы Invidious (проверенные рабочие)
                 `https://invidious.nerdvpn.de/embed/videoseries?list=${video.id}`,
                 `https://inv.perditum.com/embed/videoseries?list=${video.id}`,
@@ -2515,6 +2618,30 @@ function switchToVideo(index) {
                 `https://www.youtube.com/embed/videoseries?list=${video.id}&rel=0&modestbranding=1`,
                 `https://www.youtube-nocookie.com/embed/videoseries?list=${video.id}&rel=0&modestbranding=1`
             ];
+            
+            // Сортируем инстансы на основе кэша проверки (если есть)
+            const now = Date.now();
+            embedUrls.sort((a, b) => {
+                const baseUrlA = a.split('/embed/')[0];
+                const baseUrlB = b.split('/embed/')[0];
+                
+                const cachedA = instanceAvailabilityCache.get(baseUrlA);
+                const cachedB = instanceAvailabilityCache.get(baseUrlB);
+                
+                const validA = cachedA && (now - cachedA.timestamp) < CACHE_DURATION;
+                const validB = cachedB && (now - cachedB.timestamp) < CACHE_DURATION;
+                
+                if (validA && validB) {
+                    if (cachedA.available && !cachedB.available) return -1;
+                    if (!cachedA.available && cachedB.available) return 1;
+                    return 0;
+                }
+                if (validA && cachedA.available) return -1;
+                if (validB && cachedB.available) return 1;
+                if (validA && !cachedA.available) return 1;
+                if (validB && !cachedB.available) return -1;
+                return 0;
+            });
             
             let currentEmbedIndex = 0;
             let loadAttempts = 0;
@@ -2579,7 +2706,7 @@ function switchToVideo(index) {
         } else {
             // Обычное видео
             // Используем расширенный список зеркал YouTube для обхода блокировки в России
-            const embedUrls = [
+            let embedUrls = [
                 // Официальные публичные инстансы Invidious (проверенные рабочие)
                 `https://invidious.nerdvpn.de/embed/${video.id}`,
                 `https://inv.perditum.com/embed/${video.id}`,
@@ -2606,6 +2733,30 @@ function switchToVideo(index) {
                 `https://www.youtube-nocookie.com/embed/${video.id}?rel=0&modestbranding=1`,
                 `https://www.youtube.com/embed/${video.id}?rel=0&modestbranding=1`
             ];
+            
+            // Сортируем инстансы на основе кэша проверки (если есть)
+            const now = Date.now();
+            embedUrls.sort((a, b) => {
+                const baseUrlA = a.split('/embed/')[0];
+                const baseUrlB = b.split('/embed/')[0];
+                
+                const cachedA = instanceAvailabilityCache.get(baseUrlA);
+                const cachedB = instanceAvailabilityCache.get(baseUrlB);
+                
+                const validA = cachedA && (now - cachedA.timestamp) < CACHE_DURATION;
+                const validB = cachedB && (now - cachedB.timestamp) < CACHE_DURATION;
+                
+                if (validA && validB) {
+                    if (cachedA.available && !cachedB.available) return -1;
+                    if (!cachedA.available && cachedB.available) return 1;
+                    return 0;
+                }
+                if (validA && cachedA.available) return -1;
+                if (validB && cachedB.available) return 1;
+                if (validA && !cachedA.available) return 1;
+                if (validB && !cachedB.available) return -1;
+                return 0;
+            });
             
             let currentEmbedIndex = 0;
             

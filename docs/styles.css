@@ -141,13 +141,14 @@ body {
 .footer-left {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 15px;
     flex-shrink: 0;
+    text-align: center;
 }
 
 .footer-advisory {
-    width: 400px;
+    width: 250px;
     height: auto;
     image-rendering: auto;
 }
@@ -2097,13 +2098,14 @@ body {
 .footer-left {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 15px;
     flex-shrink: 0;
+    text-align: center;
 }
 
 .footer-advisory {
-    width: 400px;
+    width: 250px;
     height: auto;
     image-rendering: auto;
 }

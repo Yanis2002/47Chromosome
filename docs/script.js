@@ -2057,10 +2057,12 @@ function addYouTubeVideo(videoId, title, thumbnail) {
     const item = document.createElement('div');
     item.className = 'youtube-item';
     
-    // Используем альтернативные сервисы для обхода блокировок (VPN-прокси)
-    // Список рабочих Invidious и Piped инстансов
+    // Используем wrapped и другие сервисы для обхода блокировки в России
     const embedUrls = [
-        // Invidious инстансы (приоритет - обход блокировок)
+        // Wrapped (приоритет - обход блокировки в России)
+        `https://yt.artemislena.eu/embed/${videoId}`,
+        `https://yt.artemislena.eu/watch?v=${videoId}`,
+        // Invidious инстансы
         `https://invidious.io/embed/${videoId}`,
         `https://yewtu.be/embed/${videoId}`,
         `https://invidious.flokinet.to/embed/${videoId}`,
@@ -2386,12 +2388,14 @@ function switchToVideo(index) {
         
         // Если это плейлист, используем специальный URL
         if (video.isPlaylist) {
-            // Для плейлистов используем правильный формат YouTube embed
+            // Для плейлистов используем wrapped и другие сервисы для обхода блокировки в России
             const embedUrls = [
-                `https://www.youtube.com/embed/videoseries?list=${video.id}&rel=0&modestbranding=1`,
-                `https://www.youtube-nocookie.com/embed/videoseries?list=${video.id}&rel=0&modestbranding=1`,
+                `https://yt.artemislena.eu/embed/videoseries?list=${video.id}`,
+                `https://yt.artemislena.eu/playlist?list=${video.id}`,
                 `https://invidious.io/embed/videoseries?list=${video.id}`,
-                `https://yewtu.be/embed/videoseries?list=${video.id}`
+                `https://yewtu.be/embed/videoseries?list=${video.id}`,
+                `https://www.youtube.com/embed/videoseries?list=${video.id}&rel=0&modestbranding=1`,
+                `https://www.youtube-nocookie.com/embed/videoseries?list=${video.id}&rel=0&modestbranding=1`
             ];
             
             let currentEmbedIndex = 0;
@@ -2456,8 +2460,10 @@ function switchToVideo(index) {
             loadPlaylist();
         } else {
             // Обычное видео
-            // Используем альтернативные сервисы для обхода блокировок
+            // Используем wrapped и другие сервисы для обхода блокировки в России
             const embedUrls = [
+                `https://yt.artemislena.eu/embed/${video.id}`,
+                `https://yt.artemislena.eu/watch?v=${video.id}`,
                 `https://invidious.io/embed/${video.id}`,
                 `https://yewtu.be/embed/${video.id}`,
                 `https://invidious.flokinet.to/embed/${video.id}`,

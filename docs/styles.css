@@ -129,9 +129,27 @@ body {
 
 .footer-content {
     display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.footer-left {
+    display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 20px;
+    align-items: flex-start;
+    gap: 15px;
+    flex-shrink: 0;
+}
+
+.footer-advisory {
+    width: 80px;
+    height: auto;
+    image-rendering: auto;
 }
 
 .footer-info {
@@ -158,9 +176,10 @@ body {
 
 .footer-banners {
     display: flex;
+    flex-direction: column;
     flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
+    max-height: calc(31px * 4 + 10px * 3); /* 4 баннера по высоте + 3 промежутка */
+    align-content: flex-start;
     gap: 10px;
     margin-top: 20px;
 }
@@ -171,6 +190,7 @@ body {
     height: 31px;
     cursor: default;
     pointer-events: none;
+    flex-shrink: 0;
 }
 
 .footer-banner-item img {
@@ -383,224 +403,7 @@ body {
     font-weight: 500;
     transition: all 0.3s ease;
     position: relative;
-    padding: 5px 10px;
-    border-radius: 5px;
-    overflow: hidden;
-}
-
-/* Уникальные эффекты для каждой кнопки навигации */
-.nav-link[href="#home"] {
-    position: relative;
-}
-
-.nav-link[href="#home"]::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, rgba(255, 0, 255, 0.3) 0%, transparent 70%);
-    transition: left 0.5s ease;
-    z-index: -1;
-}
-
-.nav-link[href="#home"]:hover::before,
-.nav-link[href="#home"].active::before {
-    left: 0;
-}
-
-.nav-link[href="#audio"] {
-    position: relative;
-}
-
-.nav-link[href="#audio"]::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 0;
-    height: 100%;
-    background: linear-gradient(90deg, rgba(255, 0, 255, 0.2), rgba(0, 255, 255, 0.2));
-    transition: width 0.4s ease;
-    z-index: -1;
-}
-
-.nav-link[href="#audio"]:hover::before,
-.nav-link[href="#audio"].active::before {
-    width: 100%;
-    animation: audioWaveNav 2s ease-in-out infinite;
-}
-
-@keyframes audioWaveNav {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; }
-}
-
-.nav-link[href="#video"] {
-    position: relative;
-}
-
-.nav-link[href="#video"]::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background: radial-gradient(circle, rgba(0, 255, 255, 0.4) 0%, transparent 70%);
-    transform: translate(-50%, -50%);
-    transition: width 0.4s ease, height 0.4s ease;
-    z-index: -1;
-    border-radius: 50%;
-}
-
-.nav-link[href="#video"]:hover::before,
-.nav-link[href="#video"].active::before {
-    width: 150%;
-    height: 150%;
-    animation: videoPulseNav 1.5s ease-in-out infinite;
-}
-
-@keyframes videoPulseNav {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); }
-    50% { transform: translate(-50%, -50%) scale(1.1); }
-}
-
-.nav-link[href="#photo"] {
-    position: relative;
-}
-
-.nav-link[href="#photo"]::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(45deg, 
-        rgba(255, 0, 255, 0.2) 0%, 
-        rgba(0, 255, 255, 0.2) 50%, 
-        rgba(255, 0, 255, 0.2) 100%);
-    background-size: 200% 200%;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -1;
-}
-
-.nav-link[href="#photo"]:hover::before,
-.nav-link[href="#photo"].active::before {
-    opacity: 1;
-    animation: photoGlitchNav 0.3s ease, photoGradientMove 3s linear infinite;
-}
-
-@keyframes photoGlitchNav {
-    0%, 100% { transform: translate(0); }
-    25% { transform: translate(-2px, 2px); }
-    50% { transform: translate(2px, -2px); }
-    75% { transform: translate(-1px, -1px); }
-}
-
-@keyframes photoGradientMove {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-.nav-link[href="#library"] {
-    position: relative;
-}
-
-.nav-link[href="#library"]::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, 
-        rgba(157, 78, 221, 0.2) 0%, 
-        rgba(255, 0, 255, 0.2) 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -1;
-}
-
-.nav-link[href="#library"]:hover::before,
-.nav-link[href="#library"].active::before {
-    opacity: 1;
-    animation: libraryGlowNav 2s ease-in-out infinite;
-}
-
-@keyframes libraryGlowNav {
-    0%, 100% { box-shadow: 0 0 5px rgba(157, 78, 221, 0.3); }
-    50% { box-shadow: 0 0 15px rgba(157, 78, 221, 0.6); }
-}
-
-.nav-link[href="#links"] {
-    position: relative;
-}
-
-.nav-link[href="#links"]::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, 
-        transparent, 
-        rgba(0, 255, 255, 0.3), 
-        transparent);
-    transition: left 0.5s ease;
-    z-index: -1;
-}
-
-.nav-link[href="#links"]:hover::before,
-.nav-link[href="#links"].active::before {
-    left: 100%;
-    animation: linksShineNav 2s ease-in-out infinite;
-}
-
-@keyframes linksShineNav {
-    0% { left: -100%; }
-    50% { left: 100%; }
-    100% { left: -100%; }
-}
-
-.nav-link[href="#shop"] {
-    position: relative;
-}
-
-.nav-link[href="#shop"]::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background: conic-gradient(
-        from 0deg,
-        rgba(255, 0, 255, 0.3),
-        rgba(0, 255, 255, 0.3),
-        rgba(255, 0, 255, 0.3)
-    );
-    transform: translate(-50%, -50%);
-    transition: width 0.4s ease, height 0.4s ease;
-    z-index: -1;
-    border-radius: 50%;
-}
-
-.nav-link[href="#shop"]:hover::before,
-.nav-link[href="#shop"].active::before {
-    width: 200%;
-    height: 200%;
-    animation: shopRotateNav 3s linear infinite;
-}
-
-@keyframes shopRotateNav {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
+    padding: 5px 0;
 }
 
 .nav-link::after {
@@ -617,7 +420,6 @@ body {
 .nav-link:hover,
 .nav-link.active {
     color: var(--accent-neon);
-    transform: translateY(-2px);
 }
 
 .nav-link:hover::after,
@@ -2283,9 +2085,27 @@ body {
 
 .footer-content {
     display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.footer-left {
+    display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 20px;
+    align-items: flex-start;
+    gap: 15px;
+    flex-shrink: 0;
+}
+
+.footer-advisory {
+    width: 80px;
+    height: auto;
+    image-rendering: auto;
 }
 
 .footer-info {
@@ -2312,9 +2132,10 @@ body {
 
 .footer-banners {
     display: flex;
+    flex-direction: column;
     flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
+    max-height: calc(31px * 4 + 10px * 3); /* 4 баннера по высоте + 3 промежутка */
+    align-content: flex-start;
     gap: 10px;
     margin-top: 20px;
 }
@@ -2325,6 +2146,7 @@ body {
     height: 31px;
     cursor: default;
     pointer-events: none;
+    flex-shrink: 0;
 }
 
 .footer-banner-item img {
@@ -2337,6 +2159,23 @@ body {
 
 /* Адаптивность */
 @media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .footer-left {
+        align-items: center;
+        text-align: center;
+    }
+    
+    .footer-banners {
+        max-height: none;
+        flex-direction: row;
+        justify-content: center;
+    }
+    
     .nav-menu {
         gap: 15px;
         font-size: 0.9rem;

@@ -2218,27 +2218,36 @@ async function loadYouTubeLinks() {
         if (response.ok) {
             const videos = await response.json();
             videos.forEach(video => {
-                let videoId = '';
-                if (video.id) {
-                    videoId = video.id;
-                } else if (video.url) {
-                    const patterns = [
-                        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-                        /youtube\.com\/.*[?&]v=([^&\n?#]+)/
-                    ];
-                    for (const pattern of patterns) {
-                        const match = video.url.match(pattern);
-                        if (match && match[1]) {
-                            videoId = match[1];
-                            break;
+                // Проверяем, является ли это плейлистом
+                if (video.isPlaylist && video.id) {
+                    tvVideos.push({
+                        id: video.id,
+                        title: video.title || 'YouTube плейлист',
+                        isPlaylist: true
+                    });
+                } else {
+                    let videoId = '';
+                    if (video.id) {
+                        videoId = video.id;
+                    } else if (video.url) {
+                        const patterns = [
+                            /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+                            /youtube\.com\/.*[?&]v=([^&\n?#]+)/
+                        ];
+                        for (const pattern of patterns) {
+                            const match = video.url.match(pattern);
+                            if (match && match[1]) {
+                                videoId = match[1];
+                                break;
+                            }
                         }
                     }
-                }
-                if (videoId) {
-                    tvVideos.push({
-                        id: videoId,
-                        title: video.title || 'YouTube видео'
-                    });
+                    if (videoId) {
+                        tvVideos.push({
+                            id: videoId,
+                            title: video.title || 'YouTube видео'
+                        });
+                    }
                 }
             });
         }
@@ -2377,26 +2386,37 @@ function switchToVideo(index) {
         
         // Если это плейлист, используем специальный URL
         if (video.isPlaylist) {
-            // Для плейлистов используем embed URL плейлиста
+            // Для плейлистов используем правильный формат YouTube embed
             const embedUrls = [
-                `https://invidious.io/embed?list=${video.id}`,
-                `https://yewtu.be/embed?list=${video.id}`,
-                `https://piped.data/video/embed?list=${video.id}`,
-                `https://www.youtube.com/embed/videoseries?list=${video.id}`
+                `https://www.youtube.com/embed/videoseries?list=${video.id}&rel=0&modestbranding=1`,
+                `https://www.youtube-nocookie.com/embed/videoseries?list=${video.id}&rel=0&modestbranding=1`,
+                `https://invidious.io/embed/videoseries?list=${video.id}`,
+                `https://yewtu.be/embed/videoseries?list=${video.id}`
             ];
             
             let currentEmbedIndex = 0;
+            let loadAttempts = 0;
+            const maxAttempts = embedUrls.length;
+            
             const loadPlaylist = () => {
                 if (currentEmbedIndex < embedUrls.length) {
+                    console.log(`Загрузка плейлиста (попытка ${currentEmbedIndex + 1}/${maxAttempts}):`, embedUrls[currentEmbedIndex]);
                     tvPlayer.src = embedUrls[currentEmbedIndex];
                     currentEmbedIndex++;
+                    loadAttempts++;
+                } else {
+                    console.error('Не удалось загрузить плейлист, все варианты исчерпаны');
+                    if (tvStatic) {
+                        tvStatic.classList.add('active');
+                    }
                 }
             };
             
             const onLoad = () => {
                 try {
+                    console.log('Плейлист успешно загружен');
                     if (tvStatic) {
-    setTimeout(() => {
+                        setTimeout(() => {
                             tvStatic.classList.remove('active');
                             tvPlayer.classList.add('loaded');
                         }, 500);
@@ -2407,13 +2427,31 @@ function switchToVideo(index) {
                 }
             };
             
-            tvPlayer.addEventListener('load', onLoad);
-            
-            tvPlayer.onerror = () => {
+            const onError = () => {
+                console.warn(`Ошибка загрузки плейлиста (попытка ${loadAttempts})`);
                 if (currentEmbedIndex < embedUrls.length) {
                     setTimeout(loadPlaylist, 1000);
+                } else {
+                    console.error('Не удалось загрузить плейлист');
+                    if (tvStatic) {
+                        tvStatic.classList.add('active');
+                    }
                 }
             };
+            
+            tvPlayer.addEventListener('load', onLoad, { once: true });
+            tvPlayer.addEventListener('error', onError);
+            
+            // Таймаут для проверки загрузки
+            const loadTimeout = setTimeout(() => {
+                if (loadAttempts < maxAttempts && currentEmbedIndex < embedUrls.length) {
+                    onError();
+                }
+            }, 5000);
+            
+            tvPlayer.addEventListener('load', () => {
+                clearTimeout(loadTimeout);
+            }, { once: true });
             
             loadPlaylist();
         } else {

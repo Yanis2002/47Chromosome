@@ -1116,19 +1116,8 @@ function loadDataFromJSON(url, processor, logPrefix = 'Данные', logInterva
         let basePath = '';
         
         if (isGitHubPages) {
-            // На GitHub Pages: путь всегда должен начинаться с /47Chromosome/docs/
-            if (pathname.includes('/docs/')) {
-                // Если путь содержит /docs/, берем все до /docs/ включительно
-                const docsIndex = pathname.indexOf('/docs/');
-                basePath = pathname.substring(0, docsIndex + 5); // +5 для включения '/docs'
-            } else if (pathname.includes('/47Chromosome/')) {
-                // Если путь содержит /47Chromosome/, но нет /docs/, добавляем /docs/
-                // Например: /47Chromosome/index-old.html -> /47Chromosome/docs
-                basePath = '/47Chromosome/docs';
-            } else {
-                // Если нет /docs/ и нет /47Chromosome/, добавляем /47Chromosome/docs
-                basePath = '/47Chromosome/docs';
-            }
+            // На GitHub Pages: всегда используем /47Chromosome/docs/ как базовый путь
+            basePath = '/47Chromosome/docs';
         } else {
             // Локально: используем текущую директорию
             if (pathname.endsWith('.html')) {
@@ -3091,17 +3080,8 @@ function loadPhotosData(photoGallery) {
             // Если путь не абсолютный и не начинается с /, исправляем его
             if (!photoSrc.startsWith('http') && !photoSrc.startsWith('/')) {
                 if (isGitHubPages) {
-                    // На GitHub Pages: добавляем базовый путь
-                    let basePath = '';
-                    if (pathname.includes('/docs/')) {
-                        const docsIndex = pathname.indexOf('/docs/');
-                        basePath = pathname.substring(0, docsIndex + 5); // +5 для '/docs'
-                    } else if (pathname.includes('/47Chromosome/')) {
-                        // Если путь содержит /47Chromosome/, но нет /docs/, используем /47Chromosome/docs
-                        basePath = '/47Chromosome/docs';
-                    } else {
-                        basePath = '/47Chromosome/docs';
-                    }
+                    // На GitHub Pages: всегда используем /47Chromosome/docs/ как базовый путь
+                    const basePath = '/47Chromosome/docs';
                     photoSrc = `${basePath}/${photoSrc}`;
                     console.log('loadPhotosData: исправлен путь для GitHub Pages:', photoSrc, 'basePath:', basePath);
                 } else {

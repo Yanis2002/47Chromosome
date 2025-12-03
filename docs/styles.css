@@ -147,7 +147,7 @@ body {
     flex-shrink: 0;
     text-align: center;
     flex: 1;
-    order: 2;
+    order: 1;
 }
 
 .footer-center {
@@ -160,7 +160,7 @@ body {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    order: 1;
+    order: 2;
 }
 
 .footer-banners {
@@ -168,11 +168,13 @@ body {
     flex-direction: column;
     flex-wrap: wrap;
     max-height: calc(31px * 4 + 10px * 3); /* 4 баннера по высоте + 3 промежутка */
-    align-content: flex-start;
+    align-content: flex-end;
+    justify-content: flex-start;
     gap: 10px;
     margin-top: 20px;
     flex: 1;
     order: 3;
+    margin-left: auto;
 }
 
 .footer-advisory {
@@ -2132,7 +2134,7 @@ body {
     flex-shrink: 0;
     text-align: center;
     flex: 1;
-    order: 2;
+    order: 1;
 }
 
 .footer-center {
@@ -2145,7 +2147,7 @@ body {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    order: 1;
+    order: 2;
 }
 
 .footer-banners {
@@ -2153,11 +2155,13 @@ body {
     flex-direction: column;
     flex-wrap: wrap;
     max-height: calc(31px * 4 + 10px * 3); /* 4 баннера по высоте + 3 промежутка */
-    align-content: flex-start;
+    align-content: flex-end;
+    justify-content: flex-start;
     gap: 10px;
     margin-top: 20px;
     flex: 1;
     order: 3;
+    margin-left: auto;
 }
 
 .footer-advisory {

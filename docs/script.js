@@ -1428,13 +1428,14 @@ function addPhoto(src, alt) {
     
     // Обработка ошибок загрузки - логируем и скрываем элемент
     img.onerror = function() {
-        console.error('Ошибка загрузки изображения:', src);
+        console.error('Ошибка загрузки изображения:', src, 'Текущий URL:', window.location.href);
+        console.error('Попытка загрузки с пути:', img.src);
         item.style.display = 'none';
     };
     
     // Логируем успешную загрузку
     img.onload = function() {
-        console.log('Изображение загружено:', src);
+        console.log('✓ Изображение успешно загружено:', src);
     };
     
     item.appendChild(img);
@@ -3041,6 +3042,7 @@ function loadPhotosData(photoGallery) {
     }
         
         // Загрузка фото из JSON файла
+        console.log('loadPhotosData: начинаем загрузку из data/photo/list.json');
         loadDataFromJSON('data/photo/list.json', (photo) => {
         if (photo && photo.src) {
             // Исправляем путь для GitHub Pages
@@ -3049,29 +3051,36 @@ function loadPhotosData(photoGallery) {
             const hostname = window.location.hostname;
             const isGitHubPages = hostname.includes('github.io') || pathname.includes('/47Chromosome/');
             
+            console.log('loadPhotosData: обработка фото, исходный путь:', photoSrc, 'isGitHubPages:', isGitHubPages, 'pathname:', pathname);
+            
             // Если путь не абсолютный и не начинается с /, исправляем его
             if (!photoSrc.startsWith('http') && !photoSrc.startsWith('/')) {
                 if (isGitHubPages) {
                     // На GitHub Pages: добавляем базовый путь
+                    let basePath = '';
                     if (pathname.includes('/docs/')) {
                         const docsIndex = pathname.indexOf('/docs/');
-                        const basePath = pathname.substring(0, docsIndex + 5); // +5 для '/docs'
-                        photoSrc = `${basePath}/${photoSrc}`;
+                        basePath = pathname.substring(0, docsIndex + 5); // +5 для '/docs'
                     } else if (pathname.includes('/47Chromosome/')) {
                         const repoIndex = pathname.indexOf('/47Chromosome/');
-                        photoSrc = `${pathname.substring(0, repoIndex)}/47Chromosome/docs/${photoSrc}`;
+                        basePath = pathname.substring(0, repoIndex) + '/47Chromosome/docs';
                     } else {
-                        photoSrc = `/47Chromosome/docs/${photoSrc}`;
+                        basePath = '/47Chromosome/docs';
                     }
+                    photoSrc = `${basePath}/${photoSrc}`;
+                    console.log('loadPhotosData: исправлен путь для GitHub Pages:', photoSrc, 'basePath:', basePath);
                 } else {
                     // Локально: добавляем ./ если нужно
                     if (!photoSrc.startsWith('./')) {
                         photoSrc = `./${photoSrc}`;
                     }
+                    console.log('loadPhotosData: исправлен путь для локальной версии:', photoSrc);
                 }
+            } else {
+                console.log('loadPhotosData: путь уже абсолютный или начинается с /, не исправляем:', photoSrc);
             }
             
-            console.log('loadPhotosData: добавляем фото:', photoSrc, '(исходный путь:', photo.src, ')');
+            console.log('loadPhotosData: добавляем фото с путем:', photoSrc);
             addPhoto(photoSrc, photo.alt || '');
         } else {
             console.warn('loadPhotosData: пропущено фото без src:', photo);

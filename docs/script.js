@@ -149,30 +149,41 @@ function fixImagePaths() {
     const hostname = window.location.hostname;
     const isGitHubPages = hostname.includes('github.io') || pathname.includes('/47Chromosome/');
     
-    if (!isGitHubPages) return; // Локально не нужно исправлять
+    console.log('fixImagePaths: pathname=', pathname, 'hostname=', hostname, 'isGitHubPages=', isGitHubPages);
+    
+    if (!isGitHubPages) {
+        console.log('fixImagePaths: локальная версия, пути не исправляются');
+        return; // Локально не нужно исправлять
+    }
     
     // Определяем базовый путь
     let basePath = '';
     if (pathname.includes('/docs/')) {
         const docsIndex = pathname.indexOf('/docs/');
         basePath = pathname.substring(0, docsIndex + 5); // +5 для '/docs'
+        console.log('fixImagePaths: найден /docs/, basePath=', basePath);
     } else if (pathname.includes('/47Chromosome/')) {
         const repoIndex = pathname.indexOf('/47Chromosome/');
         basePath = pathname.substring(0, repoIndex) + '/47Chromosome/docs';
+        console.log('fixImagePaths: найден /47Chromosome/, basePath=', basePath);
     } else {
         basePath = '/47Chromosome/docs';
+        console.log('fixImagePaths: fallback, basePath=', basePath);
     }
     
     // Исправляем пути к изображениям в HTML
     const images = document.querySelectorAll('img[src^="./data/"], img[src^="data/"]');
+    console.log('fixImagePaths: найдено изображений для исправления:', images.length);
     images.forEach(img => {
-        let src = img.getAttribute('src');
+        const originalSrc = img.getAttribute('src');
+        let src = originalSrc;
         if (src.startsWith('./')) {
             src = src.substring(2);
         }
-        if (!src.startsWith('/')) {
-            img.setAttribute('src', `${basePath}/${src}`);
-            console.log('Исправлен путь к изображению:', img.getAttribute('src'));
+        if (!src.startsWith('/') && !src.startsWith('http')) {
+            const newSrc = `${basePath}/${src}`;
+            img.setAttribute('src', newSrc);
+            console.log('fixImagePaths: исправлен путь:', originalSrc, '->', newSrc);
         }
     });
 }

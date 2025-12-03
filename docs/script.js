@@ -2057,14 +2057,17 @@ function addYouTubeVideo(videoId, title, thumbnail) {
     const item = document.createElement('div');
     item.className = 'youtube-item';
     
-    // Используем альтернативные сервисы для обхода блокировки в России
+    // Используем публичные инстансы Invidious для обхода блокировки в России (официальный список)
     const embedUrls = [
-        // Invidious инстансы (приоритет - обход блокировок)
-        `https://invidious.io/embed/${videoId}`,
+        // Публичные инстансы Invidious (официальный список)
         `https://yewtu.be/embed/${videoId}`,
+        `https://inv.nadeko.net/embed/${videoId}`,
+        `https://invidious.f5.si/embed/${videoId}`,
+        `https://invidious.nerdvpn.de/embed/${videoId}`,
+        `https://inv.perditum.com/embed/${videoId}`,
+        // Другие Invidious инстансы
+        `https://invidious.io/embed/${videoId}`,
         `https://invidious.flokinet.to/embed/${videoId}`,
-        `https://invidious.privacyredirect.com/embed/${videoId}`,
-        `https://invidious.osi.kr/embed/${videoId}`,
         // Piped инстансы
         `https://piped.data/video/embed/${videoId}`,
         `https://piped.kavin.rocks/embed/${videoId}`,
@@ -2458,12 +2461,15 @@ function switchToVideo(index) {
             loadPlaylist();
         } else {
             // Обычное видео
-            // Используем альтернативные сервисы для обхода блокировки в России
+            // Используем публичные инстансы Invidious для обхода блокировки в России (официальный список)
             const embedUrls = [
-                `https://invidious.io/embed/${video.id}`,
                 `https://yewtu.be/embed/${video.id}`,
+                `https://inv.nadeko.net/embed/${video.id}`,
+                `https://invidious.f5.si/embed/${video.id}`,
+                `https://invidious.nerdvpn.de/embed/${video.id}`,
+                `https://inv.perditum.com/embed/${video.id}`,
+                `https://invidious.io/embed/${video.id}`,
                 `https://invidious.flokinet.to/embed/${video.id}`,
-                `https://invidious.privacyredirect.com/embed/${video.id}`,
                 `https://piped.data/video/embed/${video.id}`,
                 `https://piped.kavin.rocks/embed/${video.id}`,
                 `https://piped.mha.fi/embed/${video.id}`,

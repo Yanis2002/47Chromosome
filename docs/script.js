@@ -143,59 +143,7 @@ class ElectricBorder {
     stop() { if (this.animationId) { cancelAnimationFrame(this.animationId); this.animationId = null; } }
 }
 
-// Функция для исправления путей к изображениям для GitHub Pages
-function fixImagePaths() {
-    const pathname = window.location.pathname;
-    const hostname = window.location.hostname;
-    const isGitHubPages = hostname.includes('github.io') || pathname.includes('/47Chromosome/');
-    
-    console.log('fixImagePaths: pathname=', pathname, 'hostname=', hostname, 'isGitHubPages=', isGitHubPages);
-    
-    if (!isGitHubPages) {
-        console.log('fixImagePaths: локальная версия, пути не исправляются');
-        return; // Локально не нужно исправлять
-    }
-    
-    // Определяем базовый путь
-    let basePath = '';
-    if (pathname.includes('/docs/')) {
-        const docsIndex = pathname.indexOf('/docs/');
-        basePath = pathname.substring(0, docsIndex + 5); // +5 для '/docs'
-        console.log('fixImagePaths: найден /docs/, basePath=', basePath);
-    } else if (pathname.includes('/47Chromosome/')) {
-        const repoIndex = pathname.indexOf('/47Chromosome/');
-        basePath = pathname.substring(0, repoIndex) + '/47Chromosome/docs';
-        console.log('fixImagePaths: найден /47Chromosome/, basePath=', basePath);
-    } else {
-        basePath = '/47Chromosome/docs';
-        console.log('fixImagePaths: fallback, basePath=', basePath);
-    }
-    
-    // Исправляем пути к изображениям в HTML
-    const images = document.querySelectorAll('img[src^="./data/"], img[src^="data/"]');
-    console.log('fixImagePaths: найдено изображений для исправления:', images.length);
-    images.forEach(img => {
-        const originalSrc = img.getAttribute('src');
-        let src = originalSrc;
-        if (src.startsWith('./')) {
-            src = src.substring(2);
-        }
-        if (!src.startsWith('/') && !src.startsWith('http')) {
-            const newSrc = `${basePath}/${src}`;
-            img.setAttribute('src', newSrc);
-            console.log('fixImagePaths: исправлен путь:', originalSrc, '->', newSrc);
-        }
-    });
-}
-
 document.addEventListener('DOMContentLoaded', () => {
-    // Исправляем пути к изображениям для GitHub Pages
-    try {
-        fixImagePaths();
-    } catch (e) {
-        console.error('Ошибка исправления путей к изображениям:', e);
-    }
-    
     try {
     initModals(); // Сначала создаем модальное окно
     } catch (e) {
@@ -1105,122 +1053,54 @@ function loadDataFromJSON(url, processor, logPrefix = 'Данные', logInterva
     // Исправляем путь для GitHub Pages
     // Если URL не начинается с http/https, делаем его относительным от текущей директории
     let finalUrl = url;
-    const pathname = window.location.pathname;
-    const hostname = window.location.hostname;
-    
-    // Определяем, находимся ли мы на GitHub Pages
-    const isGitHubPages = hostname.includes('github.io') || pathname.includes('/47Chromosome/');
-    
-    if (!url.startsWith('http') && !url.startsWith('/')) {
+    if (!url.startsWith('http') && !url.startsWith('/') && !url.startsWith('./')) {
         // Определяем базовый путь
+        const pathname = window.location.pathname;
         let basePath = '';
         
-        if (isGitHubPages) {
-            // На GitHub Pages: всегда используем /47Chromosome/docs/ как базовый путь
-            basePath = '/47Chromosome/docs';
-        } else {
-            // Локально: используем текущую директорию
-            if (pathname.endsWith('.html')) {
-                basePath = pathname.substring(0, pathname.lastIndexOf('/') + 1);
-            } else if (pathname.endsWith('/')) {
-                basePath = pathname;
-            } else {
-                basePath = pathname + '/';
-            }
+        // Если мы на GitHub Pages и путь содержит /docs/
+        if (pathname.includes('/docs/')) {
+            // Находим позицию /docs/ и берем все до него
+            const docsIndex = pathname.indexOf('/docs/');
+            basePath = pathname.substring(0, docsIndex + 5); // +5 для включения '/docs'
+        } else if (pathname.endsWith('.html') || pathname.endsWith('/')) {
+            // Если мы в корне или на странице в docs/
+            basePath = pathname.substring(0, pathname.lastIndexOf('/') + 1);
         }
         
         // Формируем финальный URL
         if (basePath && !basePath.endsWith('/')) {
             basePath += '/';
         }
-        
-        // Если URL начинается с ./, убираем его
-        if (url.startsWith('./')) {
-            url = url.substring(2);
-        }
-        
         finalUrl = basePath ? `${basePath}${url}` : url;
-    } else if (url.startsWith('./')) {
-        // Если путь начинается с ./, обрабатываем его
-        const cleanUrl = url.substring(2);
-        if (isGitHubPages) {
-            // На GitHub Pages добавляем базовый путь
-            let basePath = '';
-            if (pathname.includes('/docs/')) {
-                const docsIndex = pathname.indexOf('/docs/');
-                basePath = pathname.substring(0, docsIndex + 5);
-            } else {
-                basePath = '/47Chromosome/docs';
-            }
-            finalUrl = `${basePath}/${cleanUrl}`;
-        } else {
-            finalUrl = url;
-        }
     }
     
-    console.log(`Загрузка ${logPrefix}: ${finalUrl} (исходный URL: ${url}, pathname: ${pathname}, hostname: ${hostname})`);
+    console.log(`Загрузка ${logPrefix}: ${finalUrl}`);
     return fetch(finalUrl)
         .then(response => {
-            console.log(`${logPrefix}: ответ сервера, статус:`, response.status, response.statusText, 'URL:', finalUrl);
             if (!response.ok) {
-                console.error(`${logPrefix}: ошибка загрузки, статус:`, response.status, 'URL:', finalUrl);
-                // Пробуем альтернативные пути для GitHub Pages
-                if (isGitHubPages && response.status === 404) {
-                    const altUrls = [
-                        `/47Chromosome/docs/${url}`,
-                        `./docs/${url}`,
-                        `./${url}`,
-                        // Используем raw.githubusercontent.com как последний вариант
-                        `https://raw.githubusercontent.com/Yanis2002/47Chromosome/main/docs/${url}`
-                    ];
-                    console.log(`${logPrefix}: пробуем альтернативные пути:`, altUrls);
-                    
-                    // Пробуем каждый альтернативный путь последовательно
-                    let altPromise = Promise.reject(new Error('Все альтернативные пути не сработали'));
-                    for (const altUrl of altUrls) {
-                        altPromise = altPromise.catch(() => {
-                            console.log(`${logPrefix}: пробуем:`, altUrl);
-                            return fetch(altUrl).then(altResponse => {
-                                if (altResponse.ok) {
-                                    console.log(`${logPrefix}: ✓ альтернативный путь сработал!`, altUrl);
-                                    return altResponse.json();
-                                }
-                                throw new Error(`Не найден: ${altUrl} (статус: ${altResponse.status})`);
-                            });
-                        });
-                    }
-                    return altPromise;
-                }
-                throw new Error(`Файл не найден: ${url} (статус: ${response.status})`);
+                throw new Error(`Файл не найден: ${url}`);
             }
             return response.json();
         })
         .then(data => {
-            console.log(`✓ Получены ${logPrefix} из JSON:`, data);
-            console.log(`Тип данных:`, typeof data, 'Является массивом:', Array.isArray(data));
-            console.log(`Длина данных:`, data ? (Array.isArray(data) ? data.length : 'не массив') : 'null/undefined');
+            console.log(`Получены ${logPrefix} из JSON:`, data);
             if (data && Array.isArray(data)) {
                 console.log(`Всего ${logPrefix.toLowerCase()} для загрузки:`, data.length);
-                if (data.length === 0) {
-                    console.warn(`⚠ Массив ${logPrefix.toLowerCase()} пуст!`);
-                }
-                let processedCount = 0;
                 data.forEach((item, index) => {
                     try {
-                        console.log(`Обработка ${logPrefix.toLowerCase()} ${index + 1}/${data.length}:`, item);
                         processor(item, index);
-                        processedCount++;
                         if (index % logInterval === 0 && index > 0) {
                             console.log(`Загружено ${logPrefix.toLowerCase()}: ${index + 1}/${data.length}`);
                         }
                     } catch (e) {
-                        console.error(`✗ Ошибка обработки ${logPrefix.toLowerCase()} ${index + 1}:`, e, item);
+                        console.error(`Ошибка обработки ${logPrefix.toLowerCase()}:`, e, item);
                     }
                 });
-                console.log(`✓ Все ${logPrefix.toLowerCase()} обработаны: ${processedCount}/${data.length}`);
+                console.log(`Все ${logPrefix.toLowerCase()} загружены, всего:`, data.length);
                 return data;
             } else {
-                console.error(`✗ ${logPrefix} не являются массивом! Тип:`, typeof data, 'Значение:', data);
+                console.warn(`${logPrefix} не являются массивом:`, data);
                 return [];
             }
         })
@@ -1454,14 +1334,13 @@ function addPhoto(src, alt) {
     
     // Обработка ошибок загрузки - логируем и скрываем элемент
     img.onerror = function() {
-        console.error('Ошибка загрузки изображения:', src, 'Текущий URL:', window.location.href);
-        console.error('Попытка загрузки с пути:', img.src);
+        console.error('Ошибка загрузки изображения:', src);
         item.style.display = 'none';
     };
     
     // Логируем успешную загрузку
     img.onload = function() {
-        console.log('✓ Изображение успешно загружено:', src);
+        console.log('Изображение загружено:', src);
     };
     
     item.appendChild(img);
@@ -2198,37 +2077,16 @@ async function checkInstanceAvailability(instanceUrl) {
         // Проверяем доступность через HEAD запрос к API инстанса
         const apiUrl = instanceUrl.replace('/embed/', '/api/v1/stats');
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 секунды таймаут
+        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 секунды таймаут
         
-        // Пробуем сначала с CORS
-        try {
-            const response = await fetch(apiUrl, {
-                method: 'GET',
-                mode: 'cors',
-                signal: controller.signal,
-                cache: 'no-cache'
-            });
-            clearTimeout(timeoutId);
-            return response.status !== 0; // Если статус не 0, инстанс доступен
-        } catch (corsError) {
-            // Если CORS не работает, пробуем no-cors
-            clearTimeout(timeoutId);
-            const controller2 = new AbortController();
-            const timeoutId2 = setTimeout(() => controller2.abort(), 2000);
-            
-            try {
-                await fetch(apiUrl, {
-                    method: 'HEAD',
-                    mode: 'no-cors', // Обходим CORS для проверки
-                    signal: controller2.signal
-                });
-                clearTimeout(timeoutId2);
-                return true; // Если запрос прошел без ошибок
-            } catch (noCorsError) {
-                clearTimeout(timeoutId2);
-                return false;
-            }
-        }
+        const response = await fetch(apiUrl, {
+            method: 'HEAD',
+            mode: 'no-cors', // Обходим CORS для проверки
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        return true; // Если запрос прошел без ошибок
     } catch (error) {
         // Если ошибка - инстанс недоступен
         return false;
@@ -2304,85 +2162,37 @@ async function preCheckYouTubeInstances() {
     
     // Проверяем инстансы параллельно, но с ограничением (не более 5 одновременно)
     const batchSize = 5;
-    let availableCount = 0;
-    let unavailableCount = 0;
-    
     for (let i = 0; i < baseInstances.length; i += batchSize) {
         const batch = baseInstances.slice(i, i + batchSize);
         await Promise.all(
             batch.map(async (baseUrl) => {
                 try {
-                    // Пробуем несколько способов проверки
-                    const testUrls = [
-                        `${baseUrl}/api/v1/stats`,
-                        `${baseUrl}/api/v1/trending`
-                    ];
+                    const testUrl = `${baseUrl}/api/v1/stats`;
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 3000);
                     
-                    let isAvailable = false;
-                    for (const testUrl of testUrls) {
-                        try {
-                            const controller = new AbortController();
-                            const timeoutId = setTimeout(() => controller.abort(), 2000);
-                            
-                            // Пробуем с cors, если не работает - пробуем no-cors
-                            const response = await fetch(testUrl, {
-                                method: 'GET',
-                                mode: 'cors',
-                                signal: controller.signal,
-                                cache: 'no-cache'
-                            }).catch(() => null); // Игнорируем ошибки CORS
-                            
-                            clearTimeout(timeoutId);
-                            
-                            // Если получили ответ (даже с ошибкой CORS), инстанс доступен
-                            if (response && response.status !== 0) {
-                                isAvailable = true;
-                                break;
-                            }
-                        } catch (corsError) {
-                            // Если CORS не работает, пробуем no-cors
-                            try {
-                                const controller2 = new AbortController();
-                                const timeoutId2 = setTimeout(() => controller2.abort(), 2000);
-                                
-                                await fetch(testUrl, {
-                                    method: 'HEAD',
-                                    mode: 'no-cors',
-                                    signal: controller2.signal
-                                }).catch(() => null); // Игнорируем ошибки сети
-                                
-                                clearTimeout(timeoutId2);
-                                // Если запрос прошел без ошибки abort, считаем доступным
-                                isAvailable = true;
-                                break;
-                            } catch (noCorsError) {
-                                // Продолжаем проверку следующего URL
-                                continue;
-                            }
-                        }
-                    }
+                    const response = await fetch(testUrl, {
+                        method: 'HEAD',
+                        mode: 'no-cors',
+                        signal: controller.signal
+                    });
                     
-                    // Сохраняем в кэш
+                    clearTimeout(timeoutId);
+                    
+                    // Сохраняем в кэш как доступный
                     instanceAvailabilityCache.set(baseUrl, {
-                        available: isAvailable,
+                        available: true,
                         timestamp: Date.now()
                     });
                     
-                    if (isAvailable) {
-                        availableCount++;
-                        console.log(`✓ ${baseUrl} - доступен`);
-                    } else {
-                        unavailableCount++;
-                        // Не логируем недоступные инстансы, чтобы не засорять консоль
-                    }
+                    console.log(`✓ ${baseUrl} - доступен`);
                 } catch (error) {
                     // Сохраняем в кэш как недоступный
                     instanceAvailabilityCache.set(baseUrl, {
                         available: false,
                         timestamp: Date.now()
                     });
-                    unavailableCount++;
-                    // Не логируем ошибки, чтобы не засорять консоль
+                    console.log(`✗ ${baseUrl} - недоступен`);
                 }
             })
         );
@@ -2393,7 +2203,7 @@ async function preCheckYouTubeInstances() {
         }
     }
     
-    console.log(`Проверка инстансов завершена: ${availableCount} доступны, ${unavailableCount} недоступны`);
+    console.log('Проверка инстансов завершена');
 }
 
 // Добавление YouTube видео с обходом блокировок
@@ -2608,34 +2418,10 @@ async function loadYouTubeLinks() {
     
     try {
         // Пытаемся загрузить JSON файл со ссылками
-        // Исправляем путь для GitHub Pages
-        const pathname = window.location.pathname;
-        const hostname = window.location.hostname;
-        const isGitHubPages = hostname.includes('github.io') || pathname.includes('/47Chromosome/');
-        
-        let jsonUrl = 'data/video/youtube.json';
-        if (isGitHubPages) {
-            if (pathname.includes('/docs/')) {
-                const docsIndex = pathname.indexOf('/docs/');
-                jsonUrl = pathname.substring(0, docsIndex + 5) + '/data/video/youtube.json';
-            } else if (pathname.includes('/47Chromosome/')) {
-                const repoIndex = pathname.indexOf('/47Chromosome/');
-                jsonUrl = pathname.substring(0, repoIndex) + '/47Chromosome/docs/data/video/youtube.json';
-            } else {
-                jsonUrl = '/47Chromosome/docs/data/video/youtube.json';
-            }
-        } else {
-            if (!jsonUrl.startsWith('./')) {
-                jsonUrl = './' + jsonUrl;
-            }
-        }
-        
-        console.log('Загрузка YouTube видео из:', jsonUrl);
-        const response = await fetch(jsonUrl);
+        const response = await fetch('data/video/youtube.json');
         if (response.ok) {
             const videos = await response.json();
-            console.log('Загружено YouTube видео:', videos.length);
-            videos.forEach((video, index) => {
+            videos.forEach(video => {
                 // Проверяем, является ли это плейлистом
                 if (video.isPlaylist && video.id) {
                     tvVideos.push({
@@ -2643,18 +2429,13 @@ async function loadYouTubeLinks() {
                         title: video.title || 'YouTube плейлист',
                         isPlaylist: true
                     });
-                    console.log(`Добавлен плейлист ${index + 1}:`, video.title);
                 } else {
                 let videoId = '';
                 if (video.id) {
                     videoId = video.id;
                 } else if (video.url) {
                     const patterns = [
-                        // Обычные видео: watch?v=, youtu.be/, embed/
                         /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-                        // YouTube Shorts: /shorts/
-                        /youtube\.com\/shorts\/([^&\n?#]+)/,
-                        // Альтернативные форматы
                         /youtube\.com\/.*[?&]v=([^&\n?#]+)/
                     ];
                     for (const pattern of patterns) {
@@ -2670,18 +2451,11 @@ async function loadYouTubeLinks() {
                         id: videoId,
                         title: video.title || 'YouTube видео'
                     });
-                    console.log(`Добавлено видео ${index + 1}:`, video.title || videoId);
-                    } else {
-                        console.warn('Не удалось извлечь ID видео из:', video.url || video);
                     }
                 }
             });
-            console.log('Всего YouTube видео загружено:', tvVideos.length);
-        } else {
-            console.warn('Не удалось загрузить youtube.json, статус:', response.status);
         }
     } catch (e) {
-        console.error('Ошибка загрузки YouTube видео:', e);
         // Игнорируем ошибку, если файл не найден
     }
     
@@ -3066,57 +2840,48 @@ function loadPhotosData(photoGallery) {
         console.log('loadPhotosData: удаляем placeholder');
         photoGallery.innerHTML = '';
     }
-        
-        // Загрузка фото из JSON файла
-        console.log('loadPhotosData: начинаем загрузку из data/photo/list.json');
+    
+        // Загрузка фото из JSON файла (используем ту же логику, что и для баннеров/ссылок)
         loadDataFromJSON('data/photo/list.json', (photo) => {
         if (photo && photo.src) {
-            // Исправляем путь для GitHub Pages
+            // Обрабатываем путь так же, как для баннеров
+            // Пути в JSON уже указаны как "data/photo/file.jpg"
+            // На GitHub Pages docs/ является корнем, поэтому "data/photo/file.jpg" работает напрямую
+            // На localhost тоже работает, если сервер запущен из корня проекта
             let photoSrc = photo.src;
-            const pathname = window.location.pathname;
-            const hostname = window.location.hostname;
-            const isGitHubPages = hostname.includes('github.io') || pathname.includes('/47Chromosome/');
             
-            console.log('loadPhotosData: обработка фото, исходный путь:', photoSrc, 'isGitHubPages:', isGitHubPages, 'pathname:', pathname);
-            
-            // Если путь не абсолютный и не начинается с /, исправляем его
-            if (!photoSrc.startsWith('http') && !photoSrc.startsWith('/')) {
-                if (isGitHubPages) {
-                    // На GitHub Pages: всегда используем /47Chromosome/docs/ как базовый путь
-                    const basePath = '/47Chromosome/docs';
-                    photoSrc = `${basePath}/${photoSrc}`;
-                    console.log('loadPhotosData: исправлен путь для GitHub Pages:', photoSrc, 'basePath:', basePath);
-                } else {
-                    // Локально: добавляем ./ если нужно
-                    if (!photoSrc.startsWith('./')) {
-                        photoSrc = `./${photoSrc}`;
-                    }
-                    console.log('loadPhotosData: исправлен путь для локальной версии:', photoSrc);
+            // Если путь не начинается с http/https, обрабатываем его
+            if (!photoSrc.startsWith('http') && !photoSrc.startsWith('//')) {
+                // Убираем начальный ./ если есть
+                if (photoSrc.startsWith('./')) {
+                    photoSrc = photoSrc.substring(2);
                 }
-            } else {
-                console.log('loadPhotosData: путь уже абсолютный или начинается с /, не исправляем:', photoSrc);
+                // Если путь не начинается с /, используем относительный путь
+                // Пути вида "data/photo/file.jpg" работают и на localhost, и на GitHub Pages
+                // (на GitHub Pages docs/ - корень, поэтому data/photo/ работает)
+                if (!photoSrc.startsWith('/')) {
+                    // Путь уже правильный, используем как есть
+                    // Но убеждаемся, что он начинается с data/photo/
+                    if (!photoSrc.startsWith('data/photo/')) {
+                        photoSrc = `data/photo/${photoSrc}`;
+                    }
+                }
             }
             
-            console.log('loadPhotosData: добавляем фото с путем:', photoSrc);
+            console.log('loadPhotosData: добавляем фото:', photoSrc);
             addPhoto(photoSrc, photo.alt || '');
         } else {
             console.warn('loadPhotosData: пропущено фото без src:', photo);
-            }
+        }
     }, 'Фото', 5).then((data) => {
-        console.log('loadPhotosData: загрузка завершена, загружено фото из JSON:', data ? data.length : 0);
-        console.log('loadPhotosData: элементов в photoGallery:', photoGallery ? photoGallery.children.length : 0);
-        
+        console.log('loadPhotosData: загрузка завершена, загружено фото:', data ? data.length : 0);
         // Проверяем, что хотя бы одно фото загрузилось
         if (photoGallery && photoGallery.children.length === 0) {
             console.warn('loadPhotosData: ни одно фото не загружено');
-            console.warn('loadPhotosData: данные из JSON:', data);
-            console.warn('loadPhotosData: pathname:', window.location.pathname);
-            console.warn('loadPhotosData: hostname:', window.location.hostname);
             photoGallery.innerHTML = `
                 <div class="placeholder">
                     <p>Фотогалерея</p>
                     <p>Фотографии не найдены. Проверьте файл data/photo/list.json</p>
-                    <p style="font-size: 0.8em; color: #888;">Путь: ${window.location.pathname}</p>
                 </div>
             `;
         }

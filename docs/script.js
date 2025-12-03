@@ -1172,29 +1172,38 @@ function loadDataFromJSON(url, processor, logPrefix = 'Данные', logInterva
     console.log(`Загрузка ${logPrefix}: ${finalUrl} (исходный URL: ${url}, pathname: ${pathname}, hostname: ${hostname})`);
     return fetch(finalUrl)
         .then(response => {
+            console.log(`${logPrefix}: ответ сервера, статус:`, response.status, response.statusText);
             if (!response.ok) {
-                throw new Error(`Файл не найден: ${url}`);
+                console.error(`${logPrefix}: ошибка загрузки, статус:`, response.status, 'URL:', finalUrl);
+                throw new Error(`Файл не найден: ${url} (статус: ${response.status})`);
             }
             return response.json();
         })
         .then(data => {
-            console.log(`Получены ${logPrefix} из JSON:`, data);
+            console.log(`✓ Получены ${logPrefix} из JSON:`, data);
+            console.log(`Тип данных:`, typeof data, 'Является массивом:', Array.isArray(data));
             if (data && Array.isArray(data)) {
                 console.log(`Всего ${logPrefix.toLowerCase()} для загрузки:`, data.length);
+                if (data.length === 0) {
+                    console.warn(`⚠ Массив ${logPrefix.toLowerCase()} пуст!`);
+                }
+                let processedCount = 0;
                 data.forEach((item, index) => {
                     try {
+                        console.log(`Обработка ${logPrefix.toLowerCase()} ${index + 1}/${data.length}:`, item);
                         processor(item, index);
+                        processedCount++;
                         if (index % logInterval === 0 && index > 0) {
                             console.log(`Загружено ${logPrefix.toLowerCase()}: ${index + 1}/${data.length}`);
                         }
                     } catch (e) {
-                        console.error(`Ошибка обработки ${logPrefix.toLowerCase()}:`, e, item);
+                        console.error(`✗ Ошибка обработки ${logPrefix.toLowerCase()} ${index + 1}:`, e, item);
                     }
                 });
-                console.log(`Все ${logPrefix.toLowerCase()} загружены, всего:`, data.length);
+                console.log(`✓ Все ${logPrefix.toLowerCase()} обработаны: ${processedCount}/${data.length}`);
                 return data;
             } else {
-                console.warn(`${logPrefix} не являются массивом:`, data);
+                console.error(`✗ ${logPrefix} не являются массивом! Тип:`, typeof data, 'Значение:', data);
                 return [];
             }
         })
@@ -3086,14 +3095,20 @@ function loadPhotosData(photoGallery) {
             console.warn('loadPhotosData: пропущено фото без src:', photo);
             }
     }, 'Фото', 5).then((data) => {
-        console.log('loadPhotosData: загрузка завершена, загружено фото:', data ? data.length : 0);
+        console.log('loadPhotosData: загрузка завершена, загружено фото из JSON:', data ? data.length : 0);
+        console.log('loadPhotosData: элементов в photoGallery:', photoGallery ? photoGallery.children.length : 0);
+        
         // Проверяем, что хотя бы одно фото загрузилось
         if (photoGallery && photoGallery.children.length === 0) {
             console.warn('loadPhotosData: ни одно фото не загружено');
+            console.warn('loadPhotosData: данные из JSON:', data);
+            console.warn('loadPhotosData: pathname:', window.location.pathname);
+            console.warn('loadPhotosData: hostname:', window.location.hostname);
             photoGallery.innerHTML = `
                 <div class="placeholder">
                     <p>Фотогалерея</p>
                     <p>Фотографии не найдены. Проверьте файл data/photo/list.json</p>
+                    <p style="font-size: 0.8em; color: #888;">Путь: ${window.location.pathname}</p>
                 </div>
             `;
         }

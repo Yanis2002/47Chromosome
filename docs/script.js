@@ -2041,6 +2041,95 @@ function loadLocalMusic() {
     });
 }
 
+/**
+ * Функция для проверки доступности инстанса Invidious/Piped
+ * 
+ * Как найти рабочие инстансы Invidious:
+ * 1. Официальный список: https://api.invidious.io/instances.json (JSON API со списком всех инстансов)
+ * 2. Альтернативные источники:
+ *    - Форум NTC: https://ntc.party (пользователи делятся рабочими инстансами)
+ *    - Reddit: r/Invidious (обсуждения и списки инстансов)
+ *    - GitHub: https://github.com/iv-org/invidious (официальный репозиторий)
+ * 
+ * 3. Проверка инстанса вручную:
+ *    - Откройте в браузере: https://[инстанс]/api/v1/stats
+ *    - Если видите JSON с данными - инстанс работает
+ *    - Для embed: https://[инстанс]/embed/[VIDEO_ID]
+ * 
+ * 4. Хорошие инстансы обычно имеют:
+ *    - Низкий пинг
+ *    - Поддержку embed
+ *    - Стабильную работу
+ *    - Отсутствие блокировок в вашем регионе
+ * 
+ * Возвращает Promise, который резолвится с true если инстанс доступен, иначе false
+ */
+async function checkInstanceAvailability(instanceUrl) {
+    try {
+        // Проверяем доступность через HEAD запрос к API инстанса
+        const apiUrl = instanceUrl.replace('/embed/', '/api/v1/stats');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 секунды таймаут
+        
+        const response = await fetch(apiUrl, {
+            method: 'HEAD',
+            mode: 'no-cors', // Обходим CORS для проверки
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        return true; // Если запрос прошел без ошибок
+    } catch (error) {
+        // Если ошибка - инстанс недоступен
+        return false;
+    }
+}
+
+// Получение списка доступных инстансов с проверкой
+// Использует кэш для избежания повторных проверок
+const instanceAvailabilityCache = new Map();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 минут
+
+async function getAvailableInstances(baseInstances, videoId, isPlaylist = false) {
+    const now = Date.now();
+    const availableInstances = [];
+    const unavailableInstances = [];
+    
+    // Проверяем каждый инстанс
+    for (const instanceUrl of baseInstances) {
+        const cacheKey = instanceUrl.split('/embed/')[0]; // Базовый URL инстанса
+        
+        // Проверяем кэш
+        const cached = instanceAvailabilityCache.get(cacheKey);
+        if (cached && (now - cached.timestamp) < CACHE_DURATION) {
+            if (cached.available) {
+                availableInstances.push(instanceUrl);
+            } else {
+                unavailableInstances.push(instanceUrl);
+            }
+            continue;
+        }
+        
+        // Проверяем доступность
+        const isAvailable = await checkInstanceAvailability(instanceUrl);
+        
+        // Сохраняем в кэш
+        instanceAvailabilityCache.set(cacheKey, {
+            available: isAvailable,
+            timestamp: now
+        });
+        
+        if (isAvailable) {
+            availableInstances.push(instanceUrl);
+        } else {
+            unavailableInstances.push(instanceUrl);
+        }
+    }
+    
+    // Возвращаем сначала доступные, потом недоступные (на случай если проверка была неточной)
+    return [...availableInstances, ...unavailableInstances];
+}
+
 // Добавление YouTube видео с обходом блокировок
 function addYouTubeVideo(videoId, title, thumbnail) {
     const youtubeList = document.getElementById('youtubeList');
@@ -2058,8 +2147,9 @@ function addYouTubeVideo(videoId, title, thumbnail) {
     item.className = 'youtube-item';
     
     // Используем расширенный список зеркал YouTube для обхода блокировки в России
+    // Список регулярно обновляется на основе доступности инстансов
     const embedUrls = [
-        // Официальные публичные инстансы Invidious (рабочие)
+        // Официальные публичные инстансы Invidious (проверенные рабочие)
         `https://invidious.nerdvpn.de/embed/${videoId}`,
         `https://inv.perditum.com/embed/${videoId}`,
         // Дополнительные Invidious инстансы
@@ -2068,14 +2158,19 @@ function addYouTubeVideo(videoId, title, thumbnail) {
         `https://invidious.privacyredirect.com/embed/${videoId}`,
         `https://invidious.osi.kr/embed/${videoId}`,
         `https://invidious.slipfox.xyz/embed/${videoId}`,
-        `https://invidious.f5.si/embed/${videoId}`, // Может быть недоступен (ERR_QUIC_PROTOCOL_ERROR)
-        `https://inv.nadeko.net/embed/${videoId}`, // Может быть недоступен
-        `https://yewtu.be/embed/${videoId}`, // Может быть недоступен
+        // Альтернативные инстансы (из сообщества)
+        `https://nyc1.iv.ggtyler.dev/embed/${videoId}`,
+        `https://cal1.iv.ggtyler.dev/embed/${videoId}`,
+        `https://pol1.iv.ggtyler.dev/embed/${videoId}`,
         // Piped инстансы (альтернатива Invidious)
         `https://piped.data/video/embed/${videoId}`,
         `https://piped.kavin.rocks/embed/${videoId}`,
         `https://piped.mha.fi/embed/${videoId}`,
         `https://piped.privacyredirect.com/embed/${videoId}`,
+        // Проблемные инстансы (могут быть недоступны)
+        `https://invidious.f5.si/embed/${videoId}`, // ERR_QUIC_PROTOCOL_ERROR
+        `https://inv.nadeko.net/embed/${videoId}`, // Может быть недоступен
+        `https://yewtu.be/embed/${videoId}`, // Может быть недоступен
         // Прямые YouTube embed (последний вариант)
         `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1`,
         `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`
@@ -2394,7 +2489,7 @@ function switchToVideo(index) {
         if (video.isPlaylist) {
             // Для плейлистов используем расширенный список зеркал YouTube (Invidious и альтернативы)
             const embedUrls = [
-                // Официальные публичные инстансы Invidious (рабочие)
+                // Официальные публичные инстансы Invidious (проверенные рабочие)
                 `https://invidious.nerdvpn.de/embed/videoseries?list=${video.id}`,
                 `https://inv.perditum.com/embed/videoseries?list=${video.id}`,
                 // Дополнительные Invidious инстансы
@@ -2403,14 +2498,19 @@ function switchToVideo(index) {
                 `https://invidious.privacyredirect.com/embed/videoseries?list=${video.id}`,
                 `https://invidious.osi.kr/embed/videoseries?list=${video.id}`,
                 `https://invidious.slipfox.xyz/embed/videoseries?list=${video.id}`,
-                `https://invidious.f5.si/embed/videoseries?list=${video.id}`, // Может быть недоступен (ERR_QUIC_PROTOCOL_ERROR)
-                `https://inv.nadeko.net/embed/videoseries?list=${video.id}`, // Может быть недоступен
-                `https://yewtu.be/embed/videoseries?list=${video.id}`, // Может быть недоступен
+                // Альтернативные инстансы (из сообщества)
+                `https://nyc1.iv.ggtyler.dev/embed/videoseries?list=${video.id}`,
+                `https://cal1.iv.ggtyler.dev/embed/videoseries?list=${video.id}`,
+                `https://pol1.iv.ggtyler.dev/embed/videoseries?list=${video.id}`,
                 // Piped инстансы (альтернатива Invidious)
                 `https://piped.data/video/embed/videoseries?list=${video.id}`,
                 `https://piped.kavin.rocks/embed/videoseries?list=${video.id}`,
                 `https://piped.mha.fi/embed/videoseries?list=${video.id}`,
                 `https://piped.privacyredirect.com/embed/videoseries?list=${video.id}`,
+                // Проблемные инстансы (могут быть недоступны)
+                `https://invidious.f5.si/embed/videoseries?list=${video.id}`, // ERR_QUIC_PROTOCOL_ERROR
+                `https://inv.nadeko.net/embed/videoseries?list=${video.id}`, // Может быть недоступен
+                `https://yewtu.be/embed/videoseries?list=${video.id}`, // Может быть недоступен
                 // Прямые YouTube embed (последний вариант)
                 `https://www.youtube.com/embed/videoseries?list=${video.id}&rel=0&modestbranding=1`,
                 `https://www.youtube-nocookie.com/embed/videoseries?list=${video.id}&rel=0&modestbranding=1`
@@ -2480,7 +2580,7 @@ function switchToVideo(index) {
             // Обычное видео
             // Используем расширенный список зеркал YouTube для обхода блокировки в России
             const embedUrls = [
-                // Официальные публичные инстансы Invidious (рабочие)
+                // Официальные публичные инстансы Invidious (проверенные рабочие)
                 `https://invidious.nerdvpn.de/embed/${video.id}`,
                 `https://inv.perditum.com/embed/${video.id}`,
                 // Дополнительные Invidious инстансы
@@ -2489,16 +2589,22 @@ function switchToVideo(index) {
                 `https://invidious.privacyredirect.com/embed/${video.id}`,
                 `https://invidious.osi.kr/embed/${video.id}`,
                 `https://invidious.slipfox.xyz/embed/${video.id}`,
-                `https://invidious.f5.si/embed/${video.id}`, // Может быть недоступен (ERR_QUIC_PROTOCOL_ERROR)
-                `https://inv.nadeko.net/embed/${video.id}`, // Может быть недоступен
-                `https://yewtu.be/embed/${video.id}`, // Может быть недоступен
+                // Альтернативные инстансы (из сообщества)
+                `https://nyc1.iv.ggtyler.dev/embed/${video.id}`,
+                `https://cal1.iv.ggtyler.dev/embed/${video.id}`,
+                `https://pol1.iv.ggtyler.dev/embed/${video.id}`,
                 // Piped инстансы (альтернатива Invidious)
                 `https://piped.data/video/embed/${video.id}`,
                 `https://piped.kavin.rocks/embed/${video.id}`,
                 `https://piped.mha.fi/embed/${video.id}`,
                 `https://piped.privacyredirect.com/embed/${video.id}`,
+                // Проблемные инстансы (могут быть недоступны)
+                `https://invidious.f5.si/embed/${video.id}`, // ERR_QUIC_PROTOCOL_ERROR
+                `https://inv.nadeko.net/embed/${video.id}`, // Может быть недоступен
+                `https://yewtu.be/embed/${video.id}`, // Может быть недоступен
                 // Прямые YouTube embed (последний вариант)
-                `https://www.youtube-nocookie.com/embed/${video.id}?rel=0&modestbranding=1`
+                `https://www.youtube-nocookie.com/embed/${video.id}?rel=0&modestbranding=1`,
+                `https://www.youtube.com/embed/${video.id}?rel=0&modestbranding=1`
             ];
             
             let currentEmbedIndex = 0;

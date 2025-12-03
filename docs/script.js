@@ -143,7 +143,48 @@ class ElectricBorder {
     stop() { if (this.animationId) { cancelAnimationFrame(this.animationId); this.animationId = null; } }
 }
 
+// Функция для исправления путей к изображениям для GitHub Pages
+function fixImagePaths() {
+    const pathname = window.location.pathname;
+    const hostname = window.location.hostname;
+    const isGitHubPages = hostname.includes('github.io') || pathname.includes('/47Chromosome/');
+    
+    if (!isGitHubPages) return; // Локально не нужно исправлять
+    
+    // Определяем базовый путь
+    let basePath = '';
+    if (pathname.includes('/docs/')) {
+        const docsIndex = pathname.indexOf('/docs/');
+        basePath = pathname.substring(0, docsIndex + 5); // +5 для '/docs'
+    } else if (pathname.includes('/47Chromosome/')) {
+        const repoIndex = pathname.indexOf('/47Chromosome/');
+        basePath = pathname.substring(0, repoIndex) + '/47Chromosome/docs';
+    } else {
+        basePath = '/47Chromosome/docs';
+    }
+    
+    // Исправляем пути к изображениям в HTML
+    const images = document.querySelectorAll('img[src^="./data/"], img[src^="data/"]');
+    images.forEach(img => {
+        let src = img.getAttribute('src');
+        if (src.startsWith('./')) {
+            src = src.substring(2);
+        }
+        if (!src.startsWith('/')) {
+            img.setAttribute('src', `${basePath}/${src}`);
+            console.log('Исправлен путь к изображению:', img.getAttribute('src'));
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    // Исправляем пути к изображениям для GitHub Pages
+    try {
+        fixImagePaths();
+    } catch (e) {
+        console.error('Ошибка исправления путей к изображениям:', e);
+    }
+    
     try {
     initModals(); // Сначала создаем модальное окно
     } catch (e) {
@@ -1117,7 +1158,7 @@ function loadDataFromJSON(url, processor, logPrefix = 'Данные', logInterva
         }
     }
     
-    console.log(`Загрузка ${logPrefix}: ${finalUrl}`);
+    console.log(`Загрузка ${logPrefix}: ${finalUrl} (исходный URL: ${url}, pathname: ${pathname}, hostname: ${hostname})`);
     return fetch(finalUrl)
         .then(response => {
             if (!response.ok) {
@@ -2983,7 +3024,7 @@ function loadPhotosData(photoGallery) {
                 }
             }
             
-            console.log('loadPhotosData: добавляем фото:', photoSrc);
+            console.log('loadPhotosData: добавляем фото:', photoSrc, '(исходный путь:', photo.src, ')');
             addPhoto(photoSrc, photo.alt || '');
         } else {
             console.warn('loadPhotosData: пропущено фото без src:', photo);

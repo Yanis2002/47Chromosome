@@ -1060,19 +1060,36 @@ function loadDataFromJSON(url, processor, logPrefix = 'Данные', logInterva
         
         // Если мы на GitHub Pages и путь содержит /docs/
         if (pathname.includes('/docs/')) {
-            // Находим позицию /docs/ и берем все до него
+            // Находим позицию /docs/ и берем все до него включительно
             const docsIndex = pathname.indexOf('/docs/');
             basePath = pathname.substring(0, docsIndex + 5); // +5 для включения '/docs'
-        } else if (pathname.endsWith('.html') || pathname.endsWith('/')) {
-            // Если мы в корне или на странице в docs/
+        } else if (pathname.endsWith('.html')) {
+            // Если мы на HTML странице, берем директорию файла
             basePath = pathname.substring(0, pathname.lastIndexOf('/') + 1);
+        } else if (pathname.endsWith('/')) {
+            // Если мы в директории
+            basePath = pathname;
+        } else {
+            // Если путь не заканчивается на /, добавляем /
+            basePath = pathname + '/';
         }
         
         // Формируем финальный URL
         if (basePath && !basePath.endsWith('/')) {
             basePath += '/';
         }
-        finalUrl = basePath ? `${basePath}${url}` : url;
+        finalUrl = basePath ? `${basePath}${url}` : `./${url}`;
+        
+        // Дополнительная проверка: если путь все еще неправильный, пробуем с ./docs/
+        if (pathname.includes('/docs/') && !finalUrl.includes('/docs/')) {
+            finalUrl = `./docs/${url}`;
+        }
+    } else if (url.startsWith('./')) {
+        // Если путь начинается с ./, проверяем, нужно ли добавить /docs/
+        const pathname = window.location.pathname;
+        if (pathname.includes('/docs/')) {
+            finalUrl = url.replace('./', './docs/');
+        }
     }
     
     console.log(`Загрузка ${logPrefix}: ${finalUrl}`);
@@ -2077,16 +2094,37 @@ async function checkInstanceAvailability(instanceUrl) {
         // Проверяем доступность через HEAD запрос к API инстанса
         const apiUrl = instanceUrl.replace('/embed/', '/api/v1/stats');
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 секунды таймаут
+        const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 секунды таймаут
         
-        const response = await fetch(apiUrl, {
-            method: 'HEAD',
-            mode: 'no-cors', // Обходим CORS для проверки
-            signal: controller.signal
-        });
-        
-        clearTimeout(timeoutId);
-        return true; // Если запрос прошел без ошибок
+        // Пробуем сначала с CORS
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'GET',
+                mode: 'cors',
+                signal: controller.signal,
+                cache: 'no-cache'
+            });
+            clearTimeout(timeoutId);
+            return response.status !== 0; // Если статус не 0, инстанс доступен
+        } catch (corsError) {
+            // Если CORS не работает, пробуем no-cors
+            clearTimeout(timeoutId);
+            const controller2 = new AbortController();
+            const timeoutId2 = setTimeout(() => controller2.abort(), 2000);
+            
+            try {
+                await fetch(apiUrl, {
+                    method: 'HEAD',
+                    mode: 'no-cors', // Обходим CORS для проверки
+                    signal: controller2.signal
+                });
+                clearTimeout(timeoutId2);
+                return true; // Если запрос прошел без ошибок
+            } catch (noCorsError) {
+                clearTimeout(timeoutId2);
+                return false;
+            }
+        }
     } catch (error) {
         // Если ошибка - инстанс недоступен
         return false;
@@ -2167,32 +2205,74 @@ async function preCheckYouTubeInstances() {
         await Promise.all(
             batch.map(async (baseUrl) => {
                 try {
-                    const testUrl = `${baseUrl}/api/v1/stats`;
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 3000);
+                    // Пробуем несколько способов проверки
+                    const testUrls = [
+                        `${baseUrl}/api/v1/stats`,
+                        `${baseUrl}/api/v1/trending`
+                    ];
                     
-                    const response = await fetch(testUrl, {
-                        method: 'HEAD',
-                        mode: 'no-cors',
-                        signal: controller.signal
-                    });
+                    let isAvailable = false;
+                    for (const testUrl of testUrls) {
+                        try {
+                            const controller = new AbortController();
+                            const timeoutId = setTimeout(() => controller.abort(), 2000);
+                            
+                            // Пробуем с cors, если не работает - пробуем no-cors
+                            const response = await fetch(testUrl, {
+                                method: 'GET',
+                                mode: 'cors',
+                                signal: controller.signal,
+                                cache: 'no-cache'
+                            });
+                            
+                            clearTimeout(timeoutId);
+                            
+                            // Если получили ответ (даже с ошибкой CORS), инстанс доступен
+                            if (response.status !== 0) {
+                                isAvailable = true;
+                                break;
+                            }
+                        } catch (corsError) {
+                            // Если CORS не работает, пробуем no-cors
+                            try {
+                                const controller2 = new AbortController();
+                                const timeoutId2 = setTimeout(() => controller2.abort(), 2000);
+                                
+                                await fetch(testUrl, {
+                                    method: 'HEAD',
+                                    mode: 'no-cors',
+                                    signal: controller2.signal
+                                });
+                                
+                                clearTimeout(timeoutId2);
+                                // Если запрос прошел без ошибки abort, считаем доступным
+                                isAvailable = true;
+                                break;
+                            } catch (noCorsError) {
+                                // Продолжаем проверку следующего URL
+                                continue;
+                            }
+                        }
+                    }
                     
-                    clearTimeout(timeoutId);
-                    
-                    // Сохраняем в кэш как доступный
+                    // Сохраняем в кэш
                     instanceAvailabilityCache.set(baseUrl, {
-                        available: true,
+                        available: isAvailable,
                         timestamp: Date.now()
                     });
                     
-                    console.log(`✓ ${baseUrl} - доступен`);
+                    if (isAvailable) {
+                        console.log(`✓ ${baseUrl} - доступен`);
+                    } else {
+                        console.log(`✗ ${baseUrl} - недоступен (не удалось проверить)`);
+                    }
                 } catch (error) {
                     // Сохраняем в кэш как недоступный
                     instanceAvailabilityCache.set(baseUrl, {
                         available: false,
                         timestamp: Date.now()
                     });
-                    console.log(`✗ ${baseUrl} - недоступен`);
+                    console.log(`✗ ${baseUrl} - недоступен: ${error.message}`);
                 }
             })
         );

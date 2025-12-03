@@ -1045,14 +1045,29 @@ function loadDataFromJSON(url, processor, logPrefix = 'Данные', logInterva
     // Исправляем путь для GitHub Pages
     // Если URL не начинается с http/https, делаем его относительным от текущей директории
     let finalUrl = url;
-    if (!url.startsWith('http') && !url.startsWith('/')) {
-        // Для GitHub Pages используем относительный путь от текущей страницы
-        const basePath = window.location.pathname.includes('/docs/') 
-            ? window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))
-            : '';
-        finalUrl = basePath ? `${basePath}/${url}` : `./${url}`;
+    if (!url.startsWith('http') && !url.startsWith('/') && !url.startsWith('./')) {
+        // Определяем базовый путь
+        const pathname = window.location.pathname;
+        let basePath = '';
+        
+        // Если мы на GitHub Pages и путь содержит /docs/
+        if (pathname.includes('/docs/')) {
+            // Находим позицию /docs/ и берем все до него
+            const docsIndex = pathname.indexOf('/docs/');
+            basePath = pathname.substring(0, docsIndex + 5); // +5 для включения '/docs'
+        } else if (pathname.endsWith('.html') || pathname.endsWith('/')) {
+            // Если мы в корне или на странице в docs/
+            basePath = pathname.substring(0, pathname.lastIndexOf('/') + 1);
+        }
+        
+        // Формируем финальный URL
+        if (basePath && !basePath.endsWith('/')) {
+            basePath += '/';
+        }
+        finalUrl = basePath ? `${basePath}${url}` : url;
     }
     
+    console.log(`Загрузка ${logPrefix}: ${finalUrl}`);
     return fetch(finalUrl)
         .then(response => {
             if (!response.ok) {

@@ -285,22 +285,22 @@ function initNavigation() {
 
     // Функция переключения секций с уникальными эффектами
     const switchSection = (targetId) => {
-        // Обновляем активные классы
-        navLinks.forEach(l => l.classList.remove('active'));
+            // Обновляем активные классы
+            navLinks.forEach(l => l.classList.remove('active'));
         sections.forEach(s => {
             s.classList.remove('active');
             // Удаляем классы анимации для плавного переключения
             s.style.animation = 'none';
         });
-        
+            
         // Находим нужную ссылку и секцию
         const targetLink = document.querySelector(`.nav-link[href="#${targetId}"]`);
-        const targetSection = document.getElementById(targetId);
+            const targetSection = document.getElementById(targetId);
         
         if (targetLink && targetSection) {
             targetLink.classList.add('active');
-            targetSection.classList.add('active');
-            playSound('click');
+                targetSection.classList.add('active');
+                playSound('click');
             return true;
         }
         return false;
@@ -2057,12 +2057,9 @@ function addYouTubeVideo(videoId, title, thumbnail) {
     const item = document.createElement('div');
     item.className = 'youtube-item';
     
-    // Используем wrapped и другие сервисы для обхода блокировки в России
+    // Используем альтернативные сервисы для обхода блокировки в России
     const embedUrls = [
-        // Wrapped (приоритет - обход блокировки в России)
-        `https://yt.artemislena.eu/embed/${videoId}`,
-        `https://yt.artemislena.eu/watch?v=${videoId}`,
-        // Invidious инстансы
+        // Invidious инстансы (приоритет - обход блокировок)
         `https://invidious.io/embed/${videoId}`,
         `https://yewtu.be/embed/${videoId}`,
         `https://invidious.flokinet.to/embed/${videoId}`,
@@ -2228,27 +2225,27 @@ async function loadYouTubeLinks() {
                         isPlaylist: true
                     });
                 } else {
-                    let videoId = '';
-                    if (video.id) {
-                        videoId = video.id;
-                    } else if (video.url) {
-                        const patterns = [
-                            /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-                            /youtube\.com\/.*[?&]v=([^&\n?#]+)/
-                        ];
-                        for (const pattern of patterns) {
-                            const match = video.url.match(pattern);
-                            if (match && match[1]) {
-                                videoId = match[1];
-                                break;
-                            }
+                let videoId = '';
+                if (video.id) {
+                    videoId = video.id;
+                } else if (video.url) {
+                    const patterns = [
+                        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+                        /youtube\.com\/.*[?&]v=([^&\n?#]+)/
+                    ];
+                    for (const pattern of patterns) {
+                        const match = video.url.match(pattern);
+                        if (match && match[1]) {
+                            videoId = match[1];
+                            break;
                         }
                     }
-                    if (videoId) {
-                        tvVideos.push({
-                            id: videoId,
-                            title: video.title || 'YouTube видео'
-                        });
+                }
+                if (videoId) {
+                    tvVideos.push({
+                        id: videoId,
+                        title: video.title || 'YouTube видео'
+                    });
                     }
                 }
             });
@@ -2390,10 +2387,11 @@ function switchToVideo(index) {
         if (video.isPlaylist) {
             // Для плейлистов используем wrapped и другие сервисы для обхода блокировки в России
             const embedUrls = [
-                `https://yt.artemislena.eu/embed/videoseries?list=${video.id}`,
-                `https://yt.artemislena.eu/playlist?list=${video.id}`,
                 `https://invidious.io/embed/videoseries?list=${video.id}`,
                 `https://yewtu.be/embed/videoseries?list=${video.id}`,
+                `https://invidious.flokinet.to/embed/videoseries?list=${video.id}`,
+                `https://piped.data/video/embed/videoseries?list=${video.id}`,
+                `https://piped.kavin.rocks/embed/videoseries?list=${video.id}`,
                 `https://www.youtube.com/embed/videoseries?list=${video.id}&rel=0&modestbranding=1`,
                 `https://www.youtube-nocookie.com/embed/videoseries?list=${video.id}&rel=0&modestbranding=1`
             ];
@@ -2420,7 +2418,7 @@ function switchToVideo(index) {
                 try {
                     console.log('Плейлист успешно загружен');
                     if (tvStatic) {
-                        setTimeout(() => {
+    setTimeout(() => {
                             tvStatic.classList.remove('active');
                             tvPlayer.classList.add('loaded');
                         }, 500);
@@ -2460,15 +2458,15 @@ function switchToVideo(index) {
             loadPlaylist();
         } else {
             // Обычное видео
-            // Используем wrapped и другие сервисы для обхода блокировки в России
+            // Используем альтернативные сервисы для обхода блокировки в России
             const embedUrls = [
-                `https://yt.artemislena.eu/embed/${video.id}`,
-                `https://yt.artemislena.eu/watch?v=${video.id}`,
                 `https://invidious.io/embed/${video.id}`,
                 `https://yewtu.be/embed/${video.id}`,
                 `https://invidious.flokinet.to/embed/${video.id}`,
+                `https://invidious.privacyredirect.com/embed/${video.id}`,
                 `https://piped.data/video/embed/${video.id}`,
                 `https://piped.kavin.rocks/embed/${video.id}`,
+                `https://piped.mha.fi/embed/${video.id}`,
                 `https://www.youtube-nocookie.com/embed/${video.id}?rel=0&modestbranding=1`
             ];
             

@@ -1122,9 +1122,9 @@ function loadDataFromJSON(url, processor, logPrefix = 'Данные', logInterva
                 const docsIndex = pathname.indexOf('/docs/');
                 basePath = pathname.substring(0, docsIndex + 5); // +5 для включения '/docs'
             } else if (pathname.includes('/47Chromosome/')) {
-                // Если путь содержит /47Chromosome/, добавляем /docs/
-                const repoIndex = pathname.indexOf('/47Chromosome/');
-                basePath = pathname.substring(0, repoIndex) + '/47Chromosome/docs';
+                // Если путь содержит /47Chromosome/, но нет /docs/, добавляем /docs/
+                // Например: /47Chromosome/index-old.html -> /47Chromosome/docs
+                basePath = '/47Chromosome/docs';
             } else {
                 // Если нет /docs/ и нет /47Chromosome/, добавляем /47Chromosome/docs
                 basePath = '/47Chromosome/docs';

@@ -1169,7 +1169,9 @@ function loadDataFromJSON(url, processor, logPrefix = 'Данные', logInterva
                     const altUrls = [
                         `/47Chromosome/docs/${url}`,
                         `./docs/${url}`,
-                        `./${url}`
+                        `./${url}`,
+                        // Используем raw.githubusercontent.com как последний вариант
+                        `https://raw.githubusercontent.com/Yanis2002/47Chromosome/main/docs/${url}`
                     ];
                     console.log(`${logPrefix}: пробуем альтернативные пути:`, altUrls);
                     
@@ -1180,10 +1182,10 @@ function loadDataFromJSON(url, processor, logPrefix = 'Данные', logInterva
                             console.log(`${logPrefix}: пробуем:`, altUrl);
                             return fetch(altUrl).then(altResponse => {
                                 if (altResponse.ok) {
-                                    console.log(`${logPrefix}: альтернативный путь сработал!`, altUrl);
+                                    console.log(`${logPrefix}: ✓ альтернативный путь сработал!`, altUrl);
                                     return altResponse.json();
                                 }
-                                throw new Error(`Не найден: ${altUrl}`);
+                                throw new Error(`Не найден: ${altUrl} (статус: ${altResponse.status})`);
                             });
                         });
                     }

@@ -470,7 +470,8 @@ function initWinampPlayer() {
                     winampAnalyser.connect(winampAudioContext.destination);
                 }
             } catch (e) {
-                console.log('AudioContext не поддерживается:', e);
+                // AudioContext не поддерживается - это нормально для некоторых браузеров
+                // Не выводим сообщение, так как это не критичная ошибка
             }
         }
         
@@ -2467,7 +2468,8 @@ function switchToVideo(index) {
                 
                 const onError = () => {
                     cleanup();
-                    console.warn(`Ошибка загрузки плейлиста (попытка ${currentEmbedIndex + 1}/${maxAttempts})`);
+                    // Тихо переключаемся на следующий инстанс без предупреждений
+                    // Предупреждение выведем только если все инстансы исчерпаны
                     tvPlayer.removeEventListener('load', onLoad);
                     tvPlayer.removeEventListener('error', onError);
                     
@@ -2475,7 +2477,7 @@ function switchToVideo(index) {
                 if (currentEmbedIndex < embedUrls.length) {
                     setTimeout(loadPlaylist, 1000);
                     } else {
-                        console.error('Не удалось загрузить плейлист');
+                        console.error('Не удалось загрузить плейлист: все инстансы недоступны');
                         if (tvStatic) {
                             tvStatic.classList.add('active');
                         }
@@ -2564,7 +2566,8 @@ function switchToVideo(index) {
                 
                 const onError = () => {
                     cleanup();
-                    console.warn(`Ошибка загрузки видео (попытка ${currentEmbedIndex + 1}/${embedUrls.length})`);
+                    // Тихо переключаемся на следующий инстанс без предупреждений
+                    // Предупреждение выведем только если все инстансы исчерпаны
                     tvPlayer.removeEventListener('load', onLoad);
                     tvPlayer.removeEventListener('error', onError);
                     
@@ -2572,7 +2575,7 @@ function switchToVideo(index) {
                     if (currentEmbedIndex < embedUrls.length) {
                         setTimeout(loadVideo, 1000);
                     } else {
-                        console.error('Не удалось загрузить видео');
+                        console.error('Не удалось загрузить видео: все инстансы недоступны');
                         if (tvStatic) {
                             tvStatic.classList.add('active');
                         }

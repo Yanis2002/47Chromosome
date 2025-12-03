@@ -3071,8 +3071,8 @@ function loadPhotosData(photoGallery) {
                         const docsIndex = pathname.indexOf('/docs/');
                         basePath = pathname.substring(0, docsIndex + 5); // +5 для '/docs'
                     } else if (pathname.includes('/47Chromosome/')) {
-                        const repoIndex = pathname.indexOf('/47Chromosome/');
-                        basePath = pathname.substring(0, repoIndex) + '/47Chromosome/docs';
+                        // Если путь содержит /47Chromosome/, но нет /docs/, используем /47Chromosome/docs
+                        basePath = '/47Chromosome/docs';
                     } else {
                         basePath = '/47Chromosome/docs';
                     }

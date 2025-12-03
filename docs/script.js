@@ -2057,21 +2057,25 @@ function addYouTubeVideo(videoId, title, thumbnail) {
     const item = document.createElement('div');
     item.className = 'youtube-item';
     
-    // Используем публичные инстансы Invidious для обхода блокировки в России (официальный список)
+    // Используем расширенный список зеркал YouTube для обхода блокировки в России
     const embedUrls = [
-        // Публичные инстансы Invidious (официальный список)
+        // Официальные публичные инстансы Invidious
         `https://yewtu.be/embed/${videoId}`,
         `https://inv.nadeko.net/embed/${videoId}`,
         `https://invidious.f5.si/embed/${videoId}`,
         `https://invidious.nerdvpn.de/embed/${videoId}`,
         `https://inv.perditum.com/embed/${videoId}`,
-        // Другие Invidious инстансы
+        // Дополнительные Invidious инстансы
         `https://invidious.io/embed/${videoId}`,
         `https://invidious.flokinet.to/embed/${videoId}`,
-        // Piped инстансы
+        `https://invidious.privacyredirect.com/embed/${videoId}`,
+        `https://invidious.osi.kr/embed/${videoId}`,
+        `https://invidious.slipfox.xyz/embed/${videoId}`,
+        // Piped инстансы (альтернатива Invidious)
         `https://piped.data/video/embed/${videoId}`,
         `https://piped.kavin.rocks/embed/${videoId}`,
         `https://piped.mha.fi/embed/${videoId}`,
+        `https://piped.privacyredirect.com/embed/${videoId}`,
         // Прямые YouTube embed (последний вариант)
         `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1`,
         `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`
@@ -2388,16 +2392,27 @@ function switchToVideo(index) {
         
         // Если это плейлист, используем специальный URL
         if (video.isPlaylist) {
-            // Для плейлистов используем публичные инстансы Invidious (официальный список)
+            // Для плейлистов используем расширенный список зеркал YouTube (Invidious и альтернативы)
             const embedUrls = [
+                // Официальные публичные инстансы Invidious
                 `https://yewtu.be/embed/videoseries?list=${video.id}`,
                 `https://inv.nadeko.net/embed/videoseries?list=${video.id}`,
                 `https://invidious.f5.si/embed/videoseries?list=${video.id}`,
                 `https://invidious.nerdvpn.de/embed/videoseries?list=${video.id}`,
                 `https://inv.perditum.com/embed/videoseries?list=${video.id}`,
+                // Дополнительные Invidious инстансы
                 `https://invidious.io/embed/videoseries?list=${video.id}`,
+                `https://invidious.flokinet.to/embed/videoseries?list=${video.id}`,
+                `https://invidious.privacyredirect.com/embed/videoseries?list=${video.id}`,
+                `https://invidious.osi.kr/embed/videoseries?list=${video.id}`,
+                `https://invidious.slipfox.xyz/embed/videoseries?list=${video.id}`,
+                `https://invidious.nerdvpn.de/embed/videoseries?list=${video.id}`,
+                // Piped инстансы (альтернатива Invidious)
                 `https://piped.data/video/embed/videoseries?list=${video.id}`,
                 `https://piped.kavin.rocks/embed/videoseries?list=${video.id}`,
+                `https://piped.mha.fi/embed/videoseries?list=${video.id}`,
+                `https://piped.privacyredirect.com/embed/videoseries?list=${video.id}`,
+                // Прямые YouTube embed (последний вариант)
                 `https://www.youtube.com/embed/videoseries?list=${video.id}&rel=0&modestbranding=1`,
                 `https://www.youtube-nocookie.com/embed/videoseries?list=${video.id}&rel=0&modestbranding=1`
             ];
@@ -2464,18 +2479,26 @@ function switchToVideo(index) {
             loadPlaylist();
         } else {
             // Обычное видео
-            // Используем публичные инстансы Invidious для обхода блокировки в России (официальный список)
+            // Используем расширенный список зеркал YouTube для обхода блокировки в России
             const embedUrls = [
+                // Официальные публичные инстансы Invidious
                 `https://yewtu.be/embed/${video.id}`,
                 `https://inv.nadeko.net/embed/${video.id}`,
                 `https://invidious.f5.si/embed/${video.id}`,
                 `https://invidious.nerdvpn.de/embed/${video.id}`,
                 `https://inv.perditum.com/embed/${video.id}`,
+                // Дополнительные Invidious инстансы
                 `https://invidious.io/embed/${video.id}`,
                 `https://invidious.flokinet.to/embed/${video.id}`,
+                `https://invidious.privacyredirect.com/embed/${video.id}`,
+                `https://invidious.osi.kr/embed/${video.id}`,
+                `https://invidious.slipfox.xyz/embed/${video.id}`,
+                // Piped инстансы (альтернатива Invidious)
                 `https://piped.data/video/embed/${video.id}`,
                 `https://piped.kavin.rocks/embed/${video.id}`,
                 `https://piped.mha.fi/embed/${video.id}`,
+                `https://piped.privacyredirect.com/embed/${video.id}`,
+                // Прямые YouTube embed (последний вариант)
                 `https://www.youtube-nocookie.com/embed/${video.id}?rel=0&modestbranding=1`
             ];
             

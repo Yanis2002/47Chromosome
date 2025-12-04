@@ -219,6 +219,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Загрузка музыки...');
     loadLocalMusic();
             console.log('Музыка загружена');
+            // Инициализируем пагинацию для аудио
+            setTimeout(() => initPagination('audioList', 12), 500);
         } catch (e) {
             console.error('Ошибка загрузки музыки:', e);
         }
@@ -235,6 +237,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Загрузка фото...');
             loadLocalPhotos();
             console.log('Фото загружено');
+            // Инициализируем пагинацию для фото
+            setTimeout(() => initPagination('photoGallery', 12), 500);
         } catch (e) {
             console.error('Ошибка загрузки фото:', e);
         }
@@ -267,6 +271,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Загрузка ссылок...');
             loadLinks();
             console.log('Ссылки загружены');
+            // Инициализируем пагинацию для ссылок
+            setTimeout(() => initPagination('linksContent', 12), 500);
         } catch (e) {
             console.error('Ошибка загрузки ссылок:', e);
         }
@@ -275,6 +281,11 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Добавление демо контента...');
     addDemoContent();
             console.log('Демо контент добавлен');
+            // Инициализируем пагинацию для библиотеки
+            setTimeout(() => {
+                initLibraryAuthors();
+                initPagination('libraryContent', 10);
+            }, 500);
         } catch (e) {
             console.error('Ошибка добавления демо контента:', e);
         }

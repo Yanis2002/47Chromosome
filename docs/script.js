@@ -938,17 +938,152 @@ function updateTimeDisplay() {
 
 // Карточки контента
 function initContentCards() {
-    const contentCards = document.querySelectorAll('.content-card');
+    // Инициализация эффекта скролла для CV
+    initScrollReveal();
+}
+
+// Функция для интерактивного появления элементов при скролле
+function initScrollReveal() {
+    const cvSections = document.querySelectorAll('.cv-section');
+    const revealItems = document.querySelectorAll('.scroll-reveal-item');
     
-    contentCards.forEach(card => {
-        card.addEventListener('click', () => {
-            const section = card.getAttribute('data-section');
-            const navLink = document.querySelector(`.nav-link[href="#${section}"]`);
-            if (navLink) {
-                navLink.click();
+    if (cvSections.length === 0) return;
+    
+    let lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    let isScrollingDown = true;
+    
+    // Функция для проверки, видна ли секция на экране
+    function isSectionVisible(section) {
+        const rect = section.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        // Секция видна, если её верхняя часть выше нижней границы экрана
+        return rect.top < windowHeight + 200; // +200 для предзагрузки
+    }
+    
+    // При загрузке страницы показываем все секции, которые должны быть видны
+    function checkInitialVisibility() {
+        cvSections.forEach((section) => {
+            if (isSectionVisible(section)) {
+                section.classList.add('revealed');
             }
         });
+        
+        // Показываем элементы внутри видимых секций
+        revealItems.forEach((item) => {
+            const parentSection = item.closest('.cv-section');
+            const itemRect = item.getBoundingClientRect();
+            
+            // Если элемент виден на экране
+            if (itemRect.top < window.innerHeight + 100) {
+                // Если есть родительская секция, проверяем её видимость
+                if (parentSection) {
+                    const sectionRect = parentSection.getBoundingClientRect();
+                    if (sectionRect.top < window.innerHeight + 200) {
+                        parentSection.classList.add('revealed');
+                        item.classList.add('revealed');
+                    }
+                } else {
+                    // Если нет родительской секции, показываем элемент напрямую
+                    item.classList.add('revealed');
+                }
+            }
+        });
+    }
+    
+    // Проверяем при загрузке
+    setTimeout(checkInitialVisibility, 100);
+    
+    // Проверяем при изменении размера окна
+    window.addEventListener('resize', checkInitialVisibility);
+    
+    // Настройки Intersection Observer для секций
+    const sectionObserverOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+    };
+    
+    const sectionObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            isScrollingDown = scrollTop > lastScrollTop;
+            lastScrollTop = scrollTop;
+            
+            if (entry.isIntersecting) {
+                // Показываем секцию когда она попадает в область видимости
+                entry.target.classList.add('revealed');
+            } else {
+                // При скролле вверх - скрываем секцию только если она полностью выше видимой области
+                if (!isScrollingDown && entry.boundingClientRect.bottom < -200) {
+                    entry.target.classList.remove('revealed');
+                }
+            }
+        });
+    }, sectionObserverOptions);
+    
+    // Наблюдаем за всеми секциями CV
+    cvSections.forEach((section) => {
+        sectionObserver.observe(section);
     });
+    
+    // Настройки Intersection Observer для элементов внутри секций
+    const itemObserverOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const itemObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            const parentSection = entry.target.closest('.cv-section');
+            
+            if (entry.isIntersecting) {
+                // Показываем элемент если его родительская секция видна или если секция еще не загрузилась
+                if (parentSection) {
+                    // Если секция видна, показываем элемент
+                    if (parentSection.classList.contains('revealed')) {
+                        entry.target.classList.add('revealed');
+                    } else {
+                        // Если секция еще не видна, проверяем видимость секции
+                        const sectionRect = parentSection.getBoundingClientRect();
+                        if (sectionRect.top < window.innerHeight + 200) {
+                            parentSection.classList.add('revealed');
+                            entry.target.classList.add('revealed');
+                        }
+                    }
+                } else {
+                    // Если нет родительской секции, показываем элемент напрямую
+                    entry.target.classList.add('revealed');
+                }
+            } else {
+                // Скрываем элемент только при скролле вверх и если он выше видимой области
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                const isScrollingUp = scrollTop < lastScrollTop;
+                if (isScrollingUp && entry.boundingClientRect.bottom < -50) {
+                    entry.target.classList.remove('revealed');
+                }
+            }
+        });
+    }, itemObserverOptions);
+    
+    // Наблюдаем за элементами внутри секций
+    revealItems.forEach((item) => {
+        itemObserver.observe(item);
+    });
+    
+    // Отслеживаем направление скролла
+    window.addEventListener('scroll', () => {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        isScrollingDown = scrollTop > lastScrollTop;
+        lastScrollTop = scrollTop;
+    }, { passive: true });
+    
+    // Инициализация синхронизации вертикального скролла с горизонтальной прокруткой CV
+    initCVScrollSync();
+}
+
+// Функция для синхронизации вертикального скролла с анимацией появления блоков CV
+function initCVScrollSync() {
+    // Функция уже не нужна, так как используем стандартный scroll reveal
+    // Оставляем пустой для совместимости
 }
 
 // Плейсхолдеры для контента
@@ -1170,9 +1305,9 @@ function initPagination(containerId, itemsPerPage = 12) {
     
     container.appendChild(contentWrapper);
     
-    // Создаем пагинацию
+    // Создаем пагинацию - закрепляем в конце контейнера
     const pagination = document.createElement('div');
-    pagination.className = 'pagination';
+    pagination.className = 'pagination pagination-fixed';
     pagination.innerHTML = `
         <button class="pagination-btn pagination-prev" disabled>‹</button>
         <span class="pagination-info">
@@ -1181,21 +1316,61 @@ function initPagination(containerId, itemsPerPage = 12) {
         <button class="pagination-btn pagination-next" disabled>›</button>
     `;
     
-    container.appendChild(pagination);
+    // Определяем, является ли контейнер grid-контейнером
+    const isGridContainer = container.classList.contains('photo-gallery') || 
+                           container.classList.contains('video-grid') || 
+                           container.classList.contains('gallery-grid') ||
+                           container.id === 'photoGallery' ||
+                           container.id === 'videoGrid';
+    
+    // Для grid-контейнеров сохраняем grid-раскладку в contentWrapper
+    if (isGridContainer) {
+        const computedStyle = window.getComputedStyle(container);
+        contentWrapper.style.display = 'grid';
+        contentWrapper.style.gridTemplateColumns = computedStyle.gridTemplateColumns || 'repeat(auto-fill, minmax(120px, 1fr))';
+        contentWrapper.style.gap = computedStyle.gap || '10px';
+        contentWrapper.style.marginTop = computedStyle.marginTop || '30px';
+        contentWrapper.style.maxWidth = computedStyle.maxWidth || '100%';
+        
+        // Создаем обертку для grid и пагинации
+        const wrapper = document.createElement('div');
+        wrapper.style.display = 'flex';
+        wrapper.style.flexDirection = 'column';
+        wrapper.appendChild(contentWrapper);
+        wrapper.appendChild(pagination);
+        
+        // Очищаем контейнер и добавляем обертку
+        container.innerHTML = '';
+        container.appendChild(wrapper);
+    } else {
+        // Для не-grid контейнеров применяем flex
+        container.style.display = 'flex';
+        container.style.flexDirection = 'column';
+        container.style.minHeight = '100%';
+        container.appendChild(pagination);
+    }
     
     let currentPage = 1;
     let totalPages = 1;
     
+    // Получаем правильные элементы в зависимости от типа контейнера
+    const actualContentWrapper = isGridContainer && container.querySelector('.pagination-content')
+        ? container.querySelector('.pagination-content')
+        : contentWrapper;
+    const actualPagination = isGridContainer && container.querySelector('.pagination')
+        ? container.querySelector('.pagination')
+        : pagination;
+    
     function updatePagination() {
-        const items = contentWrapper.children;
+        const items = actualContentWrapper.children;
         const totalItems = items.length;
         totalPages = Math.ceil(totalItems / itemsPerPage);
         
         // Обновляем информацию
-        const currentSpan = pagination.querySelector('.pagination-current');
-        const totalSpan = pagination.querySelector('.pagination-total');
-        const prevBtn = pagination.querySelector('.pagination-prev');
-        const nextBtn = pagination.querySelector('.pagination-next');
+        const currentSpan = actualPagination.querySelector('.pagination-current');
+        const totalSpan = actualPagination.querySelector('.pagination-total');
+        const prevBtn = actualPagination.querySelector('.pagination-prev');
+        const nextBtn = actualPagination.querySelector('.pagination-next');
         
         if (currentSpan) currentSpan.textContent = currentPage;
         if (totalSpan) totalSpan.textContent = totalPages;
@@ -1218,8 +1393,8 @@ function initPagination(containerId, itemsPerPage = 12) {
     }
     
     // Обработчики кнопок
-    const prevBtn = pagination.querySelector('.pagination-prev');
-    const nextBtn = pagination.querySelector('.pagination-next');
+    const prevBtn = actualPagination.querySelector('.pagination-prev');
+    const nextBtn = actualPagination.querySelector('.pagination-next');
     
     if (prevBtn) {
         prevBtn.addEventListener('click', () => {
@@ -1246,7 +1421,7 @@ function initPagination(containerId, itemsPerPage = 12) {
         updatePagination();
     });
     
-    observer.observe(contentWrapper, { childList: true });
+    observer.observe(actualContentWrapper, { childList: true });
     
     // Инициализация
     updatePagination();

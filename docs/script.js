@@ -416,7 +416,130 @@ function initAudioPlayer() {
         playPauseBtn.textContent = '▶';
         isPlaying = false;
         progressBar.style.width = '0%';
+        // Автоматически переключаемся на следующий трек
+        playNextTrack();
     });
+    
+    // Кнопка предыдущего трека
+    const prevBtn = document.getElementById('prevBtn');
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            playPreviousTrack();
+            playSound('click');
+        });
+    }
+    
+    // Кнопка следующего трека
+    const nextBtn = document.getElementById('nextBtn');
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            playNextTrack();
+            playSound('click');
+        });
+    }
+    
+    // Кнопка закрытия плеера
+    const closePlayerBtn = document.getElementById('closePlayerBtn');
+    if (closePlayerBtn) {
+        closePlayerBtn.addEventListener('click', () => {
+            closeAudioPlayer();
+            playSound('click');
+        });
+    }
+}
+
+// Функция для воспроизведения следующего трека
+function playNextTrack() {
+    if (audioTracks.length === 0) return;
+    
+    if (isShuffleActive) {
+        // При перемешивании выбираем случайный трек
+        let nextIndex;
+        do {
+            nextIndex = Math.floor(Math.random() * audioTracks.length);
+        } while (nextIndex === currentTrackIndex && audioTracks.length > 1);
+        currentTrackIndex = nextIndex;
+    } else {
+        // Обычный порядок
+        currentTrackIndex = (currentTrackIndex + 1) % audioTracks.length;
+    }
+    
+    playTrackByIndex(currentTrackIndex);
+}
+
+// Функция для воспроизведения предыдущего трека
+function playPreviousTrack() {
+    if (audioTracks.length === 0) return;
+    
+    if (isShuffleActive) {
+        // При перемешивании выбираем случайный трек
+        let prevIndex;
+        do {
+            prevIndex = Math.floor(Math.random() * audioTracks.length);
+        } while (prevIndex === currentTrackIndex && audioTracks.length > 1);
+        currentTrackIndex = prevIndex;
+    } else {
+        // Обычный порядок
+        currentTrackIndex = (currentTrackIndex - 1 + audioTracks.length) % audioTracks.length;
+    }
+    
+    playTrackByIndex(currentTrackIndex);
+}
+
+// Функция для воспроизведения трека по индексу
+function playTrackByIndex(index) {
+    if (index < 0 || index >= audioTracks.length) return;
+    
+    const track = audioTracks[index];
+    const audioElement = document.getElementById('audioElement');
+    const playerTitle = document.getElementById('playerTitle');
+    const audioPlayer = document.getElementById('audioPlayer');
+    
+    if (track && audioElement) {
+        audioElement.src = track.src;
+        if (playerTitle) {
+            playerTitle.textContent = track.title || 'Неизвестный трек';
+        }
+        
+        audioElement.load();
+        audioElement.play().then(() => {
+            isPlaying = true;
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            if (playPauseBtn) {
+                playPauseBtn.textContent = '⏸';
+            }
+        }).catch(err => {
+            console.error('Ошибка воспроизведения:', err);
+        });
+        
+        if (audioPlayer) {
+            audioPlayer.classList.add('active');
+        }
+        
+        currentTrackIndex = index;
+    }
+}
+
+// Функция для закрытия аудио плеера
+function closeAudioPlayer() {
+    const audioElement = document.getElementById('audioElement');
+    const audioPlayer = document.getElementById('audioPlayer');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    
+    if (audioElement) {
+        audioElement.pause();
+        audioElement.currentTime = 0;
+    }
+    
+    if (audioPlayer) {
+        audioPlayer.classList.remove('active');
+    }
+    
+    if (playPauseBtn) {
+        playPauseBtn.textContent = '▶';
+    }
+    
+    isPlaying = false;
 }
 
 // Winamp-стиль плеер
@@ -1014,6 +1137,104 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// Универсальная функция пагинации
+function initPagination(containerId, itemsPerPage = 12) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    // Создаем обертку для контента
+    const contentWrapper = document.createElement('div');
+    contentWrapper.className = 'pagination-content';
+    
+    // Перемещаем существующие элементы в обертку
+    while (container.firstChild) {
+        contentWrapper.appendChild(container.firstChild);
+    }
+    
+    container.appendChild(contentWrapper);
+    
+    // Создаем пагинацию
+    const pagination = document.createElement('div');
+    pagination.className = 'pagination';
+    pagination.innerHTML = `
+        <button class="pagination-btn pagination-prev" disabled>‹</button>
+        <span class="pagination-info">
+            <span class="pagination-current">1</span> / <span class="pagination-total">1</span>
+        </span>
+        <button class="pagination-btn pagination-next" disabled>›</button>
+    `;
+    
+    container.appendChild(pagination);
+    
+    let currentPage = 1;
+    let totalPages = 1;
+    
+    function updatePagination() {
+        const items = contentWrapper.children;
+        const totalItems = items.length;
+        totalPages = Math.ceil(totalItems / itemsPerPage);
+        
+        // Обновляем информацию
+        const currentSpan = pagination.querySelector('.pagination-current');
+        const totalSpan = pagination.querySelector('.pagination-total');
+        const prevBtn = pagination.querySelector('.pagination-prev');
+        const nextBtn = pagination.querySelector('.pagination-next');
+        
+        if (currentSpan) currentSpan.textContent = currentPage;
+        if (totalSpan) totalSpan.textContent = totalPages;
+        
+        // Обновляем кнопки
+        if (prevBtn) prevBtn.disabled = currentPage === 1;
+        if (nextBtn) nextBtn.disabled = currentPage === totalPages || totalPages === 0;
+        
+        // Показываем/скрываем элементы
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        
+        for (let i = 0; i < items.length; i++) {
+            if (i >= start && i < end) {
+                items[i].style.display = '';
+            } else {
+                items[i].style.display = 'none';
+            }
+        }
+    }
+    
+    // Обработчики кнопок
+    const prevBtn = pagination.querySelector('.pagination-prev');
+    const nextBtn = pagination.querySelector('.pagination-next');
+    
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                updatePagination();
+                playSound('click');
+            }
+        });
+    }
+    
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                updatePagination();
+                playSound('click');
+            }
+        });
+    }
+    
+    // Наблюдатель за изменениями в контейнере
+    const observer = new MutationObserver(() => {
+        updatePagination();
+    });
+    
+    observer.observe(contentWrapper, { childList: true });
+    
+    // Инициализация
+    updatePagination();
+}
+
 // ============================================
 // УНИВЕРСАЛЬНЫЕ ФУНКЦИИ ДЛЯ АВТОМАТИЗАЦИИ
 // ============================================
@@ -1379,32 +1600,112 @@ function addPhoto(src, alt) {
     photoGallery.appendChild(item);
 }
 
-function addLibraryItem(title, description, link) {
+// Хранилище библиотеки по авторам
+const libraryByAuthors = {
+    'Платон': [],
+    'Лавкрафт': [],
+    'Толстой': [],
+    'Ницше': []
+};
+
+let libraryInitialized = false;
+
+// Инициализация библиотеки с авторами
+function initLibraryAuthors() {
     const libraryContent = document.getElementById('libraryContent');
     if (!libraryContent) return;
     
-    // Удаляем placeholder если он есть
+    if (libraryInitialized) return;
+    libraryInitialized = true;
+    
+    // Очищаем содержимое
     const placeholder = libraryContent.querySelector('.placeholder');
     if (placeholder) {
         libraryContent.innerHTML = '';
     }
     
-    const item = document.createElement('div');
-    item.className = 'library-item';
-    item.innerHTML = `
-        <h3>${title}</h3>
-        <p>${description}</p>
-        ${link ? `<a href="${link}" target="_blank" class="library-link">Открыть →</a>` : ''}
-    `;
-    
-    // Добавляем обработчик клика
-    item.addEventListener('click', (e) => {
-        if (!e.target.classList.contains('library-link')) {
+    // Создаем секции для каждого автора
+    Object.keys(libraryByAuthors).forEach(author => {
+        const section = document.createElement('div');
+        section.className = 'library-author-section';
+        
+        const header = document.createElement('div');
+        header.className = 'library-author-header';
+        header.innerHTML = `
+            <h3 class="library-author-name">${author}</h3>
+            <span class="library-author-toggle">▶</span>
+        `;
+        
+        const content = document.createElement('div');
+        content.className = 'library-author-content';
+        const list = document.createElement('ul');
+        list.className = 'library-items-list';
+        content.appendChild(list);
+        
+        // Обработчик клика для открытия/закрытия
+        header.addEventListener('click', () => {
+            header.classList.toggle('active');
+            content.classList.toggle('active');
             playSound('click');
-        }
+        });
+        
+        section.appendChild(header);
+        section.appendChild(content);
+        libraryContent.appendChild(section);
+        
+        // Сохраняем ссылку на список для этого автора
+        libraryByAuthors[author]._listElement = list;
     });
+}
+
+function addLibraryItem(title, description, link, author = null) {
+    // Если автор не указан, пробуем определить по названию или используем первого доступного
+    if (!author) {
+        // Можно добавить логику определения автора по названию
+        author = 'Платон'; // По умолчанию
+    }
     
-    libraryContent.appendChild(item);
+    // Если автор не существует, добавляем его
+    if (!libraryByAuthors[author]) {
+        libraryByAuthors[author] = [];
+    }
+    
+    // Инициализируем библиотеку если еще не инициализирована
+    const libraryContent = document.getElementById('libraryContent');
+    if (libraryContent && !libraryInitialized) {
+        initLibraryAuthors();
+    }
+    
+    // Находим список для этого автора
+    let listElement = libraryByAuthors[author]._listElement;
+    if (!listElement && libraryContent) {
+        // Если список еще не создан, инициализируем библиотеку
+        initLibraryAuthors();
+        listElement = libraryByAuthors[author]._listElement;
+    }
+    
+    if (!listElement) return;
+    
+    const item = document.createElement('li');
+    item.className = 'library-item';
+    
+    // Если есть ссылка, делаем заголовок ссылкой
+    if (link) {
+        item.innerHTML = `
+            <h3><a href="${link}" target="_blank">${escapeHtml(title)}</a></h3>
+            <p>${escapeHtml(description || '')}</p>
+        `;
+    } else {
+        item.innerHTML = `
+            <h3>${escapeHtml(title)}</h3>
+            <p>${escapeHtml(description || '')}</p>
+        `;
+    }
+    
+    listElement.appendChild(item);
+    
+    // Сохраняем элемент в массив автора
+    libraryByAuthors[author].push({ title, description, link, element: item });
 }
 
 // Модальные окна для просмотра изображений и видео
@@ -2926,10 +3227,12 @@ function addDemoContent() {
         //     addPhoto(item.src, item.alt);
         // });
 
-        // Библиотека - примеры
-        addLibraryItem('Материал 1', 'Описание первого материала', 'https://example.com');
-        addLibraryItem('Материал 2', 'Описание второго материала', null);
-        addLibraryItem('Материал 3', 'Описание третьего материала', 'https://example.com');
+        // Библиотека - примеры (инициализируем библиотеку)
+        initLibraryAuthors();
+        addLibraryItem('Государство', 'Диалог о справедливости и идеальном государстве', 'https://example.com', 'Платон');
+        addLibraryItem('Зов Ктулху', 'Рассказ о древних богах', 'https://example.com', 'Лавкрафт');
+        addLibraryItem('Война и мир', 'Роман-эпопея о войне 1812 года', 'https://example.com', 'Толстой');
+        addLibraryItem('Так говорил Заратустра', 'Философский роман о сверхчеловеке', 'https://example.com', 'Ницше');
         
         // Пример YouTube видео (закомментируйте если не нужно)
         // addYouTubeVideo('dQw4w9WgXcQ', 'Пример YouTube видео');

@@ -28,13 +28,13 @@
                 <span class="glitch-text layers" data-text="47Chromosome"><span>47Chromosome</span></span>
             </div>
             <ul class="nav-menu">
-                <li><a href="#home" class="nav-link active">Home</a></li>
-                <li><a href="#audio" class="nav-link">Аудио</a></li>
-                <li><a href="#video" class="nav-link">Видео</a></li>
-                <li><a href="#photo" class="nav-link">Фото</a></li>
-                <li><a href="#library" class="nav-link">Библиотека</a></li>
-                <li><a href="#links" class="nav-link">Ссылки</a></li>
-                <li><a href="#shop" class="nav-link">Магазин</a></li>
+                <li><a href="#home" class="nav-link active"><span class="nav-icon">🏠</span> Home</a></li>
+                <li><a href="#audio" class="nav-link"><span class="nav-icon">🎵</span> Аудио</a></li>
+                <li><a href="#video" class="nav-link"><span class="nav-icon">🎬</span> Видео</a></li>
+                <li><a href="#photo" class="nav-link"><span class="nav-icon">📷</span> Фото</a></li>
+                <li><a href="#library" class="nav-link"><span class="nav-icon">📚</span> Библиотека</a></li>
+                <li><a href="#links" class="nav-link"><span class="nav-icon">🔗</span> Ссылки</a></li>
+                <li><a href="#shop" class="nav-link"><span class="nav-icon">🛒</span> Магазин</a></li>
             </ul>
             <button class="sound-toggle" id="soundToggle">🔊</button>
         </nav>
@@ -295,14 +295,27 @@
                             <!-- Баннеры будут загружены через JS -->
                         </div>
                         <div class="footer-center">
-                            <img src="./data/photo/Parental_Advisory_label.svg.png" alt="Parental Advisory" class="footer-advisory">
+                            <img src="data/photo/Parental_Advisory_label.svg.png" alt="Parental Advisory" class="footer-advisory">
                             <div class="footer-info">
                                 <p>&copy; 2024 47Chromosome. Все права защищены.</p>
                                 <p class="footer-phone">Телефон: <a href="tel:+79180401244">+7 (918) 040-12-44</a></p>
                             </div>
                         </div>
                         <div class="footer-left">
-                            <!-- Пустое место для баланса -->
+                            <div class="footer-links">
+                                <a href="https://t.me/GOYTRADE" target="_blank" class="footer-link">
+                                    <span class="footer-link-icon">📱</span>
+                                    <span class="footer-link-text">GOYTRADE</span>
+                                </a>
+                                <a href="https://pulse-390031593512.europe-north1.run.app" target="_blank" class="footer-link">
+                                    <span class="footer-link-icon">⚡</span>
+                                    <span class="footer-link-text">Pulse</span>
+                                </a>
+                                <a href="https://t.me/Chromosome47s" target="_blank" class="footer-link">
+                                    <span class="footer-link-icon">💬</span>
+                                    <span class="footer-link-text">Chromosome47s</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </footer>
@@ -311,7 +324,9 @@
     <!-- Аудио плеер -->
     <div class="audio-player" id="audioPlayer">
         <div class="player-controls">
-            <button class="player-btn" id="playPauseBtn">▶</button>
+            <button class="player-btn" id="prevBtn" title="Предыдущий трек">⏮</button>
+            <button class="player-btn" id="playPauseBtn" title="Воспроизвести/Пауза">▶</button>
+            <button class="player-btn" id="nextBtn" title="Следующий трек">⏭</button>
             <div class="player-info">
                 <div class="player-title" id="playerTitle">Выберите трек</div>
                 <div class="player-progress">
@@ -321,8 +336,9 @@
             <div class="player-time">
                 <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
             </div>
-            <button class="player-btn" id="volumeBtn">🔊</button>
+            <button class="player-btn" id="volumeBtn" title="Громкость">🔊</button>
             <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="50">
+            <button class="player-btn" id="closePlayerBtn" title="Закрыть">✕</button>
         </div>
         <audio id="audioElement" preload="metadata"></audio>
     </div>

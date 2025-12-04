@@ -3040,6 +3040,60 @@ body {
     .cv-experience__date {
         min-width: auto;
     }
+    
+    /* Мобильная навигация */
+    .main-nav {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px 10px;
+    }
+    
+    .nav-logo {
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        transform: rotate(180deg);
+        font-size: 1.5rem;
+        padding-left: 0;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+        height: auto;
+        width: auto;
+        align-self: flex-start;
+    }
+    
+    .nav-logo .glitch-text {
+        display: block;
+    }
+    
+    .nav-menu {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        order: 2;
+    }
+    
+    .nav-menu li {
+        list-style: none;
+        margin: 0;
+    }
+    
+    .nav-link {
+        padding: 8px 5px;
+        font-size: 0.9rem;
+        justify-content: center;
+        text-align: center;
+    }
+    
+    .sound-toggle {
+        order: 3;
+        align-self: flex-end;
+        margin-top: 10px;
+        padding: 8px 12px;
+        font-size: 1rem;
+    }
 }
 
 /* Плейсхолдеры для контента */

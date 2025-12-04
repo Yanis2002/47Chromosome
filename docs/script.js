@@ -1112,15 +1112,21 @@ function addLink(url, title, description) {
     
     const item = document.createElement('div');
     item.className = 'library-item';
+    
+    // Делаем заголовок активной ссылкой
     item.innerHTML = `
-        <h3>${title || 'Ссылка'}</h3>
-        <p>${description || ''}</p>
-        <a href="${url}" target="_blank" class="library-link">Открыть →</a>
+        <h3><a href="${url}" target="_blank">${escapeHtml(title || 'Ссылка')}</a></h3>
+        <p>${escapeHtml(description || '')}</p>
     `;
     
-    // Добавляем обработчик клика
+    // Добавляем обработчик клика для всего элемента
+    item.style.cursor = 'pointer';
     item.addEventListener('click', (e) => {
-        if (!e.target.classList.contains('library-link')) {
+        // Если клик не по ссылке, открываем ссылку
+        if (e.target.tagName !== 'A' && e.target.tagName !== 'H3') {
+            window.open(url, '_blank');
+            playSound('click');
+        } else if (e.target.tagName === 'A' || e.target.closest('a')) {
             playSound('click');
         }
     });

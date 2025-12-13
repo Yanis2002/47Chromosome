@@ -1058,8 +1058,8 @@ body {
 .video-grid,
 .photo-gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
     margin-top: 30px;
     max-width: 100%;
 }
@@ -2999,11 +2999,11 @@ body {
         padding: 10px;
     }
     
-    /* Уменьшение размеров картинок */
+    /* Размеры картинок для мобильных устройств */
     .gallery-grid,
     .video-grid,
     .photo-gallery {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         gap: 10px;
     }
     

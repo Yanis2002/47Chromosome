@@ -285,6 +285,8 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 initLibraryAuthors();
                 initPagination('libraryContent', 10);
+                // Обновляем существующие ссылки на example.com
+                updateExistingBookLinks();
             }, 500);
         } catch (e) {
             console.error('Ошибка добавления демо контента:', e);
@@ -1850,6 +1852,41 @@ function initLibraryAuthors() {
     });
 }
 
+// Функция для генерации ссылки на поиск книг в fbsearch.ru
+function generateBookSearchLink(bookTitle) {
+    const encodedTitle = encodeURIComponent(bookTitle);
+    return `http://fbsearch.ru/search.php?q=${encodedTitle}&field=text&sort=&minSize=&modified=&minRate=&includeSite%5B%5D=fanfics.me&includeSite%5B%5D=ficbook.net&includeSite%5B%5D=flibusta.net&includeSite%5B%5D=samlib.ru&searchCheckHosts=fanfics.me%2Cficbook.net%2Cflibusta.net%2Csamlib.ru`;
+}
+
+// Функция для обновления всех существующих ссылок на example.com в библиотеке
+function updateExistingBookLinks() {
+    const libraryContent = document.getElementById('libraryContent');
+    if (!libraryContent) return;
+    
+    // Находим все ссылки в библиотеке
+    const links = libraryContent.querySelectorAll('.library-item a');
+    links.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && (
+            href === 'https://example.com' || 
+            href === 'http://example.com' ||
+            href === 'https://www.example.com' ||
+            href === 'http://www.example.com' ||
+            href.toLowerCase().includes('example.com') ||
+            href === '#' ||
+            href === ''
+        )) {
+            // Получаем название книги из текста ссылки
+            const bookTitle = link.textContent.trim();
+            if (bookTitle) {
+                const newLink = generateBookSearchLink(bookTitle);
+                link.setAttribute('href', newLink);
+                console.log(`Обновлена ссылка для книги "${bookTitle}"`);
+            }
+        }
+    });
+}
+
 function addLibraryItem(title, description, link, author = null) {
     // Если автор не указан, пробуем определить по названию или используем первого доступного
     if (!author) {
@@ -1878,21 +1915,28 @@ function addLibraryItem(title, description, link, author = null) {
     
     if (!listElement) return;
     
+    // Если ссылка пустая, является example.com или "вникуда", генерируем ссылку на поиск
+    if (!link || 
+        link === 'https://example.com' || 
+        link === 'http://example.com' || 
+        link === 'https://www.example.com' ||
+        link === 'http://www.example.com' ||
+        (typeof link === 'string' && link.toLowerCase().includes('example.com')) || 
+        link === '#' || 
+        link === '' ||
+        link === null ||
+        link === undefined) {
+        link = generateBookSearchLink(title);
+    }
+    
     const item = document.createElement('li');
     item.className = 'library-item';
     
-    // Если есть ссылка, делаем заголовок ссылкой
-    if (link) {
-        item.innerHTML = `
-            <h3><a href="${link}" target="_blank">${escapeHtml(title)}</a></h3>
-            <p>${escapeHtml(description || '')}</p>
-        `;
-    } else {
-        item.innerHTML = `
-            <h3>${escapeHtml(title)}</h3>
-            <p>${escapeHtml(description || '')}</p>
-        `;
-    }
+    // Всегда делаем заголовок ссылкой (теперь у нас всегда есть ссылка)
+    item.innerHTML = `
+        <h3><a href="${link}" target="_blank">${escapeHtml(title)}</a></h3>
+        <p>${escapeHtml(description || '')}</p>
+    `;
     
     listElement.appendChild(item);
     
@@ -2638,15 +2682,10 @@ async function preCheckYouTubeInstances() {
     const baseInstances = [
         'https://invidious.nerdvpn.de',
         'https://inv.perditum.com',
-        'https://invidious.io',
         'https://invidious.flokinet.to',
-        'https://invidious.privacyredirect.com',
-        'https://invidious.osi.kr',
         'https://invidious.slipfox.xyz',
         'https://nyc1.iv.ggtyler.dev',
         'https://cal1.iv.ggtyler.dev',
-        'https://pol1.iv.ggtyler.dev',
-        'https://piped.data',
         'https://piped.kavin.rocks',
         'https://piped.mha.fi'
     ];
@@ -2721,22 +2760,16 @@ function addYouTubeVideo(videoId, title, thumbnail) {
         // Официальные публичные инстансы Invidious (проверенные рабочие)
         `https://invidious.nerdvpn.de/embed/${videoId}`,
         `https://inv.perditum.com/embed/${videoId}`,
-        // Дополнительные Invidious инстансы
-        `https://invidious.io/embed/${videoId}`,
+        // Дополнительные Invidious инстансы (рабочие)
         `https://invidious.flokinet.to/embed/${videoId}`,
-        `https://invidious.privacyredirect.com/embed/${videoId}`,
-        `https://invidious.osi.kr/embed/${videoId}`,
         `https://invidious.slipfox.xyz/embed/${videoId}`,
         // Альтернативные инстансы (из сообщества)
         `https://nyc1.iv.ggtyler.dev/embed/${videoId}`,
         `https://cal1.iv.ggtyler.dev/embed/${videoId}`,
-        `https://pol1.iv.ggtyler.dev/embed/${videoId}`,
         // Piped инстансы (альтернатива Invidious)
-        `https://piped.data/video/embed/${videoId}`,
         `https://piped.kavin.rocks/embed/${videoId}`,
         `https://piped.mha.fi/embed/${videoId}`,
-        `https://piped.privacyredirect.com/embed/${videoId}`,
-        // Проблемные инстансы (могут быть недоступны)
+        // Проблемные инстансы (могут быть недоступны, пробуем в последнюю очередь)
         `https://invidious.f5.si/embed/${videoId}`, // ERR_QUIC_PROTOCOL_ERROR
         `https://inv.nadeko.net/embed/${videoId}`, // Может быть недоступен
         `https://yewtu.be/embed/${videoId}`, // Может быть недоступен
@@ -3088,22 +3121,16 @@ function switchToVideo(index) {
                 // Официальные публичные инстансы Invidious (проверенные рабочие)
                 `https://invidious.nerdvpn.de/embed/videoseries?list=${video.id}`,
                 `https://inv.perditum.com/embed/videoseries?list=${video.id}`,
-                // Дополнительные Invidious инстансы
-                `https://invidious.io/embed/videoseries?list=${video.id}`,
+                // Дополнительные Invidious инстансы (рабочие)
                 `https://invidious.flokinet.to/embed/videoseries?list=${video.id}`,
-                `https://invidious.privacyredirect.com/embed/videoseries?list=${video.id}`,
-                `https://invidious.osi.kr/embed/videoseries?list=${video.id}`,
                 `https://invidious.slipfox.xyz/embed/videoseries?list=${video.id}`,
                 // Альтернативные инстансы (из сообщества)
                 `https://nyc1.iv.ggtyler.dev/embed/videoseries?list=${video.id}`,
                 `https://cal1.iv.ggtyler.dev/embed/videoseries?list=${video.id}`,
-                `https://pol1.iv.ggtyler.dev/embed/videoseries?list=${video.id}`,
                 // Piped инстансы (альтернатива Invidious)
-                `https://piped.data/video/embed/videoseries?list=${video.id}`,
                 `https://piped.kavin.rocks/embed/videoseries?list=${video.id}`,
                 `https://piped.mha.fi/embed/videoseries?list=${video.id}`,
-                `https://piped.privacyredirect.com/embed/videoseries?list=${video.id}`,
-                // Проблемные инстансы (могут быть недоступны)
+                // Проблемные инстансы (могут быть недоступны, пробуем в последнюю очередь)
                 `https://invidious.f5.si/embed/videoseries?list=${video.id}`, // ERR_QUIC_PROTOCOL_ERROR
                 `https://inv.nadeko.net/embed/videoseries?list=${video.id}`, // Может быть недоступен
                 `https://yewtu.be/embed/videoseries?list=${video.id}`, // Может быть недоступен
@@ -3144,6 +3171,10 @@ function switchToVideo(index) {
                 if (currentEmbedIndex < embedUrls.length) {
                     console.log(`Загрузка плейлиста (попытка ${currentEmbedIndex + 1}/${maxAttempts}):`, embedUrls[currentEmbedIndex]);
                     tvPlayer.src = embedUrls[currentEmbedIndex];
+                    // Устанавливаем атрибут allow для корректной работы iframe
+                    if (!tvPlayer.hasAttribute('allow')) {
+                        tvPlayer.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+                    }
                     currentEmbedIndex++;
                     loadAttempts++;
                 } else {
@@ -3203,22 +3234,16 @@ function switchToVideo(index) {
                 // Официальные публичные инстансы Invidious (проверенные рабочие)
                 `https://invidious.nerdvpn.de/embed/${video.id}`,
                 `https://inv.perditum.com/embed/${video.id}`,
-                // Дополнительные Invidious инстансы
-                `https://invidious.io/embed/${video.id}`,
+                // Дополнительные Invidious инстансы (рабочие)
                 `https://invidious.flokinet.to/embed/${video.id}`,
-                `https://invidious.privacyredirect.com/embed/${video.id}`,
-                `https://invidious.osi.kr/embed/${video.id}`,
                 `https://invidious.slipfox.xyz/embed/${video.id}`,
                 // Альтернативные инстансы (из сообщества)
                 `https://nyc1.iv.ggtyler.dev/embed/${video.id}`,
                 `https://cal1.iv.ggtyler.dev/embed/${video.id}`,
-                `https://pol1.iv.ggtyler.dev/embed/${video.id}`,
                 // Piped инстансы (альтернатива Invidious)
-                `https://piped.data/video/embed/${video.id}`,
                 `https://piped.kavin.rocks/embed/${video.id}`,
                 `https://piped.mha.fi/embed/${video.id}`,
-                `https://piped.privacyredirect.com/embed/${video.id}`,
-                // Проблемные инстансы (могут быть недоступны)
+                // Проблемные инстансы (могут быть недоступны, пробуем в последнюю очередь)
                 `https://invidious.f5.si/embed/${video.id}`, // ERR_QUIC_PROTOCOL_ERROR
                 `https://inv.nadeko.net/embed/${video.id}`, // Может быть недоступен
                 `https://yewtu.be/embed/${video.id}`, // Может быть недоступен
@@ -3257,6 +3282,10 @@ function switchToVideo(index) {
                 try {
                     if (currentEmbedIndex < embedUrls.length) {
                         tvPlayer.src = embedUrls[currentEmbedIndex];
+                        // Устанавливаем атрибут allow для корректной работы iframe
+                        if (!tvPlayer.hasAttribute('allow')) {
+                            tvPlayer.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+                        }
                         currentEmbedIndex++;
                     }
                 } catch (e) {
@@ -3421,10 +3450,16 @@ function addDemoContent() {
 
         // Библиотека - примеры (инициализируем библиотеку)
         initLibraryAuthors();
-        addLibraryItem('Государство', 'Диалог о справедливости и идеальном государстве', 'https://example.com', 'Платон');
-        addLibraryItem('Зов Ктулху', 'Рассказ о древних богах', 'https://example.com', 'Лавкрафт');
-        addLibraryItem('Война и мир', 'Роман-эпопея о войне 1812 года', 'https://example.com', 'Толстой');
-        addLibraryItem('Так говорил Заратустра', 'Философский роман о сверхчеловеке', 'https://example.com', 'Ницше');
+        // Ссылки будут автоматически сгенерированы на основе названия книги
+        addLibraryItem('Государство', 'Диалог о справедливости и идеальном государстве', '', 'Платон');
+        addLibraryItem('Зов Ктулху', 'Рассказ о древних богах', '', 'Лавкрафт');
+        addLibraryItem('Война и мир', 'Роман-эпопея о войне 1812 года', '', 'Толстой');
+        addLibraryItem('Так говорил Заратустра', 'Философский роман о сверхчеловеке', '', 'Ницше');
+        
+        // Обновляем все существующие ссылки на example.com (на случай, если они уже были созданы)
+        setTimeout(() => {
+            updateExistingBookLinks();
+        }, 200);
         
         // Пример YouTube видео (закомментируйте если не нужно)
         // addYouTubeVideo('dQw4w9WgXcQ', 'Пример YouTube видео');
@@ -3439,4 +3474,6 @@ window.addPhoto = addPhoto;
 window.addLibraryItem = addLibraryItem;
 window.addYouTubeVideo = addYouTubeVideo;
 window.addYouTubeVideoByURL = addYouTubeVideoByURL;
+window.generateBookSearchLink = generateBookSearchLink;
+window.updateExistingBookLinks = updateExistingBookLinks;
 
